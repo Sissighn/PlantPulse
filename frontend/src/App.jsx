@@ -11,6 +11,8 @@ import {
   Server,
   Wind,
   AlertTriangle,
+  Zap,
+  Sparkles,
 } from "lucide-react";
 
 const BACKEND_URL = "http://localhost:3000/api";
@@ -49,9 +51,12 @@ const SeasonSelector = ({ currentSeason, onSeasonChange }) => {
   );
 };
 
-// --- KOMPONENTE: PFLANZEN KARTE ---
+// --- PFLANZEN KARTE (MIT KI TIPPS) ---
 const PlantCard = ({ plant, season, onWater, onDelete }) => {
-  // Logik für Gieß-Berechnung
+  const [tips, setTips] = useState(null);
+  const [loadingTips, setLoadingTips] = useState(false);
+
+  // Status Berechnung
   const status = useMemo(() => {
     const multipliers = { spring: 1.0, summer: 0.7, autumn: 1.2, winter: 2.0 };
     const multiplier = multipliers[season] || 1;
@@ -70,7 +75,27 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
     return { days: diff, overdue: diff < 0, today: diff === 0 };
   }, [plant, season]);
 
-  // Icons je nach Typ
+  // Funktion: KI Tipps holen
+  const fetchTips = async () => {
+    if (tips) {
+      setTips(null);
+      return;
+    } // Zuklappen wenn schon offen
+    setLoadingTips(true);
+    try {
+      const res = await fetch(
+        `${BACKEND_URL}/tips?name=${plant.name}&season=${season}`
+      );
+      const data = await res.json();
+      setTips(data.tips);
+    } catch (e) {
+      setTips("Konnte keine Tipps laden.");
+    } finally {
+      setLoadingTips(false);
+    }
+  };
+
+  // Icons
   const getIcon = (type) => {
     if (type === "cactus") return { emoji: "🌵", bg: "bg-emerald-100" };
     if (type === "flower") return { emoji: "🌸", bg: "bg-pink-100" };
@@ -79,7 +104,7 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
   };
   const visual = getIcon(plant.type);
 
-  // Status Farben
+  // Farben für Status
   let badgeStyle = "bg-green-50 text-green-700 border-green-200";
   let badgeText = `In ${status.days} Tagen`;
   if (status.overdue) {
@@ -121,31 +146,56 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
         </button>
       </div>
 
-      <div className="mt-4 flex justify-between items-center pl-1">
-        <span className="text-xs text-slate-400 font-medium">
-          Intervall: {plant.baseInterval} Tage
-        </span>
+      <div className="mt-4 flex justify-between items-center pl-1 gap-2">
+        <div className="flex flex-col text-xs text-slate-400 font-medium">
+          <span>Intervall: {plant.baseInterval} Tage</span>
+
+          {/* KI TIPPS BUTTON */}
+          <button
+            onClick={fetchTips}
+            className="mt-1 flex items-center gap-1 text-amber-500 hover:text-amber-600 transition-colors"
+          >
+            {loadingTips ? (
+              <Loader2 size={12} className="animate-spin" />
+            ) : (
+              <Zap size={12} />
+            )}
+            {tips ? "Tipps verbergen" : "KI-Tipps"}
+          </button>
+        </div>
+
         <button
           onClick={() => onWater(plant.id)}
-          className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-2.5 rounded-xl hover:bg-emerald-700 active:scale-95 transition-all shadow-lg shadow-emerald-200"
+          className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-xl hover:bg-emerald-700 active:scale-95 transition-all shadow-lg shadow-emerald-200"
         >
           <Droplet size={16} className="fill-current" />
           Gießen
         </button>
       </div>
+
+      {/* ANZEIGE DER KI TIPPS */}
+      {tips && (
+        <div className="mt-4 bg-amber-50 border border-amber-100 p-3 rounded-xl text-sm text-slate-700 animate-in slide-in-from-top-2">
+          <div className="flex items-center gap-2 font-bold text-amber-700 mb-1">
+            <Sparkles size={14} /> Gemini Ratgeber:
+          </div>
+          {tips}
+        </div>
+      )}
     </div>
   );
 };
 
-// --- KOMPONENTE: PFLANZE HINZUFÜGEN ---
-const AddPlantForm = ({ onAdd, onCancel }) => {
+// --- NEUE PFLANZE (MIT KI VORSCHLAG) ---
+const AddPlantForm = ({ onAdd, onCancel, isSaving }) => {
   const [name, setName] = useState("");
   const [type, setType] = useState("leaf");
-  const [days, setDays] = useState(7);
+  const [days, setDays] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onAdd(name, type, days);
+    // Wenn days leer ist, senden wir null -> Backend fragt Gemini
+    onAdd(name, type, days ? parseInt(days) : null);
   };
 
   return (
@@ -155,7 +205,7 @@ const AddPlantForm = ({ onAdd, onCancel }) => {
         <input
           autoFocus
           type="text"
-          placeholder="Name (z.B. Ficus)"
+          placeholder="Name (z.B. Monstera)"
           className="w-full p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none"
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -172,16 +222,26 @@ const AddPlantForm = ({ onAdd, onCancel }) => {
             <option value="palm">Palme</option>
             <option value="flower">Blume</option>
           </select>
-          <input
-            type="number"
-            min="1"
-            placeholder="Tage"
-            className="w-full p-3 rounded-xl border border-slate-200"
-            value={days}
-            onChange={(e) => setDays(e.target.value)}
-            required
-          />
+          <div className="relative">
+            <input
+              type="number"
+              min="1"
+              placeholder="Auto (KI)"
+              className="w-full p-3 rounded-xl border border-slate-200"
+              value={days}
+              onChange={(e) => setDays(e.target.value)}
+            />
+            {!days && (
+              <div className="absolute right-3 top-3.5 text-slate-400 pointer-events-none">
+                <Sparkles size={16} />
+              </div>
+            )}
+          </div>
         </div>
+        <p className="text-xs text-slate-400 px-1">
+          *Lass das Feld "Tage" leer, damit Gemini das ideale Intervall für dich
+          schätzt.
+        </p>
         <div className="flex gap-3">
           <button
             type="button"
@@ -192,9 +252,11 @@ const AddPlantForm = ({ onAdd, onCancel }) => {
           </button>
           <button
             type="submit"
-            className="flex-1 py-3 bg-emerald-600 text-white rounded-xl font-medium shadow-lg hover:bg-emerald-700"
+            disabled={isSaving}
+            className="flex-1 py-3 bg-emerald-600 text-white rounded-xl font-medium shadow-lg hover:bg-emerald-700 flex justify-center items-center gap-2"
           >
-            Speichern
+            {isSaving && <Loader2 className="animate-spin" size={18} />}
+            {isSaving ? "KI denkt..." : "Speichern"}
           </button>
         </div>
       </form>
@@ -207,10 +269,10 @@ const App = () => {
   const [season, setSeason] = useState("summer");
   const [plants, setPlants] = useState([]);
   const [isAdding, setIsAdding] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // 1. Laden
   const fetchPlants = async () => {
     try {
       const res = await fetch(`${BACKEND_URL}/plants`);
@@ -218,7 +280,7 @@ const App = () => {
       setPlants(data.plants);
       setError(null);
     } catch (e) {
-      setError("Backend nicht erreichbar");
+      setError("Backend Offline");
     } finally {
       setLoading(false);
     }
@@ -228,16 +290,22 @@ const App = () => {
     fetchPlants();
   }, []);
 
-  // 2. Aktionen (API Calls)
   const addPlant = async (name, type, interval) => {
-    const res = await fetch(`${BACKEND_URL}/plants`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, type, baseInterval: interval }),
-    });
-    if (res.ok) {
-      setIsAdding(false);
-      fetchPlants(); // Liste neu laden
+    setIsSaving(true);
+    try {
+      const res = await fetch(`${BACKEND_URL}/plants`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, type, baseInterval: interval }),
+      });
+      if (res.ok) {
+        setIsAdding(false);
+        fetchPlants();
+      }
+    } catch (e) {
+      alert("Fehler beim Speichern");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -253,14 +321,13 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans pb-32">
-      {/* Navbar */}
       <nav className="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-20">
         <div className="max-w-xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="bg-emerald-600 text-white p-2 rounded-lg">
               <Sprout size={20} />
             </div>
-            <h1 className="text-xl font-bold text-slate-800">Botanico</h1>
+            <h1 className="text-xl font-bold text-slate-800">PlantPulse</h1>
           </div>
           <div
             className={`text-xs px-3 py-1 rounded-full border flex items-center gap-2 ${
@@ -273,19 +340,12 @@ const App = () => {
       </nav>
 
       <main className="max-w-xl mx-auto px-6 py-8">
-        {/* Error / Loading */}
-        {error && (
-          <div className="bg-red-100 text-red-700 p-4 rounded-xl mb-4">
-            Fehler: Node.js Backend läuft nicht! (Port 3000)
-          </div>
-        )}
         {loading && (
           <div className="text-center p-10 text-slate-400">
             <Loader2 className="animate-spin inline" /> Lade...
           </div>
         )}
 
-        {/* Content */}
         {!loading && !error && (
           <>
             <SeasonSelector currentSeason={season} onSeasonChange={setSeason} />
@@ -305,6 +365,7 @@ const App = () => {
                 <AddPlantForm
                   onAdd={addPlant}
                   onCancel={() => setIsAdding(false)}
+                  isSaving={isSaving}
                 />
               </div>
             )}
@@ -319,9 +380,6 @@ const App = () => {
                   onDelete={deletePlant}
                 />
               ))}
-              {plants.length === 0 && !isAdding && (
-                <p className="text-center text-slate-400">Keine Pflanzen da.</p>
-              )}
             </div>
           </>
         )}
