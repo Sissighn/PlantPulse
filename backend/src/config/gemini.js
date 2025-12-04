@@ -10,7 +10,7 @@ if (apiKey) {
   model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 } else {
   console.warn(
-    "⚠️  Warnung: Kein GEMINI_API_KEY gefunden. KI-Features sind deaktiviert."
+    "⚠️  Warning: No GEMINI_API_KEY found. AI features are disabled."
   );
 }
 
