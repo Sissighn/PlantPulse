@@ -26,22 +26,22 @@ function findBestImageFor(name, type) {
     const files = fs.readdirSync(imagesDir);
     const nName = normalizeString(name);
     const nType = normalizeString(type);
-    const map = new Map();
 
     // Create a map of normalized filenames to original filenames.
+    const map = new Map();
+
     for (const f of files) {
       if (f.startsWith(".")) continue;
       const base = path.parse(f).name;
       map.set(normalizeString(base), f);
     }
 
-    // Priorität: 1. Name, 2. Typ, 3. Ähnlichkeit
+    // Priority: 1. Name, 2. Type, 3. Similarity
     if (nName && map.has(nName)) return map.get(nName);
     if (nType && map.has(nType)) return map.get(nType);
     for (const [key, val] of map.entries()) {
       if (nName && key.includes(nName)) return val;
     }
-
     return null;
   } catch (e) {
     console.error("Error finding image:", e.message);
