@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
   Plus,
   Droplet,
@@ -12,9 +12,23 @@ import {
   AlertTriangle,
   Zap,
   Sparkles,
+  ChevronDown,
+  Check,
 } from "lucide-react";
 
 const BACKEND_URL = "http://localhost:3000/api";
+
+const PLANT_TYPES = [
+  { id: "monstra", label: "Monstera" },
+  { id: "anthurium", label: "Anthurium" },
+  { id: "orchid", label: "Orchidee" },
+  { id: "philodendronmccolleysfinale", label: "Philodendron" },
+  { id: "usambaraveilchen", label: "Usambara-Veilchen" },
+  { id: "yucca", label: "Yucca" },
+  { id: "kalanchoe", label: "Kalanchoe" },
+  { id: "peperomiaobtusifolia", label: "Peperomia Obtusifolia" },
+  { id: "peperomiarotundifolia", label: "Peperomia Rotundifolia" },
+];
 
 const SeasonSelector = ({ currentSeason, onSeasonChange }) => {
   const seasons = [
@@ -50,14 +64,12 @@ const SeasonSelector = ({ currentSeason, onSeasonChange }) => {
   );
 };
 
-// --- PFLANZEN KARTE (MIT BILDERN VOM SERVER) ---
 const PlantCard = ({ plant, season, onWater, onDelete }) => {
   const [tips, setTips] = useState(null);
   const [loadingTips, setLoadingTips] = useState(false);
 
-  // Status Berechnung
   const status = useMemo(() => {
-    const multipliers = { spring: 1.0, summer: 0.7, autumn: 1.2, winter: 2.0 };
+    const multipliers = { spring: 1.0, summer: 0.8, autumn: 1.2, winter: 2.0 };
     const multiplier = multipliers[season] || 1;
     const interval = Math.round(plant.baseInterval * multiplier);
 
@@ -67,14 +79,12 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const nextMidnight = new Date(next);
-    nextMidnight.setHours(0, 0, 0, 0);
-
-    const diff = Math.ceil((nextMidnight - today) / (1000 * 60 * 60 * 24));
-    return { days: diff, overdue: diff < 0, today: diff === 0 };
+    const diff = Math.ceil(
+      (new Date(next).setHours(0, 0, 0, 0) - today) / (1000 * 60 * 60 * 24)
+    );
+    return { days: diff, overdue: diff < 0, today: diff === 0, interval };
   }, [plant, season]);
 
-  // KI Tipps holen
   const fetchTips = async () => {
     if (tips) {
       setTips(null);
@@ -94,20 +104,6 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
     }
   };
 
-  // Status Farben
-  let badgeStyle = "bg-green-50 text-green-700 border-green-200";
-  let badgeText = `In ${status.days} Tagen`;
-  if (status.overdue) {
-    badgeStyle = "bg-red-50 text-red-600 border-red-200 animate-pulse";
-    badgeText = `Überfällig (${Math.abs(status.days)} Tage)`;
-  } else if (status.today) {
-    badgeStyle = "bg-amber-50 text-amber-600 border-amber-200";
-    badgeText = "Heute gießen!";
-  }
-
-  // Bild-URL zusammenbauen (Wenn Backend URL liefert, nutze sie, sonst Fallback)
-  // Wichtig: Die URL muss komplett sein. Da wir in React sind, müssen wir den Backend-Port davor setzen,
-  // falls dein plant.imageUrl nur "/images/..." ist.
   const imageUrl = plant.imageUrl
     ? plant.imageUrl.startsWith("http")
       ? plant.imageUrl
@@ -118,7 +114,6 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
     <div className="group bg-white rounded-3xl p-5 shadow-sm border border-slate-100 hover:shadow-md transition-all">
       <div className="flex justify-between items-start">
         <div className="flex gap-4">
-          {/* --- BILD ANZEIGE --- */}
           <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center overflow-hidden border border-slate-100 relative">
             {imageUrl ? (
               <img
@@ -127,30 +122,35 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   e.target.onerror = null;
-                  e.target.style.display = "none"; // Versteckt kaputtes Bild
-                  e.target.parentNode.classList.add("bg-emerald-100"); // Fallback Hintergrund
+                  e.target.style.display = "none";
+                  e.target.parentNode.classList.add("bg-emerald-100");
                 }}
               />
             ) : (
-              // Fallback wenn gar kein Bild da ist: Erster Buchstabe
               <span className="text-2xl font-bold text-slate-400">
-                {(plant.name || "?").charAt(0).toUpperCase()}
+                {(plant.name || "?").charAt(0)}
               </span>
             )}
           </div>
-          {/* ------------------ */}
-
           <div>
             <h3 className="font-bold text-slate-800 text-lg">{plant.name}</h3>
             <div
-              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border mt-1 ${badgeStyle}`}
+              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border mt-1 ${
+                status.overdue
+                  ? "bg-red-50 text-red-600 border-red-200"
+                  : "bg-green-50 text-green-700 border-green-200"
+              }`}
             >
               {status.overdue ? (
                 <AlertTriangle size={12} />
               ) : (
                 <Droplet size={12} />
               )}
-              {badgeText}
+              {status.overdue
+                ? `Überfällig (${Math.abs(status.days)} T.)`
+                : status.today
+                ? "Heute!"
+                : `In ${status.days} Tagen`}
             </div>
           </div>
         </div>
@@ -164,9 +164,9 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
 
       <div className="mt-4 flex justify-between items-center pl-1 gap-2">
         <div className="flex flex-col text-xs text-slate-400 font-medium">
-          <span>Intervall: {plant.baseInterval} Tage</span>
-
-          {/* KI TIPPS BUTTON */}
+          <span>
+            Intervall: {status.interval} Tage ({season})
+          </span>
           <button
             onClick={fetchTips}
             className="mt-1 flex items-center gap-1 text-amber-500 hover:text-amber-600 transition-colors"
@@ -179,22 +179,16 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
             {tips ? "Tipps verbergen" : "KI-Tipps"}
           </button>
         </div>
-
         <button
           onClick={() => onWater(plant.id)}
           className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-xl hover:bg-emerald-700 active:scale-95 transition-all shadow-lg shadow-emerald-200"
         >
-          <Droplet size={16} className="fill-current" />
-          Gießen
+          <Droplet size={16} className="fill-current" /> Gießen
         </button>
       </div>
-
-      {/* ANZEIGE DER KI TIPPS */}
       {tips && (
         <div className="mt-4 bg-amber-50 border border-amber-100 p-3 rounded-xl text-sm text-slate-700 animate-in slide-in-from-top-2">
-          <div className="flex items-center gap-2 font-bold text-amber-700 mb-1">
-            <Sparkles size={14} /> Gemini Ratgeber:
-          </div>
+          <Sparkles size={14} className="inline mr-1 text-amber-600" />
           {tips}
         </div>
       )}
@@ -202,70 +196,148 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
   );
 };
 
-// --- NEUE PFLANZE (MIT KI VORSCHLAG) ---
+// --- NEUE KOMPONENTE: Custom Dropdown mit Bildern ---
+const PlantSelect = ({ selectedId, onChange }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Schließt Dropdown wenn man woanders klickt
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const selectedPlant =
+    PLANT_TYPES.find((p) => p.id === selectedId) || PLANT_TYPES[0];
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-1 block">
+        Pflanzenart
+      </label>
+
+      {/* Der Button (Ausgewähltes Element) */}
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full p-2 bg-white border border-slate-200 rounded-xl flex items-center justify-between hover:border-emerald-400 transition-colors focus:ring-2 focus:ring-emerald-500 outline-none"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-slate-50 rounded-lg border border-slate-100 overflow-hidden flex items-center justify-center">
+            <img
+              src={`http://localhost:3000/images/${selectedPlant.id}.png`}
+              alt=""
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                e.target.style.display = "none";
+              }}
+            />
+          </div>
+          <span className="font-medium text-slate-700">
+            {selectedPlant.label}
+          </span>
+        </div>
+        <ChevronDown
+          size={20}
+          className={`text-slate-400 transition-transform ${
+            isOpen ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+
+      {/* Die Liste (Dropdown) */}
+      {isOpen && (
+        <div className="absolute z-50 w-full mt-2 bg-white border border-slate-100 rounded-xl shadow-xl max-h-60 overflow-y-auto animate-in fade-in zoom-in-95">
+          {PLANT_TYPES.map((plant) => (
+            <button
+              key={plant.id}
+              type="button"
+              onClick={() => {
+                onChange(plant.id);
+                setIsOpen(false);
+              }}
+              className="w-full p-2 flex items-center gap-3 hover:bg-emerald-50 transition-colors first:rounded-t-xl last:rounded-b-xl"
+            >
+              <div className="w-10 h-10 bg-slate-50 rounded-lg border border-slate-100 overflow-hidden flex items-center justify-center">
+                <img
+                  src={`http://localhost:3000/images/${plant.id}.png`}
+                  alt=""
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.style.display = "none";
+                  }}
+                />
+              </div>
+              <span
+                className={`font-medium ${
+                  selectedId === plant.id
+                    ? "text-emerald-700"
+                    : "text-slate-600"
+                }`}
+              >
+                {plant.label}
+              </span>
+              {selectedId === plant.id && (
+                <Check size={16} className="ml-auto text-emerald-600" />
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const AddPlantForm = ({ onAdd, onCancel, isSaving }) => {
-  const [name, setName] = useState("");
-  // Standard-Typ, passend zu deinen Bildnamen
-  const [type, setType] = useState("monstra");
+  const [selectedType, setSelectedType] = useState(PLANT_TYPES[0].id);
   const [days, setDays] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onAdd(name, type, days ? parseInt(days) : null);
+    const plantInfo = PLANT_TYPES.find((p) => p.id === selectedType);
+    onAdd(
+      plantInfo ? plantInfo.label : "Pflanze",
+      selectedType,
+      days ? parseInt(days) : null
+    );
   };
 
   return (
     <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 animate-in fade-in zoom-in-95">
       <h3 className="font-bold text-slate-800 mb-4">Neue Pflanze</h3>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          autoFocus
-          type="text"
-          placeholder="Name (z.B. Monstera)"
-          className="w-full p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
-        <div className="grid grid-cols-2 gap-4">
-          <select
-            className="w-full p-3 rounded-xl border border-slate-200 bg-white"
-            value={type}
-            onChange={(e) => setType(e.target.value)}
-          >
-            {/* Achte darauf, dass 'value' hier mit deinen Dateinamen übereinstimmt (ohne .png) */}
-            <option value="anthurium">Anthurium</option>
-            <option value="monstra">Monstera</option>
-            <option value="orchid">Orchidee</option>
-            <option value="philodendron_mccolleys_finale">Philodendron</option>
-            <option value="usambaraveilchen">Usambara-Veilchen</option>
-            <option value="yucca">Yucca</option>
-          </select>
-          <div className="relative">
-            <input
-              type="number"
-              min="1"
-              placeholder="Auto (KI)"
-              className="w-full p-3 rounded-xl border border-slate-200"
-              value={days}
-              onChange={(e) => setDays(e.target.value)}
-            />
-            {!days && (
-              <div className="absolute right-3 top-3.5 text-slate-400 pointer-events-none">
-                <Sparkles size={16} />
-              </div>
-            )}
-          </div>
+        {/* Unser neues Custom Dropdown */}
+        <PlantSelect selectedId={selectedType} onChange={setSelectedType} />
+
+        <div className="relative">
+          <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">
+            Gießintervall (Tage)
+          </label>
+          <input
+            type="number"
+            min="1"
+            placeholder="Automatisch (KI schätzt)"
+            className="w-full mt-1 p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none"
+            value={days}
+            onChange={(e) => setDays(e.target.value)}
+          />
+          {!days && (
+            <div className="absolute right-3 top-9 text-slate-400 pointer-events-none flex items-center gap-1 text-xs">
+              <Sparkles size={14} /> KI Auto
+            </div>
+          )}
         </div>
-        <p className="text-xs text-slate-400 px-1">
-          *Lass das Feld "Tage" leer, damit Gemini das ideale Intervall für dich
-          schätzt.
-        </p>
-        <div className="flex gap-3">
+
+        <div className="flex gap-3 pt-2">
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 py-3 bg-white text-slate-600 rounded-xl font-medium border border-slate-200"
+            className="flex-1 py-3 bg-white text-slate-600 rounded-xl font-medium border border-slate-200 hover:bg-slate-50"
           >
             Abbrechen
           </button>
@@ -274,8 +346,11 @@ const AddPlantForm = ({ onAdd, onCancel, isSaving }) => {
             disabled={isSaving}
             className="flex-1 py-3 bg-emerald-600 text-white rounded-xl font-medium shadow-lg hover:bg-emerald-700 flex justify-center items-center gap-2"
           >
-            {isSaving && <Loader2 className="animate-spin" size={18} />}
-            {isSaving ? "KI denkt..." : "Speichern"}
+            {isSaving ? (
+              <Loader2 className="animate-spin" size={18} />
+            ) : (
+              "Hinzufügen"
+            )}
           </button>
         </div>
       </form>
@@ -283,7 +358,6 @@ const AddPlantForm = ({ onAdd, onCancel, isSaving }) => {
   );
 };
 
-// --- HAUPT APP ---
 const App = () => {
   const [season, setSeason] = useState("summer");
   const [plants, setPlants] = useState([]);
@@ -332,7 +406,6 @@ const App = () => {
     await fetch(`${BACKEND_URL}/plants/${id}`, { method: "DELETE" });
     fetchPlants();
   };
-
   const waterPlant = async (id) => {
     await fetch(`${BACKEND_URL}/water/${id}`, { method: "POST" });
     fetchPlants();
@@ -368,7 +441,6 @@ const App = () => {
         {!loading && !error && (
           <>
             <SeasonSelector currentSeason={season} onSeasonChange={setSeason} />
-
             {!isAdding ? (
               <button
                 onClick={() => setIsAdding(true)}
@@ -388,7 +460,6 @@ const App = () => {
                 />
               </div>
             )}
-
             <div className="space-y-4">
               {plants.map((p) => (
                 <PlantCard
