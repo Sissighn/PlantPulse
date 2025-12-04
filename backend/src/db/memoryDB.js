@@ -6,6 +6,7 @@ let plants = [
     type: "leaf",
     baseInterval: 7,
     lastWatered: new Date().toISOString(),
+    image: "monstra.png",
   },
   {
     id: "2",
@@ -13,6 +14,7 @@ let plants = [
     type: "cactus",
     baseInterval: 14,
     lastWatered: new Date().toISOString(),
+    image: "yucca.png",
   },
 ];
 

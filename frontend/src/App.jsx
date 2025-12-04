@@ -4,7 +4,6 @@ import {
   Droplet,
   Sun,
   Snowflake,
-  CloudRain,
   Trash2,
   Sprout,
   Loader2,
@@ -51,7 +50,7 @@ const SeasonSelector = ({ currentSeason, onSeasonChange }) => {
   );
 };
 
-// --- PFLANZEN KARTE (MIT KI TIPPS) ---
+// --- PFLANZEN KARTE (MIT BILDERN VOM SERVER) ---
 const PlantCard = ({ plant, season, onWater, onDelete }) => {
   const [tips, setTips] = useState(null);
   const [loadingTips, setLoadingTips] = useState(false);
@@ -75,12 +74,12 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
     return { days: diff, overdue: diff < 0, today: diff === 0 };
   }, [plant, season]);
 
-  // Funktion: KI Tipps holen
+  // KI Tipps holen
   const fetchTips = async () => {
     if (tips) {
       setTips(null);
       return;
-    } // Zuklappen wenn schon offen
+    }
     setLoadingTips(true);
     try {
       const res = await fetch(
@@ -95,16 +94,7 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
     }
   };
 
-  // Icons
-  const getIcon = (type) => {
-    if (type === "cactus") return { emoji: "🌵", bg: "bg-emerald-100" };
-    if (type === "flower") return { emoji: "🌸", bg: "bg-pink-100" };
-    if (type === "palm") return { emoji: "🌴", bg: "bg-yellow-100" };
-    return { emoji: "🌿", bg: "bg-green-100" };
-  };
-  const visual = getIcon(plant.type);
-
-  // Farben für Status
+  // Status Farben
   let badgeStyle = "bg-green-50 text-green-700 border-green-200";
   let badgeText = `In ${status.days} Tagen`;
   if (status.overdue) {
@@ -115,15 +105,41 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
     badgeText = "Heute gießen!";
   }
 
+  // Bild-URL zusammenbauen (Wenn Backend URL liefert, nutze sie, sonst Fallback)
+  // Wichtig: Die URL muss komplett sein. Da wir in React sind, müssen wir den Backend-Port davor setzen,
+  // falls dein plant.imageUrl nur "/images/..." ist.
+  const imageUrl = plant.imageUrl
+    ? plant.imageUrl.startsWith("http")
+      ? plant.imageUrl
+      : `http://localhost:3000${plant.imageUrl}`
+    : null;
+
   return (
     <div className="group bg-white rounded-3xl p-5 shadow-sm border border-slate-100 hover:shadow-md transition-all">
       <div className="flex justify-between items-start">
         <div className="flex gap-4">
-          <div
-            className={`w-14 h-14 ${visual.bg} rounded-2xl flex items-center justify-center text-3xl`}
-          >
-            {visual.emoji}
+          {/* --- BILD ANZEIGE --- */}
+          <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center overflow-hidden border border-slate-100 relative">
+            {imageUrl ? (
+              <img
+                src={imageUrl}
+                alt={plant.name}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.style.display = "none"; // Versteckt kaputtes Bild
+                  e.target.parentNode.classList.add("bg-emerald-100"); // Fallback Hintergrund
+                }}
+              />
+            ) : (
+              // Fallback wenn gar kein Bild da ist: Erster Buchstabe
+              <span className="text-2xl font-bold text-slate-400">
+                {(plant.name || "?").charAt(0).toUpperCase()}
+              </span>
+            )}
           </div>
+          {/* ------------------ */}
+
           <div>
             <h3 className="font-bold text-slate-800 text-lg">{plant.name}</h3>
             <div
@@ -189,12 +205,12 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
 // --- NEUE PFLANZE (MIT KI VORSCHLAG) ---
 const AddPlantForm = ({ onAdd, onCancel, isSaving }) => {
   const [name, setName] = useState("");
-  const [type, setType] = useState("leaf");
+  // Standard-Typ, passend zu deinen Bildnamen
+  const [type, setType] = useState("monstra");
   const [days, setDays] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Wenn days leer ist, senden wir null -> Backend fragt Gemini
     onAdd(name, type, days ? parseInt(days) : null);
   };
 
@@ -217,10 +233,13 @@ const AddPlantForm = ({ onAdd, onCancel, isSaving }) => {
             value={type}
             onChange={(e) => setType(e.target.value)}
           >
-            <option value="leaf">Grünpflanze</option>
-            <option value="cactus">Kaktus</option>
-            <option value="palm">Palme</option>
-            <option value="flower">Blume</option>
+            {/* Achte darauf, dass 'value' hier mit deinen Dateinamen übereinstimmt (ohne .png) */}
+            <option value="anthurium">Anthurium</option>
+            <option value="monstra">Monstera</option>
+            <option value="orchid">Orchidee</option>
+            <option value="philodendron_mccolleys_finale">Philodendron</option>
+            <option value="usambaraveilchen">Usambara-Veilchen</option>
+            <option value="yucca">Yucca</option>
           </select>
           <div className="relative">
             <input
