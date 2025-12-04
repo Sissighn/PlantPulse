@@ -28,8 +28,17 @@ const PLANT_TYPES = [
   { id: "kalanchoe", label: "Kalanchoe" },
   { id: "peperomiaobtusifolia", label: "Peperomia Obtusifolia" },
   { id: "peperomiarotundifolia", label: "Peperomia Rotundifolia" },
+  { id: "iddleleaffig", label: "Iddle Leaf Fig" },
+  { id: "dieffenbachia", label: "Dieffenbachia" },
+  { id: "schlumbergera", label: "Schlumbergera" },
+  { id: "aloevera", label: "Aloe Vera" },
+  { id: "Chlorophytum", label: "Chlorophytum" },
+  { id: "calatheaorbifolia", label: "Calathea Orbifolia" },
+  { id: "ficuselastica", label: "Ficus elastica" },
+  { id: "epipremnumaureum", label: "Epipremnum Aureum" },
+  { id: "zamioculcas", label: "Zamioculcas" },
+  { id: "sansevieria", label: "Sansevieria" },
 ];
-
 const SeasonSelector = ({ currentSeason, onSeasonChange }) => {
   const seasons = [
     { id: "spring", label: "Frühling", icon: Sprout, color: "text-green-500" },
@@ -181,9 +190,18 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
         </div>
         <button
           onClick={() => onWater(plant.id)}
-          className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-xl hover:bg-emerald-700 active:scale-95 transition-all shadow-lg shadow-emerald-200"
+          className="relative group/btn flex items-center justify-center p-0 rounded-full transition-all active:scale-95 w-12 h-15 hover:opacity-80"
+          title="Gießen"
         >
-          <Droplet size={16} className="fill-current" /> Gießen
+          <img
+            src="http://localhost:3000/icons/watering.png"
+            alt="Gießen"
+            style={{ mixBlendMode: "multiply" }}
+            className="w-full h-full object-contain drop-shadow-sm group-hover/btn:-rotate-12 transition-transform duration-300"
+            onError={(e) => {
+              e.target.style.display = "none";
+            }}
+          />
         </button>
       </div>
       {tips && (
