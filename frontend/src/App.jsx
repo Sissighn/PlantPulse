@@ -28,7 +28,7 @@ const PLANT_TYPES = [
   { id: "kalanchoe", label: "Kalanchoe" },
   { id: "peperomiaobtusifolia", label: "Peperomia Obtusifolia" },
   { id: "peperomiarotundifolia", label: "Peperomia Rotundifolia" },
-  { id: "iddleleaffig", label: "Iddle Leaf Fig" },
+  { id: "iddleleaffig", label: "Fiddle Leaf Fig" },
   { id: "dieffenbachia", label: "Dieffenbachia" },
   { id: "schlumbergera", label: "Schlumbergera" },
   { id: "aloevera", label: "Aloe Vera" },
@@ -49,6 +49,7 @@ const PLANT_TYPES = [
   { id: "cliviaminiata", label: "Clivia Miniata" },
   { id: "gardeniajasminoides", label: "Gardenia Jasminoides " },
 ];
+
 const SeasonSelector = ({ currentSeason, onSeasonChange }) => {
   const seasons = [
     { id: "spring", label: "Frühling", icon: Sprout, color: "text-green-500" },
@@ -83,6 +84,7 @@ const SeasonSelector = ({ currentSeason, onSeasonChange }) => {
   );
 };
 
+// --- PlantCard mit Thirsty-Logic und neuer Gießkanne ---
 const PlantCard = ({ plant, season, onWater, onDelete }) => {
   const [tips, setTips] = useState(null);
   const [loadingTips, setLoadingTips] = useState(false);
@@ -101,7 +103,14 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
     const diff = Math.ceil(
       (new Date(next).setHours(0, 0, 0, 0) - today) / (1000 * 60 * 60 * 24)
     );
-    return { days: diff, overdue: diff < 0, today: diff === 0, interval };
+    // isThirsty ist true, wenn wir bei 0 Tagen oder im Minus (überfällig) sind
+    return {
+      days: diff,
+      overdue: diff < 0,
+      today: diff === 0,
+      interval,
+      isThirsty: diff <= 0,
+    };
   }, [plant, season]);
 
   const fetchTips = async () => {
@@ -123,26 +132,47 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
     }
   };
 
-  const imageUrl = plant.imageUrl
-    ? plant.imageUrl.startsWith("http")
+  // --- LOGIK FÜR DAS BILD ---
+  const getImageUrl = () => {
+    if (!plant.imageUrl) return null;
+    let url = plant.imageUrl.startsWith("http")
       ? plant.imageUrl
-      : `http://localhost:3000${plant.imageUrl}`
-    : null;
+      : `http://localhost:3000${plant.imageUrl}`;
+
+    // Wenn die Pflanze durstig ist, versuchen wir das Bild aus dem "thirsty" Ordner zu laden
+    if (status.isThirsty) {
+      return url.replace("/images/", "/images/thirsty/");
+    }
+    return url;
+  };
+
+  const imageUrl = getImageUrl();
 
   return (
     <div className="group bg-white rounded-3xl p-5 shadow-sm border border-slate-100 hover:shadow-md transition-all">
       <div className="flex justify-between items-start">
         <div className="flex gap-4">
-          <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center overflow-hidden border border-slate-100 relative">
+          <div
+            className={`w-16 h-16 rounded-2xl flex items-center justify-center overflow-hidden border border-slate-100 relative transition-colors duration-500 ${
+              status.isThirsty ? "bg-amber-50 border-amber-200" : "bg-slate-50"
+            }`}
+          >
             {imageUrl ? (
               <img
                 src={imageUrl}
                 alt={plant.name}
-                className="w-full h-full object-cover"
+                className={`w-full h-full object-cover transition-all duration-500 ${
+                  status.isThirsty ? "grayscale-[0.1]" : ""
+                }`}
+                // Fallback: Wenn das durstige Bild nicht existiert, lade das normale Bild!
                 onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.style.display = "none";
-                  e.target.parentNode.classList.add("bg-emerald-100");
+                  if (e.target.src.includes("/thirsty/")) {
+                    e.target.src = e.target.src.replace("/thirsty/", "/");
+                  } else {
+                    e.target.onerror = null;
+                    e.target.style.display = "none";
+                    e.target.parentNode.classList.add("bg-emerald-100");
+                  }
                 }}
               />
             ) : (
@@ -151,6 +181,7 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
               </span>
             )}
           </div>
+
           <div>
             <h3 className="font-bold text-slate-800 text-lg">{plant.name}</h3>
             <div
@@ -198,6 +229,7 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
             {tips ? "Tipps verbergen" : "KI-Tipps"}
           </button>
         </div>
+
         <button
           onClick={() => onWater(plant.id)}
           className="relative group/btn flex items-center justify-center p-0 rounded-full transition-all active:scale-95 w-12 h-15 hover:opacity-80"
@@ -214,6 +246,7 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
           />
         </button>
       </div>
+
       {tips && (
         <div className="mt-4 bg-amber-50 border border-amber-100 p-3 rounded-xl text-sm text-slate-700 animate-in slide-in-from-top-2">
           <Sparkles size={14} className="inline mr-1 text-amber-600" />
@@ -224,12 +257,10 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
   );
 };
 
-// --- NEUE KOMPONENTE: Custom Dropdown mit Bildern ---
 const PlantSelect = ({ selectedId, onChange }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  // Schließt Dropdown wenn man woanders klickt
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -248,8 +279,6 @@ const PlantSelect = ({ selectedId, onChange }) => {
       <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-1 block">
         Pflanzenart
       </label>
-
-      {/* Der Button (Ausgewähltes Element) */}
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
@@ -278,7 +307,6 @@ const PlantSelect = ({ selectedId, onChange }) => {
         />
       </button>
 
-      {/* Die Liste (Dropdown) */}
       {isOpen && (
         <div className="absolute z-50 w-full mt-2 bg-white border border-slate-100 rounded-xl shadow-xl max-h-60 overflow-y-auto animate-in fade-in zoom-in-95">
           {PLANT_TYPES.map((plant) => (
@@ -339,9 +367,7 @@ const AddPlantForm = ({ onAdd, onCancel, isSaving }) => {
     <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 animate-in fade-in zoom-in-95">
       <h3 className="font-bold text-slate-800 mb-4">Neue Pflanze</h3>
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Unser neues Custom Dropdown */}
         <PlantSelect selectedId={selectedType} onChange={setSelectedType} />
-
         <div className="relative">
           <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">
             Gießintervall (Tage)
@@ -360,7 +386,6 @@ const AddPlantForm = ({ onAdd, onCancel, isSaving }) => {
             </div>
           )}
         </div>
-
         <div className="flex gap-3 pt-2">
           <button
             type="button"
@@ -443,16 +468,21 @@ const App = () => {
     <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans pb-32">
       <nav className="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-20">
         <div className="max-w-xl mx-auto px-6 py-4 flex items-center justify-between">
+          {/* --- NAVBAR LOGO UPDATE --- */}
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-3">
+              {/* Neues Logo Bild statt Sprout Icon */}
               <img
                 src="http://localhost:3000/icons/logo.png"
                 alt="PlantPulse Logo"
                 className="h-10 w-auto object-contain"
+                // CSS-Trick falls Logo weißen Hintergrund hat
+                style={{ mixBlendMode: "multiply" }}
               />
             </div>
             <h1 className="text-xl font-bold text-slate-800">PlantPulse</h1>
           </div>
+
           <div
             className={`text-xs px-3 py-1 rounded-full border flex items-center gap-2 ${
               error ? "bg-red-50 text-red-600" : "bg-green-50 text-green-700"
