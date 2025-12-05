@@ -38,6 +38,16 @@ const PLANT_TYPES = [
   { id: "epipremnumaureum", label: "Epipremnum Aureum" },
   { id: "zamioculcas", label: "Zamioculcas" },
   { id: "sansevieria", label: "Sansevieria" },
+  { id: "echinopsissubdenudata", label: "Echinopsis Subdenudata" },
+  { id: "mammillariaelongata", label: "Mammillaria Elongata" },
+  { id: "opuntiamicrodasys", label: "Opuntia Microdasys" },
+  { id: "rebutiaheliosa", label: "Rebutia Heliosa" },
+  { id: "sedummorganianum", label: "Sedum Morganianum" },
+  { id: "spathiphyllum", label: "Spathiphyllum / Peace Lily" },
+  { id: "hibiscusrosasinensis", label: "Hibiscus Rosa-Sinensis" },
+  { id: "bromeliaguzmania", label: "Bromelia Guzmania" },
+  { id: "cliviaminiata", label: "Clivia Miniata" },
+  { id: "gardeniajasminoides", label: "Gardenia Jasminoides " },
 ];
 const SeasonSelector = ({ currentSeason, onSeasonChange }) => {
   const seasons = [
@@ -434,8 +444,12 @@ const App = () => {
       <nav className="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-20">
         <div className="max-w-xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="bg-emerald-600 text-white p-2 rounded-lg">
-              <Sprout size={20} />
+            <div className="flex items-center gap-3">
+              <img
+                src="http://localhost:3000/icons/logo.png"
+                alt="PlantPulse Logo"
+                className="h-10 w-auto object-contain"
+              />
             </div>
             <h1 className="text-xl font-bold text-slate-800">PlantPulse</h1>
           </div>
