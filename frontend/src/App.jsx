@@ -14,6 +14,7 @@ import {
   Sparkles,
   ChevronDown,
   Check,
+  Moon, // Wichtig für den Dark Mode Button
 } from "lucide-react";
 
 const BACKEND_URL = "http://localhost:3000/api";
@@ -59,7 +60,7 @@ const SeasonSelector = ({ currentSeason, onSeasonChange }) => {
   ];
 
   return (
-    <div className="bg-white p-2 rounded-2xl shadow-sm border border-slate-100 flex justify-between mb-6">
+    <div className="bg-white dark:bg-slate-800 p-2 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex justify-between mb-6 transition-colors duration-300">
       {seasons.map((s) => {
         const isActive = currentSeason === s.id;
         const Icon = s.icon;
@@ -69,11 +70,11 @@ const SeasonSelector = ({ currentSeason, onSeasonChange }) => {
             onClick={() => onSeasonChange(s.id)}
             className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all duration-200 ${
               isActive
-                ? "bg-slate-800 text-white shadow-md transform scale-105"
-                : "text-slate-400 hover:bg-slate-50"
+                ? "bg-slate-800 dark:bg-slate-200 text-white dark:text-slate-900 shadow-md transform scale-105"
+                : "text-slate-400 dark:text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700"
             }`}
           >
-            <Icon size={18} className={isActive ? "text-white" : s.color} />
+            <Icon size={18} className={isActive ? "text-current" : s.color} />
             <span className="text-[10px] font-medium uppercase tracking-wider">
               {s.label}
             </span>
@@ -84,7 +85,6 @@ const SeasonSelector = ({ currentSeason, onSeasonChange }) => {
   );
 };
 
-// --- PlantCard mit Thirsty-Logic und neuer Gießkanne ---
 const PlantCard = ({ plant, season, onWater, onDelete }) => {
   const [tips, setTips] = useState(null);
   const [loadingTips, setLoadingTips] = useState(false);
@@ -103,7 +103,6 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
     const diff = Math.ceil(
       (new Date(next).setHours(0, 0, 0, 0) - today) / (1000 * 60 * 60 * 24)
     );
-    // isThirsty ist true, wenn wir bei 0 Tagen oder im Minus (überfällig) sind
     return {
       days: diff,
       overdue: diff < 0,
@@ -132,14 +131,11 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
     }
   };
 
-  // --- LOGIK FÜR DAS BILD ---
   const getImageUrl = () => {
     if (!plant.imageUrl) return null;
     let url = plant.imageUrl.startsWith("http")
       ? plant.imageUrl
       : `http://localhost:3000${plant.imageUrl}`;
-
-    // Wenn die Pflanze durstig ist, versuchen wir das Bild aus dem "thirsty" Ordner zu laden
     if (status.isThirsty) {
       return url.replace("/images/", "/images/thirsty/");
     }
@@ -149,12 +145,14 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
   const imageUrl = getImageUrl();
 
   return (
-    <div className="group bg-white rounded-3xl p-5 shadow-sm border border-slate-100 hover:shadow-md transition-all">
+    <div className="group bg-white dark:bg-slate-800 rounded-3xl p-5 shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-all duration-300">
       <div className="flex justify-between items-start">
         <div className="flex gap-4">
           <div
-            className={`w-16 h-16 rounded-2xl flex items-center justify-center overflow-hidden border border-slate-100 relative transition-colors duration-500 ${
-              status.isThirsty ? "bg-amber-50 border-amber-200" : "bg-slate-50"
+            className={`w-16 h-16 rounded-2xl flex items-center justify-center overflow-hidden border border-slate-100 dark:border-slate-700 relative transition-colors duration-500 ${
+              status.isThirsty
+                ? "bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800"
+                : "bg-slate-50 dark:bg-slate-700"
             }`}
           >
             {imageUrl ? (
@@ -164,7 +162,6 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
                 className={`w-full h-full object-cover transition-all duration-500 ${
                   status.isThirsty ? "grayscale-[0.1]" : ""
                 }`}
-                // Fallback: Wenn das durstige Bild nicht existiert, lade das normale Bild!
                 onError={(e) => {
                   if (e.target.src.includes("/thirsty/")) {
                     e.target.src = e.target.src.replace("/thirsty/", "/");
@@ -183,12 +180,14 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
           </div>
 
           <div>
-            <h3 className="font-bold text-slate-800 text-lg">{plant.name}</h3>
+            <h3 className="font-bold text-slate-800 dark:text-slate-100 text-lg">
+              {plant.name}
+            </h3>
             <div
               className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border mt-1 ${
                 status.overdue
-                  ? "bg-red-50 text-red-600 border-red-200"
-                  : "bg-green-50 text-green-700 border-green-200"
+                  ? "bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800"
+                  : "bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800"
               }`}
             >
               {status.overdue ? (
@@ -206,20 +205,20 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
         </div>
         <button
           onClick={() => onDelete(plant.id)}
-          className="text-slate-300 hover:text-red-400 p-2 opacity-0 group-hover:opacity-100 transition-opacity"
+          className="text-slate-300 hover:text-red-400 dark:hover:text-red-400 p-2 opacity-0 group-hover:opacity-100 transition-opacity"
         >
           <Trash2 size={18} />
         </button>
       </div>
 
       <div className="mt-4 flex justify-between items-center pl-1 gap-2">
-        <div className="flex flex-col text-xs text-slate-400 font-medium">
+        <div className="flex flex-col text-xs text-slate-400 dark:text-slate-500 font-medium">
           <span>
             Intervall: {status.interval} Tage ({season})
           </span>
           <button
             onClick={fetchTips}
-            className="mt-1 flex items-center gap-1 text-amber-500 hover:text-amber-600 transition-colors"
+            className="mt-1 flex items-center gap-1 text-amber-500 hover:text-amber-400 transition-colors"
           >
             {loadingTips ? (
               <Loader2 size={12} className="animate-spin" />
@@ -230,9 +229,10 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
           </button>
         </div>
 
+        {/* GROSSER GIESS-BUTTON */}
         <button
           onClick={() => onWater(plant.id)}
-          className="relative group/btn flex items-center justify-center p-0 rounded-full transition-all active:scale-95 w-12 h-15 hover:opacity-80"
+          className="relative group/btn flex items-center justify-center p-0 rounded-full transition-all active:scale-95 w-20 h-20 hover:opacity-80"
           title="Gießen"
         >
           <img
@@ -248,8 +248,11 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
       </div>
 
       {tips && (
-        <div className="mt-4 bg-amber-50 border border-amber-100 p-3 rounded-xl text-sm text-slate-700 animate-in slide-in-from-top-2">
-          <Sparkles size={14} className="inline mr-1 text-amber-600" />
+        <div className="mt-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900 p-3 rounded-xl text-sm text-slate-700 dark:text-slate-300 animate-in slide-in-from-top-2">
+          <Sparkles
+            size={14}
+            className="inline mr-1 text-amber-600 dark:text-amber-500"
+          />
           {tips}
         </div>
       )}
@@ -263,9 +266,8 @@ const PlantSelect = ({ selectedId, onChange }) => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target))
         setIsOpen(false);
-      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -282,10 +284,10 @@ const PlantSelect = ({ selectedId, onChange }) => {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full p-2 bg-white border border-slate-200 rounded-xl flex items-center justify-between hover:border-emerald-400 transition-colors focus:ring-2 focus:ring-emerald-500 outline-none"
+        className="w-full p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl flex items-center justify-between hover:border-emerald-400 transition-colors focus:ring-2 focus:ring-emerald-500 outline-none"
       >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-slate-50 rounded-lg border border-slate-100 overflow-hidden flex items-center justify-center">
+          <div className="w-10 h-10 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-100 dark:border-slate-600 overflow-hidden flex items-center justify-center">
             <img
               src={`http://localhost:3000/images/${selectedPlant.id}.png`}
               alt=""
@@ -295,7 +297,7 @@ const PlantSelect = ({ selectedId, onChange }) => {
               }}
             />
           </div>
-          <span className="font-medium text-slate-700">
+          <span className="font-medium text-slate-700 dark:text-slate-200">
             {selectedPlant.label}
           </span>
         </div>
@@ -308,7 +310,7 @@ const PlantSelect = ({ selectedId, onChange }) => {
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 w-full mt-2 bg-white border border-slate-100 rounded-xl shadow-xl max-h-60 overflow-y-auto animate-in fade-in zoom-in-95">
+        <div className="absolute z-50 w-full mt-2 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl shadow-xl max-h-60 overflow-y-auto animate-in fade-in zoom-in-95">
           {PLANT_TYPES.map((plant) => (
             <button
               key={plant.id}
@@ -317,9 +319,9 @@ const PlantSelect = ({ selectedId, onChange }) => {
                 onChange(plant.id);
                 setIsOpen(false);
               }}
-              className="w-full p-2 flex items-center gap-3 hover:bg-emerald-50 transition-colors first:rounded-t-xl last:rounded-b-xl"
+              className="w-full p-2 flex items-center gap-3 hover:bg-emerald-50 dark:hover:bg-slate-700 transition-colors first:rounded-t-xl last:rounded-b-xl"
             >
-              <div className="w-10 h-10 bg-slate-50 rounded-lg border border-slate-100 overflow-hidden flex items-center justify-center">
+              <div className="w-10 h-10 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-100 dark:border-slate-600 overflow-hidden flex items-center justify-center">
                 <img
                   src={`http://localhost:3000/images/${plant.id}.png`}
                   alt=""
@@ -332,14 +334,17 @@ const PlantSelect = ({ selectedId, onChange }) => {
               <span
                 className={`font-medium ${
                   selectedId === plant.id
-                    ? "text-emerald-700"
-                    : "text-slate-600"
+                    ? "text-emerald-700 dark:text-emerald-400"
+                    : "text-slate-600 dark:text-slate-300"
                 }`}
               >
                 {plant.label}
               </span>
               {selectedId === plant.id && (
-                <Check size={16} className="ml-auto text-emerald-600" />
+                <Check
+                  size={16}
+                  className="ml-auto text-emerald-600 dark:text-emerald-400"
+                />
               )}
             </button>
           ))}
@@ -364,8 +369,10 @@ const AddPlantForm = ({ onAdd, onCancel, isSaving }) => {
   };
 
   return (
-    <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 animate-in fade-in zoom-in-95">
-      <h3 className="font-bold text-slate-800 mb-4">Neue Pflanze</h3>
+    <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-3xl border border-slate-200 dark:border-slate-700 animate-in fade-in zoom-in-95">
+      <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4">
+        Neue Pflanze
+      </h3>
       <form onSubmit={handleSubmit} className="space-y-4">
         <PlantSelect selectedId={selectedType} onChange={setSelectedType} />
         <div className="relative">
@@ -376,7 +383,7 @@ const AddPlantForm = ({ onAdd, onCancel, isSaving }) => {
             type="number"
             min="1"
             placeholder="Automatisch (KI schätzt)"
-            className="w-full mt-1 p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none"
+            className="w-full mt-1 p-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
             value={days}
             onChange={(e) => setDays(e.target.value)}
           />
@@ -390,7 +397,7 @@ const AddPlantForm = ({ onAdd, onCancel, isSaving }) => {
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 py-3 bg-white text-slate-600 rounded-xl font-medium border border-slate-200 hover:bg-slate-50"
+            className="flex-1 py-3 bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-medium border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600"
           >
             Abbrechen
           </button>
@@ -418,6 +425,22 @@ const App = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // --- DARK MODE LOGIC ---
+  const [darkMode, setDarkMode] = useState(
+    () => localStorage.getItem("theme") === "dark"
+  );
+
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  }, [darkMode]);
+  // ---------------------
 
   const fetchPlants = async () => {
     try {
@@ -465,30 +488,40 @@ const App = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans pb-32">
-      <nav className="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-20">
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans pb-32 transition-colors duration-300">
+      <nav className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 sticky top-0 z-20 transition-colors duration-300">
         <div className="max-w-xl mx-auto px-6 py-4 flex items-center justify-between">
-          {/* --- NAVBAR LOGO UPDATE --- */}
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-3">
-              {/* Neues Logo Bild statt Sprout Icon */}
               <img
                 src="http://localhost:3000/icons/logo.png"
                 alt="PlantPulse Logo"
                 className="h-10 w-auto object-contain"
-                // CSS-Trick falls Logo weißen Hintergrund hat
                 style={{ mixBlendMode: "multiply" }}
               />
             </div>
-            <h1 className="text-xl font-bold text-slate-800">PlantPulse</h1>
+            <h1 className="text-xl font-bold text-slate-800 dark:text-white">
+              PlantPulse
+            </h1>
           </div>
 
-          <div
-            className={`text-xs px-3 py-1 rounded-full border flex items-center gap-2 ${
-              error ? "bg-red-50 text-red-600" : "bg-green-50 text-green-700"
-            }`}
-          >
-            <Server size={12} /> {error ? "Offline" : "Online"}
+          <div className="flex items-center gap-3">
+            {/* DARK MODE BUTTON */}
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+            >
+              {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+            <div
+              className={`text-xs px-3 py-1 rounded-full border flex items-center gap-2 ${
+                error
+                  ? "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border-red-200 dark:border-red-900"
+                  : "bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-900"
+              }`}
+            >
+              <Server size={12} /> {error ? "Offline" : "Online"}
+            </div>
           </div>
         </div>
       </nav>
@@ -506,9 +539,9 @@ const App = () => {
             {!isAdding ? (
               <button
                 onClick={() => setIsAdding(true)}
-                className="w-full bg-white border-2 border-dashed border-slate-200 rounded-3xl p-6 flex flex-col items-center justify-center gap-2 text-slate-400 hover:border-emerald-400 hover:text-emerald-600 hover:bg-emerald-50 transition-all group mb-8"
+                className="w-full bg-white dark:bg-slate-800 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-3xl p-6 flex flex-col items-center justify-center gap-2 text-slate-400 hover:border-emerald-400 dark:hover:border-emerald-600 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-all group mb-8"
               >
-                <div className="bg-slate-100 p-3 rounded-full group-hover:bg-emerald-200 transition-colors">
+                <div className="bg-slate-100 dark:bg-slate-700 p-3 rounded-full group-hover:bg-emerald-200 dark:group-hover:bg-emerald-800 transition-colors">
                   <Plus size={24} />
                 </div>
                 <span className="font-medium">Neue Pflanze hinzufügen</span>
