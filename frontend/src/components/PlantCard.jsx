@@ -172,12 +172,14 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
       </div>
 
       {tips && (
-        <div className="mt-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900 p-3 rounded-xl text-sm text-slate-700 dark:text-slate-300 animate-in slide-in-from-top-2">
-          <Sparkles
-            size={14}
-            className="inline mr-1 text-amber-600 dark:text-amber-500"
-          />
-          {tips}
+        <div className="mt-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900 p-3 rounded-xl text-sm text-slate-700 dark:text-slate-300 animate-in slide-in-from-top-2 whitespace-pre-line">
+          <div className="flex gap-2">
+            <Sparkles
+              size={16}
+              className="shrink-0 text-amber-600 dark:text-amber-500 mt-0.5"
+            />
+            <span>{tips}</span>
+          </div>
         </div>
       )}
     </div>
