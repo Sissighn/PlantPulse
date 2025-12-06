@@ -4,6 +4,7 @@ import { BACKEND_URL, BASE_URL } from "./constants";
 import SeasonSelector from "./components/SeasonSelector";
 import PlantCard from "./components/PlantCard";
 import AddPlantForm from "./components/AddPlantForm";
+import { PixelBot } from "./components/PixelBot";
 
 const App = () => {
   const [season, setSeason] = useState("summer");
@@ -102,8 +103,11 @@ const App = () => {
       </nav>
       <main className="max-w-xl mx-auto px-6 py-8">
         {loading && (
-          <div className="text-center p-10 text-slate-400">
-            <Loader2 className="animate-spin inline" /> Lade...
+          <div className="flex flex-col items-center justify-center pt-16">
+            <PixelBot />
+            <p className="mt-4 text-slate-500 dark:text-slate-400">
+              Wecke die Pflanzen auf...
+            </p>
           </div>
         )}
 

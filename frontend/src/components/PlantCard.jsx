@@ -7,6 +7,7 @@ import {
   Zap,
   Sparkles,
 } from "lucide-react";
+import { PixelBot } from "./PixelBot";
 import { BACKEND_URL, BASE_URL } from "../constants";
 
 const PlantCard = ({ plant, season, onWater, onDelete }) => {
@@ -149,7 +150,7 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
             ) : (
               <Zap size={12} />
             )}
-            {tips ? "Tipps verbergen" : "KI-Tipps"}
+            {loadingTips ? "Suche..." : tips ? "Tipps verbergen" : "KI-Tipps"}
           </button>
         </div>
 
@@ -170,6 +171,15 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
           />
         </button>
       </div>
+
+      {loadingTips && (
+        <div className="flex flex-col items-center justify-center pt-4">
+          <PixelBot />
+          <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+            Frage den Pflanzen-Bot...
+          </p>
+        </div>
+      )}
 
       {tips && (
         <div className="mt-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900 p-3 rounded-xl text-sm text-slate-700 dark:text-slate-300 animate-in slide-in-from-top-2 whitespace-pre-line">
