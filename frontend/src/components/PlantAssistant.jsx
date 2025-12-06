@@ -8,7 +8,7 @@ export const PlantAssistant = ({ onClose }) => {
   const [messages, setMessages] = useState([
     {
       sender: "ai",
-      text: "Hallo! Ich bin dein Pflanzen-Bot. 🌱 Hast du Fragen zu deinen Pflanzen?",
+      text: "Hallo! Ich bin dein Pflanzen-Bot.🌱 Hast du Fragen zu deinen Pflanzen?",
     },
   ]);
   const [isTyping, setIsTyping] = useState(false);
@@ -59,10 +59,8 @@ export const PlantAssistant = ({ onClose }) => {
   return (
     <div className="assistant-overlay">
       <div className="assistant-window">
-        {/* Header mit Bot und Schließen-Button */}
         <div className="assistant-header">
           <div className="bot-avatar-small">
-            {/* Wir skalieren den Bot hier etwas kleiner per CSS */}
             <PixelBot />
           </div>
           <div className="header-title">

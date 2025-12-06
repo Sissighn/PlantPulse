@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Sun, Loader2, Moon } from "lucide-react";
+import { Plus, Sun, Moon, Bot } from "lucide-react";
 import { BACKEND_URL, BASE_URL } from "./constants";
 import SeasonSelector from "./components/SeasonSelector";
 import PlantCard from "./components/PlantCard";
@@ -101,22 +101,16 @@ const App = () => {
             </button>
             <button
               onClick={() => setShowAssistant(true)}
-              style={{
-                background: "#333",
-                color: "#76ff03",
-                border: "2px solid #76ff03",
-                padding: "8px 15px",
-                borderRadius: "8px",
-                cursor: "pointer",
-                fontWeight: "bold",
-                fontFamily: "monospace",
-              }}
+              className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors relative"
+              title="AI Assistant"
             >
-              AI HELP
+              <Bot size={20} />
+              <span className="absolute top-1 right-1 w-2 h-2 bg-emerald-500 rounded-full border border-white dark:border-slate-800"></span>
             </button>
           </div>
         </div>
       </nav>
+
       <main className="max-w-xl mx-auto px-6 py-8">
         {loading && (
           <div className="flex flex-col items-center justify-center pt-16">

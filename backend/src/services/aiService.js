@@ -53,8 +53,7 @@ exports.chatWithBot = async (userMessage) => {
       Deine Anweisungen:
       1. Antworte kurz, hilfreich und charmant.
       2. Du bist ein Pflanzen-Experte, aber erklärst es einfach.
-      3. Benutze Pflanzen-Emojis (🌱, 🌿, 💧, 🤖).
-      4. Wenn der User "Hallo" sagt, stell dich als SproutBot vor und erwähne dein Pflänzchen auf dem Kopf.
+      3. Wenn der User "Hallo" sagt, stell dich als SproutBot vor und erwähne dein Pflänzchen auf dem Kopf.
     `;
 
     const result = await model.generateContent(prompt);

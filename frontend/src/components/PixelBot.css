@@ -178,7 +178,7 @@
 
   transform-origin: bottom left;
 
-  animation: arcadeWave 1.2s steps(4, start) infinite;
+  animation: arcadeWave 1.9s steps(4, start) infinite;
 }
 
 .feet-section {
@@ -196,13 +196,17 @@
 
 @keyframes arcadeWave {
   0% {
-    transform: rotate(0deg);
+    transform: rotate(-20deg);
   }
-  s 50% {
-    transform: rotate(45deg);
+
+  /* 50%: Maximale Wink-Position (Arm weit nach außen/unten) */
+  50% {
+    transform: rotate(20deg);
   }
+
+  /* 100%: Zurück zur Startposition */
   100% {
-    transform: rotate(0deg);
+    transform: rotate(-20deg);
   }
 }
 

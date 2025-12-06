@@ -1,80 +1,105 @@
+/* Importiere die Arcade-Schriftart */
+@import url("https://fonts.googleapis.com/css2?family=VT323&display=swap");
+
 .assistant-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.6); /* Dunkler Hintergrund */
+  background: rgba(0, 0, 0, 0.3); /* Etwas heller als vorher */
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(3px);
 }
 
 .assistant-window {
-  width: 90%;
-  max-width: 400px;
-  height: 600px;
-  background: #1e1e1e;
-  border: 4px solid #333;
-  border-radius: 12px;
+  /* GRÖSSERES FENSTER */
+  width: 95%;
+  max-width: 500px; /* Breiter */
+  height: 80vh; /* Höher (80% der Bildschirmhöhe) */
+
+  /* HELLES DESIGN (Standard) */
+  background: #ffffff;
+  border: 4px solid #e2e8f0; /* Helles Grau als Rahmen */
+  border-radius: 16px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
 }
 
 /* Header Bereich */
 .assistant-header {
-  background: #2d2d2d;
-  padding: 10px;
+  background: #f1f5f9; /* Sehr helles Grau */
+  padding: 10px 20px;
   display: flex;
   align-items: center;
-  border-bottom: 2px solid #333;
-  height: 80px;
+  border-bottom: 2px solid #e2e8f0;
+  height: 70px;
 }
 
-/* Der Bot wird hier runterskaliert, damit er in den Header passt */
 .bot-avatar-small {
-  transform: scale(0.4); /* Bot kleiner machen */
-  width: 60px;
-  height: 60px;
+  transform: scale(0.5); /* Der Bot darf ruhig etwas präsenter sein */
+  width: 50px;
+  height: 50px;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-right: -10px; /* Ausgleich wegen Scale */
+  margin-right: 0px;
 }
 
 .header-title h3 {
   margin: 0;
-  color: #fff;
-  font-family: "Courier New", monospace;
+  color: #334155; /* Dunkles Slate-Grau für Text */
+  font-family: "VT323", monospace; /* Pixel Font */
+  font-size: 1.5rem; /* Größer wegen Pixel-Font */
+  letter-spacing: 1px;
+  line-height: 1;
 }
 
 .status {
-  font-size: 12px;
-  color: #76ff03; /* Arcade Grün */
+  font-family: "VT323", monospace;
+  font-size: 1.2rem;
+  color: #16a34a;
+  margin-left: 8px; /* Kleiner Abstand zum Titel */
+  position: relative;
+  top: 2px;
 }
 
 .close-btn {
   background: none;
   border: none;
-  color: #fff;
+  color: #64748b;
   font-size: 2rem;
   margin-left: auto;
   cursor: pointer;
+  line-height: 0.8;
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.close-btn:hover {
+  color: #ef4444;
 }
 
 /* Chat Bereich */
 .chat-history {
   flex: 1;
-  padding: 15px;
+  padding: 20px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  background: #121212;
+  gap: 15px;
+  background: #ffffff; /* Weißer Hintergrund */
+
+  /* HIER IST DIE PIXEL SCHRIFTART */
+  font-family: "VT323", monospace;
+  font-size: 1.4rem; /* Pixel Fonts müssen größer sein um lesbar zu sein */
 }
 
 .message {
@@ -89,56 +114,118 @@
 }
 
 .bubble {
-  max-width: 80%;
-  padding: 10px 15px;
-  border-radius: 15px;
-  font-size: 0.9rem;
-  line-height: 1.4;
+  max-width: 85%;
+  padding: 12px 18px;
+  border-radius: 12px;
+  line-height: 1.2;
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1); /* Leichter Retro-Schatten */
 }
 
+/* User Bubble: Helles, freundliches Grün */
 .message.user .bubble {
-  background: #007bff;
-  color: white;
+  background: #dcfce7; /* Sehr helles Grün */
+  color: #14532d; /* Dunkelgrüner Text */
+  border: 2px solid #bbf7d0;
   border-bottom-right-radius: 2px;
 }
 
+/* AI Bubble: Helles Grau */
 .message.ai .bubble {
-  background: #333;
-  color: #e0e0e0;
+  background: #f8fafc;
+  color: #334155;
+  border: 2px solid #e2e8f0;
   border-bottom-left-radius: 2px;
-  border: 1px solid #444;
 }
 
 .bubble.typing {
-  color: #888;
+  color: #94a3b8;
   font-style: italic;
 }
 
 /* Eingabe Bereich */
 .input-area {
-  padding: 10px;
-  background: #2d2d2d;
+  padding: 15px;
+  background: #f1f5f9;
   display: flex;
   gap: 10px;
+  border-top: 2px solid #e2e8f0;
 }
 
 .input-area input {
   flex: 1;
-  padding: 10px;
-  border-radius: 20px;
-  border: 1px solid #444;
-  background: #1e1e1e;
-  color: white;
+  padding: 12px 15px;
+  border-radius: 12px;
+  border: 2px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
   outline: none;
+  font-family: "VT323", monospace;
+  font-size: 1.3rem;
+  transition: border-color 0.2s;
+}
+
+.input-area input:focus {
+  border-color: #16a34a;
 }
 
 .input-area button {
-  padding: 0 20px;
-  border-radius: 20px;
-  border: none;
-  background: #76ff03;
-  color: black;
-  font-weight: bold;
+  padding: 0 25px;
+  border-radius: 12px;
+  border: 2px solid #16a34a; /* Grün */
+  background: #22c55e;
+  color: white;
+  font-family: "VT323", monospace;
+  font-size: 1.3rem;
   cursor: pointer;
   text-transform: uppercase;
+  box-shadow: 2px 2px 0 #14532d; /* Retro Button Schatten */
+}
+
+.input-area button:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+/* --- DARK MODE SUPPORT --- */
+/* Diese Regeln greifen nur, wenn im HTML-Tag die Klasse "dark" ist (durch deinen Theme Switcher) */
+
+:global(.dark) .assistant-window {
+  background: #1e293b; /* Dunkles Slate */
+  border-color: #334155;
+}
+
+:global(.dark) .assistant-header {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+:global(.dark) .header-title h3 {
+  color: #f1f5f9;
+}
+
+:global(.dark) .chat-history {
+  background: #1e293b;
+}
+
+:global(.dark) .message.ai .bubble {
+  background: #334155;
+  color: #e2e8f0;
+  border-color: #475569;
+}
+
+:global(.dark) .message.user .bubble {
+  background: #064e3b; /* Dunkles Grün */
+  color: #dcfce7;
+  border-color: #065f46;
+}
+
+:global(.dark) .input-area {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+:global(.dark) .input-area input {
+  background: #1e293b;
+  border-color: #475569;
+  color: #f1f5f9;
 }
