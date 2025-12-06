@@ -488,7 +488,7 @@ const App = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans pb-32 transition-colors duration-300">
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-plant-body pb-32 transition-colors duration-300">
       <nav className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 sticky top-0 z-20 transition-colors duration-300">
         <div className="max-w-xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -500,7 +500,7 @@ const App = () => {
                 style={{ mixBlendMode: "multiply" }}
               />
             </div>
-            <h1 className="text-xl font-bold text-slate-800 dark:text-white">
+            <h1 className="text-2xl font-bold text-slate-800 dark:text-white font-plant-title tracking-wide">
               PlantPulse
             </h1>
           </div>
@@ -513,19 +513,9 @@ const App = () => {
             >
               {darkMode ? <Sun size={20} /> : <Moon size={20} />}
             </button>
-            <div
-              className={`text-xs px-3 py-1 rounded-full border flex items-center gap-2 ${
-                error
-                  ? "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border-red-200 dark:border-red-900"
-                  : "bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-900"
-              }`}
-            >
-              <Server size={12} /> {error ? "Offline" : "Online"}
-            </div>
           </div>
         </div>
       </nav>
-
       <main className="max-w-xl mx-auto px-6 py-8">
         {loading && (
           <div className="text-center p-10 text-slate-400">
