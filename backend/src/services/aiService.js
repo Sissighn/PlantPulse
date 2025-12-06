@@ -4,10 +4,6 @@ exports.getCareTips = async (plantName, season) => {
   if (!model) return "KI nicht konfiguriert.";
 
   try {
-    // ÄNDERUNGEN HIER:
-    // 1. Persona: "Pflanzen-Buddy" statt nur Gärtner (lockerer Ton).
-    // 2. Formatierung: Explizite Anweisung für Emojis und Zeilenumbrüche.
-    // 3. Verbot: "Keine Markdown-Formatierung" verhindert die **Sternchen**.
     const prompt = `
       Du bist ein begeisterter, moderner Pflanzen-Buddy. 
       Gib mir 3 ultra-kurze, knackige Pflege-Tipps für "${plantName}" im "${season}".
@@ -41,5 +37,30 @@ exports.suggestInterval = async (plantName) => {
   } catch (error) {
     console.error("AI Interval Error:", error);
     return 7;
+  }
+};
+
+exports.chatWithBot = async (userMessage) => {
+  if (!model) return "Verbindung zum Robo-Gehirn unterbrochen! 🔌";
+
+  try {
+    const prompt = `
+      Du bist "SproutBot", ein kleiner, freundlicher Pixel-Roboter mit einem grünen Pflänzchen auf dem Kopf. 
+      Du lebst in einer Pflanzen-App und hilfst dem User.
+      
+      User Nachricht: "${userMessage}"
+
+      Deine Anweisungen:
+      1. Antworte kurz, hilfreich und charmant.
+      2. Du bist ein Pflanzen-Experte, aber erklärst es einfach.
+      3. Benutze Pflanzen-Emojis (🌱, 🌿, 💧, 🤖).
+      4. Wenn der User "Hallo" sagt, stell dich als SproutBot vor und erwähne dein Pflänzchen auf dem Kopf.
+    `;
+
+    const result = await model.generateContent(prompt);
+    return result.response.text();
+  } catch (error) {
+    console.error("AI Chat Error:", error);
+    return "Bip Bop... mein Prozessor raucht. Versuch es später nochmal! 🤖💥";
   }
 };

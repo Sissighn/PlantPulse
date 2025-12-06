@@ -5,6 +5,7 @@ import SeasonSelector from "./components/SeasonSelector";
 import PlantCard from "./components/PlantCard";
 import AddPlantForm from "./components/AddPlantForm";
 import { PixelBot } from "./components/PixelBot";
+import { PlantAssistant } from "./components/PlantAssistant";
 
 const App = () => {
   const [season, setSeason] = useState("summer");
@@ -13,10 +14,10 @@ const App = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   const [darkMode, setDarkMode] = useState(
     () => localStorage.getItem("theme") === "dark"
   );
+  const [showAssistant, setShowAssistant] = useState(false);
 
   useEffect(() => {
     if (darkMode) {
@@ -98,6 +99,21 @@ const App = () => {
             >
               {darkMode ? <Sun size={20} /> : <Moon size={20} />}
             </button>
+            <button
+              onClick={() => setShowAssistant(true)}
+              style={{
+                background: "#333",
+                color: "#76ff03",
+                border: "2px solid #76ff03",
+                padding: "8px 15px",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontWeight: "bold",
+                fontFamily: "monospace",
+              }}
+            >
+              AI HELP
+            </button>
           </div>
         </div>
       </nav>
@@ -143,6 +159,9 @@ const App = () => {
                   onDelete={deletePlant}
                 />
               ))}
+              {showAssistant && (
+                <PlantAssistant onClose={() => setShowAssistant(false)} />
+              )}
             </div>
           </>
         )}
