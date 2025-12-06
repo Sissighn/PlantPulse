@@ -3,4 +3,3 @@ node_modules
 frontend/dist
 backend/.env
 *.db
-plants.db
