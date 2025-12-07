@@ -1,5 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Plus, Sun, Moon, Bot, Bell } from "lucide-react";
+import {
+  Plus,
+  Sun,
+  Moon,
+  Bot,
+  Bell,
+  Settings,
+  MoreHorizontal,
+} from "lucide-react";
 import { BACKEND_URL, BASE_URL } from "./constants";
 import SeasonSelector from "./components/SeasonSelector";
 import PlantCard from "./components/PlantCard";
@@ -8,6 +16,7 @@ import { PixelBot } from "./components/PixelBot";
 import { PlantAssistant } from "./components/PlantAssistant";
 import Notifications from "./components/Notifications";
 import { useNotifications } from "./hooks/useNotifications";
+import { MenuContainer, MenuItem } from "./components/FluidMenu";
 
 const App = () => {
   const [season, setSeason] = useState("summer");
@@ -143,6 +152,13 @@ const App = () => {
               <Bot size={20} />
               <span className="absolute top-1 right-1 w-2 h-2 bg-emerald-500 rounded-full border border-white dark:border-slate-800"></span>
             </button>
+            <MenuContainer>
+              <MenuItem icon={<MoreHorizontal size={20} />} />
+              <MenuItem
+                icon={<Settings size={20} />}
+                onClick={() => alert("Settings clicked!")}
+              />
+            </MenuContainer>
           </div>
         </div>
       </nav>

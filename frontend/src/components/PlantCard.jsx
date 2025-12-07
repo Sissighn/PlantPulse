@@ -13,6 +13,7 @@ import { BACKEND_URL, BASE_URL } from "../constants";
 const PlantCard = ({ plant, season, onWater, onDelete }) => {
   const [tips, setTips] = useState(null);
   const [loadingTips, setLoadingTips] = useState(false);
+  const [isWatering, setIsWatering] = useState(false);
 
   const status = useMemo(() => {
     const multipliers = { spring: 1.0, summer: 0.8, autumn: 1.2, winter: 2.0 };
@@ -157,12 +158,17 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
         {/* GROSSER GIESS-BUTTON */}
         <button
           onClick={() => onWater(plant.id)}
-          className="relative group/btn flex items-center justify-center p-0 rounded-full transition-all active:scale-95 w-20 h-20 hover:opacity-80"
+          onMouseDown={() => setIsWatering(true)}
+          onMouseUp={() => setIsWatering(false)}
+          onMouseLeave={() => setIsWatering(false)}
+          className="relative group/btn flex items-center justify-center p-0 rounded-full transition-all active:scale-95 w-24 h-23 hover:opacity-80"
           title="Gießen"
         >
           <img
-            src={`${BASE_URL}/icons/watering.png`}
-            alt="Gießen"
+            src={`${BASE_URL}/icons/${
+              isWatering ? "wateringon.png" : "watering.png"
+            }`}
+            alt="Watering can icon"
             style={{ mixBlendMode: "multiply" }}
             className="w-full h-full object-contain drop-shadow-sm group-hover/btn:-rotate-12 transition-transform duration-300"
             onError={(e) => {
