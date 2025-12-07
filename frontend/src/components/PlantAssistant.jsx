@@ -1,8 +1,8 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import "./PlantAssistant.css";
 import { PixelBot } from "./PixelBot";
 import { BACKEND_URL } from "../constants";
-import { Image as ImageIcon, X } from "lucide-react";
+import { Image as ImageIcon, X, Trash2 } from "lucide-react";
 
 export const PlantAssistant = ({ onClose }) => {
   const [input, setInput] = useState("");
@@ -16,6 +16,34 @@ export const PlantAssistant = ({ onClose }) => {
   ]);
   const [isTyping, setIsTyping] = useState(false);
 
+  // A) Beim Starten: Alten Chat laden
+  useEffect(() => {
+    const savedChat = localStorage.getItem("plantChatHistory");
+    if (savedChat) {
+      try {
+        setMessages(JSON.parse(savedChat));
+      } catch (e) {
+        console.error("Konnte Chat nicht laden", e);
+      }
+    }
+  }, []);
+
+  // B) Bei jeder neuen Nachricht: Automatisch speichern
+  useEffect(() => {
+    localStorage.setItem("plantChatHistory", JSON.stringify(messages));
+  }, [messages]);
+
+  // C) Funktion zum Löschen des Verlaufs (für den Header)
+  const clearChat = () => {
+    localStorage.removeItem("plantChatHistory");
+    setMessages([
+      {
+        sender: "ai",
+        text: "Gedächtnis gelöscht! 🧹 Fangen wir von vorne an.",
+      },
+    ]);
+  };
+
   const handleImageSelect = (e) => {
     if (e.target.files && e.target.files[0]) {
       setSelectedImage(e.target.files[0]);
@@ -23,8 +51,7 @@ export const PlantAssistant = ({ onClose }) => {
   };
 
   const handleSend = async () => {
-    if (!input.trim()) return;
-
+    if (!input.trim() && !selectedImage) return;
     const userMsg = {
       sender: "user",
       text: input,
@@ -32,24 +59,32 @@ export const PlantAssistant = ({ onClose }) => {
     };
     setMessages((prev) => [...prev, userMsg]);
 
+    const newMessages = [...messages, userMsg];
+    setMessages(newMessages);
+
     const messageToSend = input;
     const imageToSend = selectedImage;
 
+    // Wir nehmen alle Nachrichten AUSSER der ganz neuen (die senden wir als 'message') um dem Bot den Kontext zu geben.
+    const historyToSend = messages.map((msg) => ({
+      role: msg.sender === "user" ? "user" : "model",
+      parts: [{ text: msg.text || "" }],
+    }));
+
     setInput("");
-    setIsTyping(true);
     setSelectedImage(null);
+    setIsTyping(true);
 
     try {
       const formData = new FormData();
       formData.append("message", messageToSend);
+      formData.append("history", JSON.stringify(historyToSend));
       if (imageToSend) {
         formData.append("image", imageToSend);
       }
 
       const response = await fetch(`${BACKEND_URL}/chat`, {
         method: "POST",
-        // WICHTIG: Bei FormData KEINEN 'Content-Type' Header setzen!
-        // Der Browser macht das automatisch richtig mit "boundary".
         body: formData,
       });
 
@@ -79,6 +114,19 @@ export const PlantAssistant = ({ onClose }) => {
           <div className="header-title">
             <h3>Plant AI</h3>
           </div>
+          <button
+            onClick={clearChat}
+            title="Chat löschen"
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              color: "#94a3b8",
+              marginRight: "10px",
+            }}
+          >
+            <Trash2 size={20} />
+          </button>
           <button className="close-btn" onClick={onClose}>
             &times;
           </button>
@@ -139,7 +187,7 @@ export const PlantAssistant = ({ onClose }) => {
 
             <input
               type="text"
-              placeholder="Frag was oder lad ein Bild hoch..."
+              placeholder="Stell deine Frage über deine Pflanze:)"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={(e) => e.key === "Enter" && handleSend()}

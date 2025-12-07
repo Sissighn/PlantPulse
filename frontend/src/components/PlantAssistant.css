@@ -36,7 +36,7 @@
   display: flex;
   align-items: center;
   border-bottom: 2px solid #e2e8f0;
-  height: 60px; /* Deine schmale Höhe */
+  height: 60px;
 }
 
 .bot-avatar-small {
@@ -127,7 +127,7 @@
 /* Bilder im Chat */
 .chat-upload-preview {
   max-width: 100%;
-  max-height: 200px; /* Damit hohe Bilder nicht alles sprengen */
+  max-height: 200px;
   border-radius: 12px;
   border: 2px solid #cbd5e1;
   object-fit: cover;
@@ -161,9 +161,7 @@
   font-style: italic;
 }
 
-/* --- EINGABE BEREICH (Neu strukturiert) --- */
-
-/* Wrapper, der Input + Vorschau-Leiste hält */
+/* --- EINGABE BEREICH --- */
 .input-area-wrapper {
   background: #f1f5f9;
   border-top: 2px solid #e2e8f0;
@@ -171,7 +169,6 @@
   flex-direction: column;
 }
 
-/* Die Leiste für die Bildvorschau (bevor man sendet) */
 .image-preview-bar {
   background: #e2e8f0;
   padding: 5px 15px;
@@ -217,10 +214,9 @@
   border-color: #16a34a;
 }
 
-/* Der grüne Senden-Button */
 .input-area .send-btn {
   padding: 0 20px;
-  height: 46px; /* Feste Höhe passend zum Input */
+  height: 46px;
   border-radius: 12px;
   border: 2px solid #16a34a;
   background: #22c55e;

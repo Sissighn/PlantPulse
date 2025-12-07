@@ -9,7 +9,6 @@ const db = new sqlite3.Database(dbPath, (err) => {
 });
 
 db.serialize(() => {
-  // Wir fügen die Spalte 'image' hinzu
   db.run(`CREATE TABLE IF NOT EXISTS plants (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,

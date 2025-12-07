@@ -14,10 +14,19 @@ router.get("/tips", controller.getAiTips);
 
 router.post("/chat", upload.single("image"), async (req, res) => {
   try {
-    const message = req.body.message || ""; // Textnachricht
-    const imageFile = req.file; // Das hochgeladene Bild (falls vorhanden)
+    const message = req.body.message || "";
+    const imageFile = req.file;
 
-    const reply = await aiService.chatWithBot(message, imageFile);
+    let history = [];
+    if (req.body.history) {
+      try {
+        history = JSON.parse(req.body.history);
+      } catch (e) {
+        console.error("Fehler beim Parsen der History", e);
+      }
+    }
+
+    const reply = await aiService.chatWithBot(message, imageFile, history);
 
     res.json({ reply });
   } catch (error) {
