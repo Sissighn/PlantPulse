@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from "react";
-import { Plus, Sun, Moon, Bot } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { Plus, Sun, Moon, Bot, Bell } from "lucide-react";
 import { BACKEND_URL, BASE_URL } from "./constants";
 import SeasonSelector from "./components/SeasonSelector";
 import PlantCard from "./components/PlantCard";
 import AddPlantForm from "./components/AddPlantForm";
 import { PixelBot } from "./components/PixelBot";
 import { PlantAssistant } from "./components/PlantAssistant";
+import Notifications from "./components/Notifications";
+import { useNotifications } from "./hooks/useNotifications";
 
 const App = () => {
   const [season, setSeason] = useState("summer");
@@ -18,6 +20,9 @@ const App = () => {
     () => localStorage.getItem("theme") === "dark"
   );
   const [showAssistant, setShowAssistant] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const notifications = useNotifications(plants, season);
+  const notificationRef = useRef(null);
 
   useEffect(() => {
     if (darkMode) {
@@ -28,6 +33,20 @@ const App = () => {
       localStorage.setItem("theme", "light");
     }
   }, [darkMode]);
+
+  // Effect to handle clicks outside the notification dropdown
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target)
+      ) {
+        setShowNotifications(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const fetchPlants = async () => {
     try {
@@ -99,6 +118,23 @@ const App = () => {
             >
               {darkMode ? <Sun size={20} /> : <Moon size={20} />}
             </button>
+            <div className="relative" ref={notificationRef}>
+              <button
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                title="Notifications"
+              >
+                <Bell size={20} />
+                {notifications.length > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white border-2 border-white dark:border-slate-900">
+                    {notifications.length}
+                  </span>
+                )}
+              </button>
+              {showNotifications && (
+                <Notifications notifications={notifications} />
+              )}
+            </div>
             <button
               onClick={() => setShowAssistant(true)}
               className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors relative"
