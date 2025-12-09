@@ -33,7 +33,6 @@
   align-items: center;
 }
 
-/* --- KOPF --- */
 .head {
   position: relative;
   z-index: 2;
@@ -47,7 +46,7 @@
   z-index: 5;
 
   transform-origin: bottom center;
-  animation: sproutSway 3s ease-in-out infinite alternate;
+  animation: sproutSway 1.5s ease-in-out infinite alternate;
 }
 
 .stem {
@@ -199,12 +198,10 @@
     transform: rotate(-20deg);
   }
 
-  /* 50%: Maximale Wink-Position (Arm weit nach außen/unten) */
   50% {
     transform: rotate(20deg);
   }
 
-  /* 100%: Zurück zur Startposition */
   100% {
     transform: rotate(-20deg);
   }
