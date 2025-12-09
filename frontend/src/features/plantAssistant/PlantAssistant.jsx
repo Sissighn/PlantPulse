@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./PlantAssistant.css";
-import { PixelBot } from "./bot/PixelBot";
-import { BACKEND_URL } from "../constants";
+import { PixelBot } from "../pixelBot/PixelBot";
+import { BACKEND_URL } from "../../constants";
 import { Image as ImageIcon, X, Trash2 } from "lucide-react";
 
 export const PlantAssistant = ({ onClose }) => {
