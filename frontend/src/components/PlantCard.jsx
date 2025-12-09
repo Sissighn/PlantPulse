@@ -7,7 +7,7 @@ import {
   Zap,
   Sparkles,
 } from "lucide-react";
-import { PixelBot } from "./PixelBot";
+import { PixelBot } from "./bot/PixelBot";
 import { BACKEND_URL, BASE_URL } from "../constants";
 
 const PlantCard = ({ plant, season, onWater, onDelete }) => {

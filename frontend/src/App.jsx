@@ -12,7 +12,7 @@ import { BACKEND_URL, BASE_URL } from "./constants";
 import SeasonSelector from "./components/SeasonSelector";
 import PlantCard from "./components/PlantCard";
 import AddPlantForm from "./components/AddPlantForm";
-import { PixelBot } from "./components/PixelBot";
+import { PixelBot } from "./components/bot/PixelBot";
 import { PlantAssistant } from "./components/PlantAssistant";
 import Notifications from "./components/Notifications";
 import { useNotifications } from "./hooks/useNotifications";
