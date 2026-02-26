@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Droplet,
   Trash2,
@@ -15,6 +15,29 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
   const [loadingTips, setLoadingTips] = useState(false);
   const [isWatering, setIsWatering] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!showDeleteModal) return;
+
+      if (e.key === "Enter") {
+        e.preventDefault();
+        onDelete(plant.id);
+        setShowDeleteModal(false);
+      } else if (e.key === "Escape") {
+        setShowDeleteModal(false);
+      }
+    };
+
+    if (showDeleteModal) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+
+    // Aufräumen, wenn die Komponente entfernt wird oder sich der State ändert
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [showDeleteModal, onDelete, plant.id]);
 
   const status = useMemo(() => {
     const multipliers = { spring: 1.0, summer: 0.8, autumn: 1.2, winter: 2.0 };
@@ -204,39 +227,46 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
       </div>
 
       {showDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-sm shadow-xl border border-slate-100 dark:border-slate-700 animate-in zoom-in-95 duration-200">
-            <div className="flex items-center gap-3 mb-4 text-red-500">
-              <div className="p-2 bg-red-50 dark:bg-red-900/30 rounded-full">
-                <Trash2 size={24} />
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+          onClick={() => setShowDeleteModal(false)} // Schließt das Modal beim Klick auf den Hintergrund
+        >
+          <div
+            className="bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-slate-100 dark:border-slate-700 animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()} // Verhindert, dass Klicks IM Modal das Modal schließen
+          >
+            <div className="flex flex-col items-center text-center mb-6">
+              <div className="p-3 bg-red-100 dark:bg-red-900/30 text-red-500 rounded-full mb-4">
+                <Trash2 size={28} />
               </div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+              <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
                 Pflanze löschen?
               </h3>
+              <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
+                Bist du sicher, dass du{" "}
+                <strong className="text-slate-700 dark:text-slate-200">
+                  {plant.name}
+                </strong>{" "}
+                entfernen möchtest?
+                <br />
+                Diese Aktion kann nicht rückgängig gemacht werden.
+              </p>
             </div>
 
-            <p className="text-slate-500 dark:text-slate-400 mb-6 text-sm leading-relaxed">
-              Bist du sicher, dass du{" "}
-              <strong className="text-slate-700 dark:text-slate-200">
-                {plant.name}
-              </strong>{" "}
-              entfernen möchtest? Diese Aktion kann nicht rückgängig gemacht
-              werden.
-            </p>
-
-            <div className="flex justify-end gap-3">
+            <div className="flex justify-center gap-3">
               <button
                 onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
               >
                 Abbrechen
               </button>
               <button
                 onClick={() => {
                   onDelete(plant.id);
-                  setShowDeleteModal(false); // Modal schließen nach Bestätigung
+                  setShowDeleteModal(false);
                 }}
-                className="px-4 py-2 rounded-xl text-sm font-semibold text-white bg-red-500 hover:bg-red-600 active:bg-red-700 transition-colors"
+                autoFocus // Fokus liegt automatisch hier, damit Enter direkt funktioniert
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-red-500 hover:bg-red-600 active:bg-red-700 transition-colors shadow-sm shadow-red-500/20"
               >
                 Löschen
               </button>
