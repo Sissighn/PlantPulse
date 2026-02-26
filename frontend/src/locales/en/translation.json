@@ -1,0 +1,22 @@
+{
+  "plantCard": {
+    "overdue": "Overdue ({{count}} d.)",
+    "today": "Today!",
+    "inDays": "In {{count}} days",
+    "interval": "Interval",
+    "days": "days",
+    "couldNotLoadTips": "Could not load tips.",
+    "hideTips": "Hide tips",
+    "aiTips": "AI Tips",
+    "searching": "Searching...",
+    "waterTitle": "Water",
+    "askBot": "Ask the Plant-Bot...",
+    "deleteTitle": "Delete plant",
+    "deleteQuestion": "Delete plant?",
+    "deleteConfirmStart": "Are you sure you want to remove",
+    "deleteConfirmEnd": "?",
+    "deleteWarning": "This action cannot be undone.",
+    "cancel": "Cancel",
+    "deleteBtn": "Delete"
+  }
+}

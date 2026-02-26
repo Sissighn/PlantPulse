@@ -1,0 +1,22 @@
+{
+  "plantCard": {
+    "overdue": "Überfällig ({{count}} T.)",
+    "today": "Heute!",
+    "inDays": "In {{count}} Tagen",
+    "interval": "Intervall",
+    "days": "Tage",
+    "couldNotLoadTips": "Konnte keine Tipps laden.",
+    "hideTips": "Tipps verbergen",
+    "aiTips": "KI-Tipps",
+    "searching": "Suche...",
+    "waterTitle": "Gießen",
+    "askBot": "Frage den Pflanzen-Bot...",
+    "deleteTitle": "Pflanze löschen",
+    "deleteQuestion": "Pflanze löschen?",
+    "deleteConfirmStart": "Bist du sicher, dass du",
+    "deleteConfirmEnd": "entfernen möchtest?",
+    "deleteWarning": "Diese Aktion kann nicht rückgängig gemacht werden.",
+    "cancel": "Abbrechen",
+    "deleteBtn": "Löschen"
+  }
+}
