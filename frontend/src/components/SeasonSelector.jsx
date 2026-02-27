@@ -8,25 +8,25 @@ const SeasonSelector = ({ currentSeason, onSeasonChange }) => {
   const seasons = [
     {
       id: "spring",
-      label: t("plantCard.season.spring"),
+      label: t("dic.season.spring"),
       icon: Sprout,
       color: "text-green-500",
     },
     {
       id: "summer",
-      label: t("plantCard.season.summer"),
+      label: t("dic.season.summer"),
       icon: Sun,
       color: "text-amber-500",
     },
     {
       id: "autumn",
-      label: t("plantCard.season.autumn"),
+      label: t("dic.season.autumn"),
       icon: Wind,
       color: "text-orange-500",
     },
     {
       id: "winter",
-      label: t("plantCard.season.winter"),
+      label: t("dic.season.winter"),
       icon: Snowflake,
       color: "text-blue-400",
     },
