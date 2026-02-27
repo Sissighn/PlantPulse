@@ -1,5 +1,5 @@
 {
-  "plantCard": {
+  "dic": {
     "overdue": "Overdue ({{count}} d.)",
     "today": "Today!",
     "inDays": "In {{count}} days",
@@ -18,7 +18,10 @@
     "deleteWarning": "This action cannot be undone.",
     "cancel": "Cancel",
     "add": "Add",
+    "addNewPlant": "New plant",
     "deleteBtn": "Delete",
+    "intervalDays": "Watering interval (days)",
+    "aiEstimation": "AI estimation",
     "plantSpecies": "Plant species",
     "season.spring": "Spring",
     "season.summer": "Summer",

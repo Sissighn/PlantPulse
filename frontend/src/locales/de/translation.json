@@ -1,5 +1,5 @@
 {
-  "plantCard": {
+  "dic": {
     "overdue": "Überfällig ({{count}} T.)",
     "today": "Heute!",
     "inDays": "In {{count}} Tagen",
@@ -18,7 +18,10 @@
     "deleteWarning": "Diese Aktion kann nicht rückgängig gemacht werden.",
     "cancel": "Abbrechen",
     "add": "Hinzufügen",
+    "addNewPlant": "Neue Pflanze",
     "deleteBtn": "Löschen",
+    "intervalDays": "Gießintervall (Tage)",
+    "aiEstimation": "KI Schätzung",
     "plantSpecies": "Pflanzenart",
     "season.spring": "Frühling",
     "season.summer": "Sommer",
