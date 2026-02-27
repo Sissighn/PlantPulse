@@ -26,6 +26,8 @@
     "season.spring": "Spring",
     "season.summer": "Summer",
     "season.autumn": "Autumn",
-    "season.winter": "Winter"
+    "season.winter": "Winter",
+    "notification": "Notifications",
+    "upToDate": "You're up to date!"
   }
 }
