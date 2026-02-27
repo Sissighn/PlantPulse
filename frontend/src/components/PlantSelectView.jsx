@@ -1,39 +1,36 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { ChevronDown, Check } from "lucide-react";
-import { PLANT_TYPES, BASE_URL } from "../constants";
 import { useTranslation } from "react-i18next";
+import { useClickOutside } from "../hooks/useClickOutside";
 
-const PlantSelect = ({ selectedId, onChange }) => {
+const PlantSelectView = ({
+  plants,
+  selectedPlant,
+  selectedId,
+  baseUrl,
+  onChange,
+}) => {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target))
-        setIsOpen(false);
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const selectedPlant =
-    PLANT_TYPES.find((p) => p.id === selectedId) || PLANT_TYPES[0];
+  useClickOutside(dropdownRef, () => setIsOpen(false));
 
   return (
     <div className="relative" ref={dropdownRef}>
       <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-1 block">
         {t("dic.plantSpecies")}
       </label>
+
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => setIsOpen((prev) => !prev)}
         className="w-full p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl flex items-center justify-between hover:border-emerald-400 transition-colors focus:ring-2 focus:ring-emerald-500 outline-none"
       >
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-100 dark:border-slate-600 overflow-hidden flex items-center justify-center">
             <img
-              src={`${BASE_URL}/images/${selectedPlant.id}.png`}
+              src={`${baseUrl}/images/${selectedPlant.id}.png`}
               alt=""
               className="w-full h-full object-cover"
               onError={(e) => {
@@ -41,10 +38,12 @@ const PlantSelect = ({ selectedId, onChange }) => {
               }}
             />
           </div>
+
           <span className="font-medium text-slate-700 dark:text-slate-200">
             {selectedPlant.label}
           </span>
         </div>
+
         <ChevronDown
           size={20}
           className={`text-slate-400 transition-transform ${
@@ -54,8 +53,8 @@ const PlantSelect = ({ selectedId, onChange }) => {
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 w-full mt-2 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl shadow-xl max-h-60 overflow-y-auto animate-in fade-in zoom-in-95">
-          {PLANT_TYPES.map((plant) => (
+        <div className="absolute z-50 w-full mt-2 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl shadow-xl max-h-60 overflow-y-auto">
+          {plants.map((plant) => (
             <button
               key={plant.id}
               type="button"
@@ -63,11 +62,11 @@ const PlantSelect = ({ selectedId, onChange }) => {
                 onChange(plant.id);
                 setIsOpen(false);
               }}
-              className="w-full p-2 flex items-center gap-3 hover:bg-emerald-50 dark:hover:bg-slate-700 transition-colors first:rounded-t-xl last:rounded-b-xl"
+              className="w-full p-2 flex items-center gap-3 hover:bg-emerald-50 dark:hover:bg-slate-700 transition-colors"
             >
               <div className="w-10 h-10 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-100 dark:border-slate-600 overflow-hidden flex items-center justify-center">
                 <img
-                  src={`${BASE_URL}/images/${plant.id}.png`}
+                  src={`${baseUrl}/images/${plant.id}.png`}
                   alt=""
                   className="w-full h-full object-cover"
                   onError={(e) => {
@@ -75,6 +74,7 @@ const PlantSelect = ({ selectedId, onChange }) => {
                   }}
                 />
               </div>
+
               <span
                 className={`font-medium ${
                   selectedId === plant.id
@@ -84,6 +84,7 @@ const PlantSelect = ({ selectedId, onChange }) => {
               >
                 {plant.label}
               </span>
+
               {selectedId === plant.id && (
                 <Check
                   size={16}
@@ -98,4 +99,4 @@ const PlantSelect = ({ selectedId, onChange }) => {
   );
 };
 
-export default PlantSelect;
+export default PlantSelectView;

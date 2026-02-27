@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Loader2, Sparkles } from "lucide-react";
 import { PLANT_TYPES } from "../constants";
-import PlantSelect from "./PlantSelect";
+import PlantSelect from "./PlantSelectContainer";
 import { useTranslation } from "react-i18next";
 
 const AddPlantForm = ({ onAdd, onCancel, isSaving }) => {
