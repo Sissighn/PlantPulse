@@ -16,7 +16,11 @@ import { PixelBot } from "./features/pixelBot/PixelBot";
 import { PlantAssistant } from "./features/plantAssistant/PlantAssistant";
 import Notifications from "./components/Notifications";
 import { useNotifications } from "./hooks/useNotifications";
-import { MenuContainer, MenuItem } from "./components/FluidMenu";
+import {
+  MenuContainer,
+  MenuItem,
+  LanguageMenuItem,
+} from "./components/FluidMenu";
 
 const App = () => {
   const [season, setSeason] = useState("summer");
@@ -26,7 +30,7 @@ const App = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [darkMode, setDarkMode] = useState(
-    () => localStorage.getItem("theme") === "dark"
+    () => localStorage.getItem("theme") === "dark",
   );
   const [showAssistant, setShowAssistant] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -43,7 +47,6 @@ const App = () => {
     }
   }, [darkMode]);
 
-  // Effect to handle clicks outside the notification dropdown
   useEffect(() => {
     function handleClickOutside(event) {
       if (
@@ -97,6 +100,7 @@ const App = () => {
     await fetch(`${BACKEND_URL}/plants/${id}`, { method: "DELETE" });
     fetchPlants();
   };
+
   const waterPlant = async (id) => {
     await fetch(`${BACKEND_URL}/water/${id}`, { method: "POST" });
     fetchPlants();
@@ -121,12 +125,15 @@ const App = () => {
           </div>
 
           <div className="flex items-center gap-3">
+            {/* Dark mode toggle */}
             <button
               onClick={() => setDarkMode(!darkMode)}
               className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
             >
               {darkMode ? <Sun size={20} /> : <Moon size={20} />}
             </button>
+
+            {/* Notifications */}
             <div className="relative" ref={notificationRef}>
               <button
                 onClick={() => setShowNotifications(!showNotifications)}
@@ -144,6 +151,8 @@ const App = () => {
                 <Notifications notifications={notifications} />
               )}
             </div>
+
+            {/* AI Assistant */}
             <button
               onClick={() => setShowAssistant(true)}
               className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors relative"
@@ -152,12 +161,25 @@ const App = () => {
               <Bot size={20} />
               <span className="absolute top-1 right-1 w-2 h-2 bg-emerald-500 rounded-full border border-white dark:border-slate-800"></span>
             </button>
+
+            {/*
+              FluidMenu — three stacked items:
+                1. MoreHorizontal  ← always visible trigger
+                2. Settings
+                3. Language (Globe + DE/EN picker)
+            */}
             <MenuContainer>
+              {/* Slot 0: Trigger */}
               <MenuItem icon={<MoreHorizontal size={20} />} />
+
+              {/* Slot 1: Settings */}
               <MenuItem
                 icon={<Settings size={20} />}
                 onClick={() => alert("Settings clicked!")}
               />
+
+              {/* Slot 2: Language switcher */}
+              <LanguageMenuItem />
             </MenuContainer>
           </div>
         </div>
