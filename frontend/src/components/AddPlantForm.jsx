@@ -23,18 +23,18 @@ const AddPlantForm = ({ onAdd, onCancel, isSaving }) => {
   return (
     <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-3xl border border-slate-200 dark:border-slate-700 animate-in fade-in zoom-in-95">
       <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4">
-        Neue Pflanze
+        {t("dic.addNewPlant")}
       </h3>
       <form onSubmit={handleSubmit} className="space-y-4">
         <PlantSelect selectedId={selectedType} onChange={setSelectedType} />
         <div className="relative">
           <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">
-            Gießintervall (Tage)
+            {t("dic.intervalDays")}
           </label>
           <input
             type="number"
             min="1"
-            placeholder="Automatisch (KI schätzt)"
+            placeholder={t("dic.aiEstimation")}
             className="w-full mt-1 p-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
             value={days}
             onChange={(e) => setDays(e.target.value)}
@@ -51,7 +51,7 @@ const AddPlantForm = ({ onAdd, onCancel, isSaving }) => {
             onClick={onCancel}
             className="flex-1 py-3 bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-medium border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600"
           >
-            {t("plantCard.cancel")}
+            {t("dic.cancel")}
           </button>
           <button
             type="submit"
@@ -61,7 +61,7 @@ const AddPlantForm = ({ onAdd, onCancel, isSaving }) => {
             {isSaving ? (
               <Loader2 className="animate-spin" size={18} />
             ) : (
-              t("plantCard.add")
+              t("dic.add")
             )}
           </button>
         </div>
