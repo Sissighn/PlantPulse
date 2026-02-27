@@ -1,7 +1,10 @@
 import React from "react";
 import { Droplet } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const Notifications = ({ notifications }) => {
+  const { t } = useTranslation();
+
   return (
     <div className="absolute top-14 right-0 w-80 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-lg z-30 animate-in fade-in-5 slide-in-from-top-2 duration-300">
       <div className="p-4 border-b border-slate-200 dark:border-slate-700">
