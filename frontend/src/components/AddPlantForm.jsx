@@ -2,8 +2,11 @@ import React, { useState } from "react";
 import { Loader2, Sparkles } from "lucide-react";
 import { PLANT_TYPES } from "../constants";
 import PlantSelect from "./PlantSelect";
+import { useTranslation } from "react-i18next";
 
 const AddPlantForm = ({ onAdd, onCancel, isSaving }) => {
+  const { t } = useTranslation();
+
   const [selectedType, setSelectedType] = useState(PLANT_TYPES[0].id);
   const [days, setDays] = useState("");
 
@@ -13,7 +16,7 @@ const AddPlantForm = ({ onAdd, onCancel, isSaving }) => {
     onAdd(
       plantInfo ? plantInfo.label : "Pflanze",
       selectedType,
-      days ? parseInt(days) : null
+      days ? parseInt(days) : null,
     );
   };
 
@@ -48,7 +51,7 @@ const AddPlantForm = ({ onAdd, onCancel, isSaving }) => {
             onClick={onCancel}
             className="flex-1 py-3 bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-medium border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600"
           >
-            Abbrechen
+            {t("plantCard.cancel")}
           </button>
           <button
             type="submit"
@@ -58,7 +61,7 @@ const AddPlantForm = ({ onAdd, onCancel, isSaving }) => {
             {isSaving ? (
               <Loader2 className="animate-spin" size={18} />
             ) : (
-              "Hinzufügen"
+              t("plantCard.add")
             )}
           </button>
         </div>
