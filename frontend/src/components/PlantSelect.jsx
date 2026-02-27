@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { ChevronDown, Check } from "lucide-react";
 import { PLANT_TYPES, BASE_URL } from "../constants";
+import { useTranslation } from "react-i18next";
 
 const PlantSelect = ({ selectedId, onChange }) => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -21,7 +23,7 @@ const PlantSelect = ({ selectedId, onChange }) => {
   return (
     <div className="relative" ref={dropdownRef}>
       <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-1 block">
-        Pflanzenart
+        {t("plantCard.plantSpecies")}
       </label>
       <button
         type="button"
