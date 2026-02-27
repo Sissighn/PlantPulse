@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { BACKEND_URL, BASE_URL } from "./constants";
 import SeasonSelector from "./components/SeasonSelector";
-import PlantCard from "./components/PlantCard";
+import PlantCard from "./components/PlantCardContainer";
 import AddPlantForm from "./components/AddPlantForm";
 import { PixelBot } from "./features/pixelBot/PixelBot";
 import { PlantAssistant } from "./features/plantAssistant/PlantAssistant";
