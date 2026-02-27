@@ -17,6 +17,12 @@
     "deleteConfirmEnd": "?",
     "deleteWarning": "This action cannot be undone.",
     "cancel": "Cancel",
-    "deleteBtn": "Delete"
+    "add": "Add",
+    "deleteBtn": "Delete",
+    "plantSpecies": "Plant species",
+    "season.spring": "Spring",
+    "season.summer": "Summer",
+    "season.autumn": "Autumn",
+    "season.winter": "Winter"
   }
 }

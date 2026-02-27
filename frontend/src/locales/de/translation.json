@@ -17,6 +17,12 @@
     "deleteConfirmEnd": "entfernen möchtest?",
     "deleteWarning": "Diese Aktion kann nicht rückgängig gemacht werden.",
     "cancel": "Abbrechen",
-    "deleteBtn": "Löschen"
+    "add": "Hinzufügen",
+    "deleteBtn": "Löschen",
+    "plantSpecies": "Pflanzenart",
+    "season.spring": "Frühling",
+    "season.summer": "Sommer",
+    "season.autumn": "Herbst",
+    "season.winter": "Winter"
   }
 }
