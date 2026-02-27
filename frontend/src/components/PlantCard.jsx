@@ -77,7 +77,7 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
       const data = await res.json();
       setTips(data.tips);
     } catch (e) {
-      setTips(t("plantCard.couldNotLoadTips"));
+      setTips(t("dic.couldNotLoadTips"));
     } finally {
       setLoadingTips(false);
     }
@@ -149,17 +149,17 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
                   <Droplet size={12} />
                 )}
                 {status.overdue
-                  ? t("plantCard.overdue", { count: Math.abs(status.days) })
+                  ? t("dic.overdue", { count: Math.abs(status.days) })
                   : status.today
-                    ? t("plantCard.today")
-                    : t("plantCard.inDays", { count: status.days })}{" "}
+                    ? t("dic.today")
+                    : t("dic.inDays", { count: status.days })}{" "}
               </div>
             </div>
           </div>
           <button
             onClick={() => setShowDeleteModal(true)}
             className="text-slate-300 hover:text-red-400 dark:hover:text-red-400 p-2 opacity-0 group-hover:opacity-100 transition-opacity"
-            title={t("plantCard.deleteTitle")}
+            title={t("dic.deleteTitle")}
           >
             <Trash2 size={18} />
           </button>
@@ -168,8 +168,7 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
         <div className="mt-4 flex justify-between items-center pl-1 gap-2">
           <div className="flex flex-col text-xs text-slate-400 dark:text-slate-500 font-medium">
             <span>
-              {t("plantCard.interval")}: {status.interval} {t("plantCard.days")}{" "}
-              ({season})
+              {t("dic.interval")}: {status.interval} {t("dic.days")} ({season})
             </span>
             <button
               onClick={fetchTips}
@@ -181,10 +180,10 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
                 <Zap size={12} />
               )}
               {loadingTips
-                ? t("plantCard.searching")
+                ? t("dic.searching")
                 : tips
-                  ? t("plantCard.hideTips")
-                  : t("plantCard.aiTips")}
+                  ? t("dic.hideTips")
+                  : t("dic.aiTips")}
             </button>
           </div>
 
@@ -195,7 +194,7 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
             onMouseUp={() => setIsWatering(false)}
             onMouseLeave={() => setIsWatering(false)}
             className="relative group/btn flex items-center justify-center p-0 rounded-full transition-all active:scale-95 w-24 h-23 hover:opacity-80"
-            title={t("plantCard.waterTitle")}
+            title={t("dic.waterTitle")}
           >
             <img
               src={`${BASE_URL}/icons/${
@@ -215,7 +214,7 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
           <div className="flex flex-col items-center justify-center pt-4">
             <PixelBot />
             <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-              {t("plantCard.askBot")}
+              {t("dic.askBot")}
             </p>
           </div>
         )}
@@ -247,16 +246,16 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
                 <Trash2 size={28} />
               </div>
               <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
-                {t("plantCard.deleteQuestion")}
+                {t("dic.deleteQuestion")}
               </h3>
               <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
-                {t("plantCard.deleteConfirmStart")}{" "}
+                {t("dic.deleteConfirmStart")}{" "}
                 <strong className="text-slate-700 dark:text-slate-200">
                   {plant.name}
                 </strong>{" "}
-                {t("plantCard.deleteConfirmEnd")}
+                {t("dic.deleteConfirmEnd")}
                 <br />
-                {t("plantCard.deleteWarning")}{" "}
+                {t("dic.deleteWarning")}{" "}
               </p>
             </div>
 
@@ -265,7 +264,7 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
                 onClick={() => setShowDeleteModal(false)}
                 className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
               >
-                {t("plantCard.cancel")}
+                {t("dic.cancel")}
               </button>
               <button
                 onClick={() => {
@@ -275,7 +274,7 @@ const PlantCard = ({ plant, season, onWater, onDelete }) => {
                 autoFocus // Fokus liegt automatisch hier, damit Enter direkt funktioniert
                 className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-red-500 hover:bg-red-600 active:bg-red-700 transition-colors shadow-sm shadow-red-500/20"
               >
-                {t("plantCard.deleteBtn")}
+                {t("dic.deleteBtn")}
               </button>
             </div>
           </div>

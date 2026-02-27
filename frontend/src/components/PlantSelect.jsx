@@ -23,7 +23,7 @@ const PlantSelect = ({ selectedId, onChange }) => {
   return (
     <div className="relative" ref={dropdownRef}>
       <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-1 block">
-        {t("plantCard.plantSpecies")}
+        {t("dic.plantSpecies")}
       </label>
       <button
         type="button"
