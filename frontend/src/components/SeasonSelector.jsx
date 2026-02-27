@@ -1,12 +1,35 @@
 import React from "react";
 import { Sprout, Sun, Wind, Snowflake } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const SeasonSelector = ({ currentSeason, onSeasonChange }) => {
+  const { t } = useTranslation();
+
   const seasons = [
-    { id: "spring", label: "Frühling", icon: Sprout, color: "text-green-500" },
-    { id: "summer", label: "Sommer", icon: Sun, color: "text-amber-500" },
-    { id: "autumn", label: "Herbst", icon: Wind, color: "text-orange-500" },
-    { id: "winter", label: "Winter", icon: Snowflake, color: "text-blue-400" },
+    {
+      id: "spring",
+      label: t("plantCard.season.spring"),
+      icon: Sprout,
+      color: "text-green-500",
+    },
+    {
+      id: "summer",
+      label: t("plantCard.season.summer"),
+      icon: Sun,
+      color: "text-amber-500",
+    },
+    {
+      id: "autumn",
+      label: t("plantCard.season.autumn"),
+      icon: Wind,
+      color: "text-orange-500",
+    },
+    {
+      id: "winter",
+      label: t("plantCard.season.winter"),
+      icon: Snowflake,
+      color: "text-blue-400",
+    },
   ];
 
   return (
