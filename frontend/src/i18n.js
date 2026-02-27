@@ -1,22 +1,31 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 
-import translationDE from "./locales/de/translation.json";
-import translationEN from "./locales/en/translation.json";
+// Passe die Pfade an dein Projekt an:
+import de from "./locales/DE/translation.json";
+import en from "./locales/EN/translation.json";
 
-// Hier binden wir unsere JSON-Dateien ein
-const resources = {
-  de: { translation: translationDE },
-  en: { translation: translationEN },
-};
+const savedLang = localStorage.getItem("lang"); // "de" | "en"
+const initialLang = savedLang || "de";
 
 i18n.use(initReactI18next).init({
-  resources,
-  lng: "de", // Standardsprache
-  fallbackLng: "en", // Falls ein Text auf Deutsch fehlt, nimm Englisch
-  interpolation: {
-    escapeValue: false, // React schützt bereits vor XSS
+  resources: {
+    de: { translation: de },
+    en: { translation: en },
   },
+  lng: initialLang,
+  fallbackLng: "en",
+  interpolation: {
+    escapeValue: false,
+  },
+  react: {
+    useSuspense: false,
+  },
+});
+
+// Persistenz bei Sprachwechsel (nur einmal registrieren)
+i18n.on("languageChanged", (lng) => {
+  localStorage.setItem("lang", lng);
 });
 
 export default i18n;
