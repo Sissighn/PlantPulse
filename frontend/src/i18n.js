@@ -2,8 +2,8 @@ import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 
 // Passe die Pfade an dein Projekt an:
-import de from "./locales/DE/translation.json";
-import en from "./locales/EN/translation.json";
+import de from "./locales/de/translation.json";
+import en from "./locales/en/translation.json";
 
 const savedLang = localStorage.getItem("lang"); // "de" | "en"
 const initialLang = savedLang || "de";
