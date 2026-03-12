@@ -21,8 +21,10 @@ import {
   MenuItem,
   LanguageMenuItem,
 } from "./components/FluidMenu";
+import { useTranslation } from "react-i18next";
 
 const App = () => {
+  const { t } = useTranslation();
   const [season, setSeason] = useState("summer");
   const [plants, setPlants] = useState([]);
   const [isAdding, setIsAdding] = useState(false);
@@ -63,11 +65,14 @@ const App = () => {
   const fetchPlants = async () => {
     try {
       const res = await fetch(`${BACKEND_URL}/plants`);
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
       const data = await res.json();
-      setPlants(data.plants);
+      setPlants(data.plants || []);
       setError(null);
     } catch (e) {
-      setError("Backend Offline");
+      setError("backendOffline");
     } finally {
       setLoading(false);
     }
@@ -138,7 +143,7 @@ const App = () => {
               <button
                 onClick={() => setShowNotifications(!showNotifications)}
                 className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-                title="Notifications"
+                title={t("dic.notificationsTitle")}
               >
                 <Bell size={20} />
                 {notifications.length > 0 && (
@@ -156,7 +161,7 @@ const App = () => {
             <button
               onClick={() => setShowAssistant(true)}
               className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors relative"
-              title="AI Assistant"
+              title={t("dic.aiAssistantTitle")}
             >
               <Bot size={20} />
               <span className="absolute top-1 right-1 w-2 h-2 bg-emerald-500 rounded-full border border-white dark:border-slate-800"></span>
@@ -190,8 +195,14 @@ const App = () => {
           <div className="flex flex-col items-center justify-center pt-16">
             <PixelBot />
             <p className="mt-4 text-slate-500 dark:text-slate-400">
-              Wecke die Pflanzen auf...
+              {t("dic.wakingPlants")}
             </p>
+          </div>
+        )}
+
+        {!loading && error && (
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900 rounded-2xl p-4 text-red-700 dark:text-red-300 text-center">
+            {t("dic.backendOffline")}
           </div>
         )}
 
@@ -206,7 +217,7 @@ const App = () => {
                 <div className="bg-slate-100 dark:bg-slate-700 p-3 rounded-full group-hover:bg-emerald-200 dark:group-hover:bg-emerald-800 transition-colors">
                   <Plus size={24} />
                 </div>
-                <span className="font-medium">Neue Pflanze hinzufügen</span>
+                <span className="font-medium">{t("dic.addPlantCta")}</span>
               </button>
             ) : (
               <div className="mb-8">
