@@ -21,6 +21,22 @@ This project serves as a digital assistant for plant enthusiasts. It allows user
 
 ---
 
+## Screenshots
+
+### Plant Management View
+
+![PlantPulse Plant Management](docs/3.png)
+
+### Different types of plants
+
+![PlantPulse plant types](docs/1.png)
+
+### AI Assistant Chat
+
+![PlantPulse AI Assistant](docs/2.png)
+
+---
+
 ## Key Features
 
 ### Plant Management
@@ -134,7 +150,7 @@ PLANTPULSE
 
 ## Installation & Setup
 
-## Prerequisites
+### Prerequisites
 
 - Node.js 20+
 - npm 10+
