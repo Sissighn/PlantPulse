@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { calculatePlantStatus } from "../domain/plantStatus";
 
 /**
@@ -8,6 +9,8 @@ import { calculatePlantStatus } from "../domain/plantStatus";
  * @returns {Array} A list of notification objects for plants that need water.
  */
 export const useNotifications = (plants, season) => {
+  const { t } = useTranslation();
+
   const notifications = useMemo(() => {
     if (!plants || plants.length === 0) {
       return [];
@@ -21,10 +24,8 @@ export const useNotifications = (plants, season) => {
         if (status.isThirsty) {
           const daysOver = Math.abs(status.days);
           const message = status.overdue
-            ? `${name} ist seit ${daysOver} Tag${
-                daysOver > 1 ? "en" : ""
-              } überfällig.`
-            : `${name} hat Durst und sollte heute gegossen werden.`;
+            ? t("dic.notificationOverdue", { name, count: daysOver })
+            : t("dic.notificationToday", { name });
 
           return { id: `notif-${id}`, plantId: id, message };
         }
@@ -32,7 +33,7 @@ export const useNotifications = (plants, season) => {
         return null;
       })
       .filter(Boolean); // Remove null entries
-  }, [plants, season]);
+  }, [plants, season, t]);
 
   return notifications;
 };
