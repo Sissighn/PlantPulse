@@ -1,18 +1,37 @@
+import { getAdjustedInterval } from "./wateringSchedule";
+
+const DAY_MS = 1000 * 60 * 60 * 24;
+
+function startOfDay(date) {
+  const normalized = new Date(date);
+  normalized.setHours(0, 0, 0, 0);
+  return normalized;
+}
+
+function toValidDate(value) {
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
 export function calculatePlantStatus(plant, season) {
-  const multipliers = { spring: 1.0, summer: 0.8, autumn: 1.2, winter: 2.0 };
-  const multiplier = multipliers[season] || 1;
-  const interval = Math.round(plant.baseInterval * multiplier);
+  const interval = getAdjustedInterval(plant?.baseInterval, season);
+  const today = startOfDay(new Date());
+  const last = toValidDate(plant?.lastWatered);
 
-  const last = new Date(plant.lastWatered);
-  const next = new Date(last);
-  next.setDate(last.getDate() + interval);
+  if (!last) {
+    return {
+      days: 0,
+      overdue: false,
+      today: true,
+      interval,
+      isThirsty: true,
+    };
+  }
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const next = startOfDay(last);
+  next.setDate(next.getDate() + interval);
 
-  const diff = Math.ceil(
-    (new Date(next).setHours(0, 0, 0, 0) - today) / (1000 * 60 * 60 * 24),
-  );
+  const diff = Math.round((next.getTime() - today.getTime()) / DAY_MS);
 
   return {
     days: diff,
