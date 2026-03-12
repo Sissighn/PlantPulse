@@ -59,9 +59,6 @@ export const PlantAssistant = ({ onClose }) => {
     };
     setMessages((prev) => [...prev, userMsg]);
 
-    const newMessages = [...messages, userMsg];
-    setMessages(newMessages);
-
     const messageToSend = input;
     const imageToSend = selectedImage;
 
@@ -190,7 +187,7 @@ export const PlantAssistant = ({ onClose }) => {
               placeholder="Stell deine Frage über deine Pflanze:)"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && handleSend()}
+              onKeyDown={(e) => e.key === "Enter" && handleSend()}
             />
             <button className="send-btn" onClick={handleSend}>
               SEND
