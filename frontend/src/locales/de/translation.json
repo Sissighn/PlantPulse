@@ -28,6 +28,14 @@
     "season.autumn": "Herbst",
     "season.winter": "Winter",
     "notification": "Benachrichtigungen",
-    "upToDate": "Du bist auf dem neuesten Stand!"
+    "upToDate": "Du bist auf dem neuesten Stand!",
+    "notificationOverdue": "{{name}} ist seit {{count}} Tag überfällig.",
+    "notificationOverdue_other": "{{name}} ist seit {{count}} Tagen überfällig.",
+    "notificationToday": "{{name}} hat Durst und sollte heute gegossen werden.",
+    "notificationsTitle": "Benachrichtigungen",
+    "aiAssistantTitle": "KI-Assistent",
+    "wakingPlants": "Wecke die Pflanzen auf...",
+    "addPlantCta": "Neue Pflanze hinzufügen",
+    "backendOffline": "Backend offline. Bitte starte den Server."
   }
 }

@@ -28,6 +28,14 @@
     "season.autumn": "Autumn",
     "season.winter": "Winter",
     "notification": "Notifications",
-    "upToDate": "You're up to date!"
+    "upToDate": "You're up to date!",
+    "notificationOverdue": "{{name}} is overdue by {{count}} day.",
+    "notificationOverdue_other": "{{name}} is overdue by {{count}} days.",
+    "notificationToday": "{{name}} is thirsty and should be watered today.",
+    "notificationsTitle": "Notifications",
+    "aiAssistantTitle": "AI Assistant",
+    "wakingPlants": "Waking up the plants...",
+    "addPlantCta": "Add new plant",
+    "backendOffline": "Backend offline. Please start the server."
   }
 }
