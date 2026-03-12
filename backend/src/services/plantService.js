@@ -64,14 +64,18 @@ exports.getAllPlants = async () => {
 exports.addPlant = async (data) => {
   if (!data.name) throw new Error("Plant name is required.");
 
-  // Suggest a watering interval with AI if not provided.
-  let interval = data.baseInterval;
-  if (!interval) {
+  // Suggest a watering interval with AI if not provided or invalid.
+  let interval = Number.parseInt(data.baseInterval, 10);
+  if (!Number.isFinite(interval) || interval <= 0) {
     try {
       interval = (await aiService.suggestInterval(data.name)) || 7;
     } catch (e) {
       interval = 7;
     }
+  }
+
+  if (!Number.isFinite(interval) || interval <= 0) {
+    interval = 7;
   }
 
   // Automatically find the best image for the new plant.
@@ -82,7 +86,7 @@ exports.addPlant = async (data) => {
     id: crypto.randomUUID(),
     name: data.name,
     type: data.type || "leaf",
-    baseInterval: parseInt(interval),
+    baseInterval: Number.parseInt(interval, 10),
     lastWatered: new Date().toISOString(),
     image: autoImage,
   };
