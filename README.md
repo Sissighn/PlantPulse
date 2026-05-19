@@ -170,7 +170,33 @@ Create [backend/.env](backend/.env) with:
 GEMINI_API_KEY=your_api_key_here
 ```
 
-### Backend Setup
+### Docker Setup (Recommended)
+
+You can run the entire application (Frontend & Backend) with a single command using Docker.
+
+**Prerequisites:**
+- Docker and Docker Compose installed.
+
+**Run with Docker Compose:**
+```bash
+# Build and start the containers in the background
+docker-compose up -d --build
+```
+
+The application will be available at:
+- **Frontend:** http://localhost
+- **Backend API:** http://localhost:3000
+
+To stop the application:
+```bash
+docker-compose down
+```
+
+---
+
+### Manual Local Setup
+
+#### Backend Setup
 
 ```bash
 cd backend
