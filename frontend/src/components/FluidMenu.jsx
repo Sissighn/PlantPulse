@@ -65,6 +65,7 @@ export function MenuItem({
   disabled = false,
   icon,
   isActive = false,
+  title,
 }) {
   return (
     <button
@@ -79,6 +80,7 @@ export function MenuItem({
       role="menuitem"
       onClick={onClick}
       disabled={disabled}
+      title={title}
     >
       <span className="flex items-center justify-center h-full">
         {icon && (
