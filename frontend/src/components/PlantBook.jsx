@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Droplets,
+  ArrowLeft,
   Flower2,
   Leaf,
   Plus,
@@ -66,12 +67,22 @@ function InfoTile({ icon, label, value }) {
   );
 }
 
-function PlantBookDetail({ plant, loading, onAdd }) {
+function PlantBookDetail({ plant, loading, onAdd, onBack }) {
   if (loading) {
     return (
-      <div className="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
-        Pflegeprofil wird geladen...
-      </div>
+      <section className="space-y-3">
+        <button
+          type="button"
+          onClick={onBack}
+          className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-emerald-700 dark:text-slate-400 dark:hover:text-emerald-300"
+        >
+          <ArrowLeft size={17} />
+          Zurück
+        </button>
+        <div className="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
+          Pflegeprofil wird geladen...
+        </div>
+      </section>
     );
   }
 
@@ -81,6 +92,15 @@ function PlantBookDetail({ plant, loading, onAdd }) {
 
   return (
     <section className="space-y-4">
+      <button
+        type="button"
+        onClick={onBack}
+        className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-emerald-700 dark:text-slate-400 dark:hover:text-emerald-300"
+      >
+        <ArrowLeft size={17} />
+        Zurück
+      </button>
+
       <div className="overflow-hidden rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
         {plant.imageUrl && (
           <img
@@ -290,6 +310,7 @@ export default function PlantBook({ onAddPlant }) {
         plant={detailQuery.data}
         loading={detailQuery.isLoading}
         onAdd={onAddPlant}
+        onBack={() => setSelectedPid(null)}
       />
     </div>
   );
