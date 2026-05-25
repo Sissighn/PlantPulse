@@ -15,6 +15,7 @@ export function usePlantTips(plantName, season, t) {
     try {
       const res = await fetch(
         `${BACKEND_URL}/tips?name=${plantName}&season=${season}`,
+        { credentials: "include" },
       );
       const data = await res.json();
       setTips(data.tips);
