@@ -431,7 +431,7 @@ const App = () => {
                 }`}
               >
                 <Sprout size={17} />
-                Meine Pflanzen
+                {t("dic.myPlants")}
               </button>
               <button
                 type="button"
@@ -446,7 +446,7 @@ const App = () => {
                 }`}
               >
                 <BookOpen size={17} />
-                Plant Book
+                {t("dic.plantBook")}
               </button>
             </div>
 
