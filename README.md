@@ -9,15 +9,16 @@
 ![SQLite](https://img.shields.io/badge/Database-SQLite-044a64?logo=sqlite&logoColor=white)
 ![i18next](https://img.shields.io/badge/i18n-i18next-26A69A?logo=i18next&logoColor=white)
 ![Gemini](https://img.shields.io/badge/AI-Google%20Gemini-4285F4?logo=google&logoColor=white)
+![Open Plantbook](https://img.shields.io/badge/Plant%20Data-Open%20Plantbook-2F855A)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 
-PlantPulse is a comprehensive plant care management application designed to help users track watering schedules and maintain plant health. The application combines a traditional task-management interface with advanced AI integration to provide personalized care advice and interactive assistance.
+PlantPulse is a comprehensive plant care management application designed to help users track watering schedules, browse plant care data, and maintain plant health. The application combines a traditional task-management interface with Open Plantbook plant data and AI integration for personalized care advice and interactive assistance.
 
 ---
 
 ## Project Overview
 
-This project serves as a digital assistant for plant enthusiasts. It allows users to build a digital inventory of their plants, automatically calculating watering needs based on seasonal factors. The latest update introduces a conversational AI interface powered by the Google Gemini API, enabling users to receive instant care tips and troubleshoot plant issues through a chat interface.
+This project serves as a digital assistant for plant enthusiasts. It allows users to build a digital inventory of their plants, automatically calculating watering needs based on plant-specific profiles and seasonal factors. The app also includes a Plant Book powered by Open Plantbook, so users can search plants before buying them and inspect care data such as light, temperature, humidity, watering, soil, and fertilization. Google Gemini powers optional care tips and the conversational plant assistant.
 
 ---
 
@@ -45,9 +46,19 @@ This project serves as a digital assistant for plant enthusiasts. It allows user
 
 - **User Accounts:** Registered users and guests receive separate plant inventories backed by the API.
 
-- **Dynamic Scheduling:** Watering intervals automatically adjust based on the current season (e.g., more frequent watering in summer, less in winter).
+- **Plant-Specific Scheduling:** Known plants use deterministic watering profiles, while the displayed interval adjusts by season and plant type (e.g., cactus, succulent, moisture-loving, tropical).
 
 - **Visual Indicators:** The UI visually represents plant status (e.g., "thirsty" states, grayscale filters) to provide immediate feedback on care urgency.
+
+### Plant Book
+
+- **Open Plantbook Search:** Users can search the Open Plantbook database from inside the app.
+
+- **Real Plant Images:** Search results are enriched with actual plant images from Open Plantbook detail records, making visual identification easier.
+
+- **Care Details:** Plant detail pages show available data for temperature, light, soil moisture, air humidity, watering, sunlight, soil, fertilization, pruning, and origin.
+
+- **Add From Plant Book:** Users can add a discovered plant directly to their personal inventory.
 
 ### AI Integration
 
@@ -67,6 +78,8 @@ This project serves as a digital assistant for plant enthusiasts. It allows user
 
 - **Authentication:** Email/password login uses server-side password hashing and an HTTP-only JWT cookie; guest sessions stay isolated from registered accounts.
 
+- **Open Plantbook Proxy:** The backend handles Open Plantbook OAuth credentials, token refresh, response caching, search, and detail lookups so secrets never reach the browser.
+
 - **API Integration:** Seamless connection with Google Gemini for natural language processing and content generation.
 
 ---
@@ -81,10 +94,13 @@ PLANTPULSE
 │   ├── config
 │   │   └── gemini.js           # AI Model configuration
 │   ├── controllers
-│   │   └── plantController.js  # Request logic handling
+│   │   ├── plantBookController.js # Open Plantbook request handling
+│   │   └── plantController.js     # Plant inventory request handling
 │   ├── db
 │   │   ├── database.js         # Database connection setup
 │   │   └── plants.db           # SQLite storage
+│   ├── domain
+│   │   └── wateringProfiles.js # Deterministic plant watering profiles
 │   ├── public
 │   │   ├── icons               # Static assets
 │   │   └── plantImages         # Uploaded plant imagery
@@ -92,6 +108,7 @@ PLANTPULSE
 │   │   └── plantRoutes.js      # API endpoint definitions
 │   ├── services
 │   │   ├── aiService.js        # Logic for AI prompts and formatting
+│   │   ├── openPlantbookService.js # Open Plantbook API client/proxy
 │   │   └── plantService.js     # Business logic for plant data
 │   ├── app.js                  # Express app setup
 │   ├── server.js               # Server entry point
@@ -103,11 +120,13 @@ PLANTPULSE
     │   │   ├── AddPlantForm.jsx
     │   │   ├── PlantCardContainer.jsx
     │   │   ├── PlantCardView.jsx
+    │   │   ├── PlantBook.jsx
     │   │   ├── PlantSelectContainer.jsx
     │   │   ├── PlantSelectView.jsx
     │   │   └── SeasonSelector.jsx
     │   ├── domain
     │   │   ├── plantStatus.js
+    │   │   ├── wateringProfiles.js
     │   │   └── wateringSchedule.js
     │   ├── hooks
     │   │   ├── useNotifications.js
@@ -135,6 +154,8 @@ PLANTPULSE
 - **Backend:** Node.js, Express.js
 
 - **Database:** SQLite / JSON-based persistence
+
+- **Plant Data:** Open Plantbook API
 
 - **AI:** Google Gemini API
 
@@ -172,9 +193,15 @@ Create [backend/.env](backend/.env) with:
 GEMINI_API_KEY=your_api_key_here
 JWT_SECRET=replace_with_at_least_32_random_bytes
 FRONTEND_ORIGINS=http://localhost:5173,http://localhost
+
+# Open Plantbook credentials stay server-side.
+OPEN_PLANTBOOK_CLIENT_ID=your_client_id_here
+OPEN_PLANTBOOK_CLIENT_SECRET=your_client_secret_here
 ```
 
 Generate a long `JWT_SECRET` before deploying, for example with `openssl rand -hex 32`. In production the backend refuses to start if `JWT_SECRET` is shorter than 32 bytes.
+
+Open Plantbook uses OAuth client credentials. Prefer `OPEN_PLANTBOOK_CLIENT_ID` and `OPEN_PLANTBOOK_CLIENT_SECRET`; the backend caches and refreshes access tokens automatically. A pre-generated bearer token can also be supplied with `OPEN_PLANTBOOK_ACCESS_TOKEN`, but it may expire and should not be committed.
 
 ### Docker Setup (Recommended)
 
@@ -229,6 +256,8 @@ npm run dev
 - If you see `pm run dev: command not found`, use `npm run dev`.
 - If frontend shows "Backend offline", make sure backend is running on `http://localhost:3000`.
 - If AI features fail, verify `GEMINI_API_KEY` in [backend/.env](backend/.env).
+- If Plant Book search or details fail, verify `OPEN_PLANTBOOK_CLIENT_ID` and `OPEN_PLANTBOOK_CLIENT_SECRET` in [backend/.env](backend/.env), then restart the backend.
+- If Plant Book details return `HTTP 401`, remove an expired `OPEN_PLANTBOOK_ACCESS_TOKEN` and use the client credentials instead.
 
 ---
 
