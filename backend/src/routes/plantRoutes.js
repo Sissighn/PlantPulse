@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const controller = require("../controllers/plantController");
+const plantBookController = require("../controllers/plantBookController");
 const aiService = require("../services/aiService");
 const { requireAuth } = require("../middleware/auth");
 
@@ -16,6 +17,8 @@ router.post("/plants", controller.createPlant);
 router.delete("/plants/:id", controller.removePlant);
 router.post("/water/:id", controller.waterPlant);
 router.get("/tips", controller.getAiTips);
+router.get("/plant-book/search", plantBookController.searchPlants);
+router.get("/plant-book/:pid", plantBookController.getPlantDetail);
 
 router.post("/chat", upload.single("image"), async (req, res) => {
   try {
