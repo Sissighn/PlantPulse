@@ -36,6 +36,27 @@
     "aiAssistantTitle": "KI-Assistent",
     "wakingPlants": "Wecke die Pflanzen auf...",
     "addPlantCta": "Neue Pflanze hinzufügen",
-    "backendOffline": "Backend offline. Bitte starte den Server."
+    "backendOffline": "Backend offline. Bitte starte den Server.",
+    "authTitle": "PlantPulse Konto",
+    "authSubtitle": "Deine Pflanzen, dein Bestand.",
+    "authError": "Anmeldung fehlgeschlagen.",
+    "displayName": "Name",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "showPassword": "Passwort anzeigen",
+    "hidePassword": "Passwort verbergen",
+    "passwordMin": "mind. {{count}}",
+    "passwordStrength": {
+      "empty": "Passwortstärke",
+      "tooShort": "Noch zu kurz",
+      "fair": "Solide Länge",
+      "good": "Stark",
+      "strong": "Sehr stark"
+    },
+    "login": "Anmelden",
+    "signup": "Registrieren",
+    "guest": "Gast",
+    "guestMode": "Als Gast starten",
+    "logout": "Abmelden"
   }
 }

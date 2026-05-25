@@ -36,6 +36,27 @@
     "aiAssistantTitle": "AI Assistant",
     "wakingPlants": "Waking up the plants...",
     "addPlantCta": "Add new plant",
-    "backendOffline": "Backend offline. Please start the server."
+    "backendOffline": "Backend offline. Please start the server.",
+    "authTitle": "PlantPulse account",
+    "authSubtitle": "Your plants, your inventory.",
+    "authError": "Authentication failed.",
+    "displayName": "Name",
+    "email": "Email",
+    "password": "Password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "passwordMin": "min. {{count}}",
+    "passwordStrength": {
+      "empty": "Password strength",
+      "tooShort": "Still too short",
+      "fair": "Solid length",
+      "good": "Strong",
+      "strong": "Very strong"
+    },
+    "login": "Log in",
+    "signup": "Sign up",
+    "guest": "Guest",
+    "guestMode": "Continue as guest",
+    "logout": "Log out"
   }
 }
