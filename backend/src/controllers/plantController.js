@@ -3,7 +3,7 @@ const plantService = require("../services/plantService");
 // GET /api/plants - Fetches all plants.
 exports.getPlants = async (req, res) => {
   try {
-    const plants = await plantService.getAllPlants();
+    const plants = await plantService.getAllPlants(req.user.id);
     res.json({ plants });
   } catch (e) {
     res.status(500).json({ message: "Database error" });
@@ -13,7 +13,7 @@ exports.getPlants = async (req, res) => {
 // POST /api/plants - Creates a new plant.
 exports.createPlant = async (req, res) => {
   try {
-    const newPlant = await plantService.addPlant(req.body);
+    const newPlant = await plantService.addPlant(req.body, req.user.id);
     res.status(201).json(newPlant);
   } catch (error) {
     res
@@ -25,7 +25,7 @@ exports.createPlant = async (req, res) => {
 // DELETE /api/plants/:id - Removes a plant by its ID.
 exports.removePlant = async (req, res) => {
   try {
-    const success = await plantService.deletePlant(req.params.id);
+    const success = await plantService.deletePlant(req.params.id, req.user.id);
     if (success) res.json({ message: "Deleted successfully" });
     else res.status(404).json({ message: "Plant not found" });
   } catch (e) {
@@ -36,7 +36,7 @@ exports.removePlant = async (req, res) => {
 // POST /api/water/:id - Updates the last watered date for a plant.
 exports.waterPlant = async (req, res) => {
   try {
-    const plant = await plantService.waterPlant(req.params.id);
+    const plant = await plantService.waterPlant(req.params.id, req.user.id);
     if (plant) res.json(plant);
     else res.status(404).json({ message: "Plant not found" });
   } catch (e) {
