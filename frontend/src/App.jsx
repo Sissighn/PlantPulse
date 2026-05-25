@@ -11,12 +11,15 @@ import {
   LogOut,
   UserRound,
   UserPlus,
+  BookOpen,
+  Sprout,
 } from "lucide-react";
 import { BACKEND_URL, BASE_URL } from "./constants";
 import SeasonSelector from "./components/SeasonSelector";
 import PlantCard from "./components/PlantCardContainer";
 import AddPlantForm from "./components/AddPlantForm";
 import AuthPanel from "./components/AuthPanel";
+import PlantBook from "./components/PlantBook";
 import { PixelBot } from "./features/pixelBot/PixelBot";
 import { PlantAssistant } from "./features/plantAssistant/PlantAssistant";
 import Notifications from "./components/Notifications";
@@ -68,6 +71,7 @@ const App = () => {
   );
   const [showAssistant, setShowAssistant] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [currentView, setCurrentView] = useState("garden");
   const plantsQuery = useQuery({
     queryKey: plantsQueryKey,
     queryFn: fetchPlants,
@@ -183,6 +187,7 @@ const App = () => {
     },
     onSuccess: async () => {
       setIsAdding(false);
+      setCurrentView("garden");
       await invalidatePlants();
     },
     onError: (err) => {
@@ -415,43 +420,83 @@ const App = () => {
 
         {!authLoading && user && !showGuestAccount && !loading && !error && (
           <>
-            <SeasonSelector currentSeason={season} onSeasonChange={setSeason} />
-            {!isAdding ? (
+            <div className="mb-6 grid grid-cols-2 gap-2 rounded-lg bg-slate-100 p-1 dark:bg-slate-800">
               <button
-                onClick={() => setIsAdding(true)}
-                className="w-full bg-white dark:bg-slate-800 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-3xl p-6 flex flex-col items-center justify-center gap-2 text-slate-400 hover:border-emerald-400 dark:hover:border-emerald-600 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-all group mb-8"
+                type="button"
+                onClick={() => setCurrentView("garden")}
+                className={`flex items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-bold transition-colors ${
+                  currentView === "garden"
+                    ? "bg-white text-emerald-700 shadow-sm dark:bg-slate-700 dark:text-emerald-300"
+                    : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white"
+                }`}
               >
-                <div className="bg-slate-100 dark:bg-slate-700 p-3 rounded-full group-hover:bg-emerald-200 dark:group-hover:bg-emerald-800 transition-colors">
-                  <Plus size={24} />
-                </div>
-                <span className="font-medium">{t("dic.addPlantCta")}</span>
+                <Sprout size={17} />
+                Meine Pflanzen
               </button>
-            ) : (
-              <div className="mb-8">
-                <AddPlantForm
-                  onAdd={addPlant}
-                  onCancel={() => setIsAdding(false)}
-                  isSaving={isSaving}
-                />
-              </div>
-            )}
-            <div className="space-y-4">
-              {plants.map((p) => (
-                <PlantCard
-                  key={p.id}
-                  plant={p}
-                  season={season}
-                  onWater={waterPlant}
-                  onDelete={deletePlant}
-                />
-              ))}
-              {showAssistant && (
-                <PlantAssistant
-                  onClose={() => setShowAssistant(false)}
-                  userId={user.id}
-                />
-              )}
+              <button
+                type="button"
+                onClick={() => {
+                  setCurrentView("plantBook");
+                  setIsAdding(false);
+                }}
+                className={`flex items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-bold transition-colors ${
+                  currentView === "plantBook"
+                    ? "bg-white text-emerald-700 shadow-sm dark:bg-slate-700 dark:text-emerald-300"
+                    : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white"
+                }`}
+              >
+                <BookOpen size={17} />
+                Plant Book
+              </button>
             </div>
+
+            {currentView === "garden" && (
+              <>
+                <SeasonSelector
+                  currentSeason={season}
+                  onSeasonChange={setSeason}
+                />
+                {!isAdding ? (
+                  <button
+                    onClick={() => setIsAdding(true)}
+                    className="w-full bg-white dark:bg-slate-800 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-3xl p-6 flex flex-col items-center justify-center gap-2 text-slate-400 hover:border-emerald-400 dark:hover:border-emerald-600 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-all group mb-8"
+                  >
+                    <div className="bg-slate-100 dark:bg-slate-700 p-3 rounded-full group-hover:bg-emerald-200 dark:group-hover:bg-emerald-800 transition-colors">
+                      <Plus size={24} />
+                    </div>
+                    <span className="font-medium">{t("dic.addPlantCta")}</span>
+                  </button>
+                ) : (
+                  <div className="mb-8">
+                    <AddPlantForm
+                      onAdd={addPlant}
+                      onCancel={() => setIsAdding(false)}
+                      isSaving={isSaving}
+                    />
+                  </div>
+                )}
+                <div className="space-y-4">
+                  {plants.map((p) => (
+                    <PlantCard
+                      key={p.id}
+                      plant={p}
+                      season={season}
+                      onWater={waterPlant}
+                      onDelete={deletePlant}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+
+            {currentView === "plantBook" && <PlantBook onAddPlant={addPlant} />}
+
+            {showAssistant && (
+              <PlantAssistant
+                onClose={() => setShowAssistant(false)}
+                userId={user.id}
+              />
+            )}
           </>
         )}
       </main>
