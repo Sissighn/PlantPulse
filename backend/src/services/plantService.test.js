@@ -54,23 +54,40 @@ describe('plantService', () => {
   });
 
   describe('addPlant', () => {
-    it('should add a plant and suggest interval if not provided', async () => {
+    it('should add a known plant with its deterministic profile interval', async () => {
       aiService.suggestInterval.mockResolvedValue(10);
       db.create.mockResolvedValue(true);
 
       const newPlantData = { name: 'Aloe Vera', type: 'succulent' };
       const result = await plantService.addPlant(newPlantData, 'user-1');
 
-      expect(aiService.suggestInterval).toHaveBeenCalledWith('Aloe Vera');
+      expect(aiService.suggestInterval).not.toHaveBeenCalled();
       expect(db.create).toHaveBeenCalledWith(expect.objectContaining({
         name: 'Aloe Vera',
         type: 'succulent',
-        baseInterval: 10,
+        baseInterval: 18,
         image: 'aloevera.png',
         userId: 'user-1'
       }));
       expect(result.name).toBe('Aloe Vera');
       expect(result.imageUrl).toBe('/images/aloevera.png');
+    });
+
+    it('should use AI fallback for unknown plants', async () => {
+      aiService.suggestInterval.mockResolvedValue(10);
+      db.create.mockResolvedValue(true);
+
+      const newPlantData = { name: 'Mystery Plant', type: 'custom' };
+      const result = await plantService.addPlant(newPlantData, 'user-1');
+
+      expect(aiService.suggestInterval).toHaveBeenCalledWith('Mystery Plant');
+      expect(db.create).toHaveBeenCalledWith(expect.objectContaining({
+        name: 'Mystery Plant',
+        type: 'custom',
+        baseInterval: 10,
+        userId: 'user-1'
+      }));
+      expect(result.name).toBe('Mystery Plant');
     });
 
     it('should use provided interval', async () => {

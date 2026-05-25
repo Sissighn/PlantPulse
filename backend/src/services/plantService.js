@@ -3,6 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const db = require("../db/database");
 const aiService = require("./aiService");
+const { getPlantProfile } = require("../domain/wateringProfiles");
 
 // Define the directory where plant images are stored.
 const imagesDir = path.join(__dirname, "..", "..", "public", "plantImages");
@@ -49,28 +50,39 @@ function findBestImageFor(name, type) {
   }
 }
 
+function presentPlant(plant) {
+  if (!plant) return null;
+
+  const { user_id, userId, ...publicPlant } = plant;
+  const filename =
+    publicPlant.image || findBestImageFor(publicPlant.name, publicPlant.type);
+  const imageUrl = filename ? `/images/${filename}` : null;
+
+  return { ...publicPlant, imageUrl };
+}
+
 // Fetches all plants and enriches them with a full image URL.
-exports.getAllPlants = async () => {
-  const rows = await db.findAll();
-  return rows.map((p) => {
-    const filename = p.image || findBestImageFor(p.name, p.type);
-    // IMPORTANT: We provide a full URL path from the backend.
-    const imageUrl = filename ? `/images/${filename}` : null;
-    return { ...p, imageUrl };
-  });
+exports.getAllPlants = async (userId) => {
+  const rows = await db.findAll(userId);
+  return rows.map(presentPlant);
 };
 
 // Adds a new plant, suggests a watering interval via AI, and finds a matching image.
-exports.addPlant = async (data) => {
+exports.addPlant = async (data, userId) => {
   if (!data.name) throw new Error("Plant name is required.");
 
-  // Suggest a watering interval with AI if not provided or invalid.
+  // Use a deterministic plant profile first. AI remains a fallback for unknown plants.
   let interval = Number.parseInt(data.baseInterval, 10);
   if (!Number.isFinite(interval) || interval <= 0) {
-    try {
-      interval = (await aiService.suggestInterval(data.name)) || 7;
-    } catch (e) {
-      interval = 7;
+    const profile = getPlantProfile(data.name, data.type);
+    interval = profile?.baseInterval;
+
+    if (!Number.isFinite(interval) || interval <= 0) {
+      try {
+        interval = (await aiService.suggestInterval(data.name)) || 7;
+      } catch (e) {
+        interval = 7;
+      }
     }
   }
 
@@ -84,6 +96,7 @@ exports.addPlant = async (data) => {
   // Construct the new plant object.
   const newPlant = {
     id: crypto.randomUUID(),
+    userId,
     name: data.name,
     type: data.type || "leaf",
     baseInterval: Number.parseInt(interval, 10),
@@ -93,19 +106,16 @@ exports.addPlant = async (data) => {
 
   // Create the plant in the database.
   await db.create(newPlant);
-  return {
-    ...newPlant,
-    imageUrl: autoImage ? `/images/${autoImage}` : null,
-  };
+  return presentPlant(newPlant);
 };
 
 // Deletes a plant by its ID.
-exports.deletePlant = (id) => db.deleteById(id);
+exports.deletePlant = (id, userId) => db.deleteById(id, userId);
 
 // Updates the last watered date for a plant and returns the updated plant data.
-exports.waterPlant = async (id) => {
-  const success = await db.updateWatering(id, new Date().toISOString());
-  if (success) return await db.findById(id);
+exports.waterPlant = async (id, userId) => {
+  const success = await db.updateWatering(id, new Date().toISOString(), userId);
+  if (success) return presentPlant(await db.findById(id, userId));
   return null;
 };
 
