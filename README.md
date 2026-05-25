@@ -43,6 +43,8 @@ This project serves as a digital assistant for plant enthusiasts. It allows user
 
 - **Inventory Tracking:** Users can add plants from a predefined list or customize their own entries.
 
+- **User Accounts:** Registered users and guests receive separate plant inventories backed by the API.
+
 - **Dynamic Scheduling:** Watering intervals automatically adjust based on the current season (e.g., more frequent watering in summer, less in winter).
 
 - **Visual Indicators:** The UI visually represents plant status (e.g., "thirsty" states, grayscale filters) to provide immediate feedback on care urgency.
@@ -62,6 +64,8 @@ This project serves as a digital assistant for plant enthusiasts. It allows user
 - **Modern Frontend:** Built with React and Vite for high performance, utilizing Tailwind CSS for a responsive, clean design.
 
 - **Robust Backend:** Node.js and Express server handling API requests, managing a local SQLite database for persistence.
+
+- **Authentication:** Email/password login uses server-side password hashing and an HTTP-only JWT cookie; guest sessions stay isolated from registered accounts.
 
 - **API Integration:** Seamless connection with Google Gemini for natural language processing and content generation.
 
@@ -142,8 +146,6 @@ PLANTPULSE
 
 - **Advanced Image Recognition:** Enhancing the AI's ability to automatically identify plant species and diagnose diseases from uploaded photos.
 
-- **User Authentication:** Adding multi-user support to allow cloud-based synchronization across devices.
-
 - **Enhanced Chatbot Context:** Improving the chatbot's memory to reference previous interactions and specific plant history.
 
 ---
@@ -168,7 +170,11 @@ Create [backend/.env](backend/.env) with:
 
 ```env
 GEMINI_API_KEY=your_api_key_here
+JWT_SECRET=replace_with_at_least_32_random_bytes
+FRONTEND_ORIGINS=http://localhost:5173,http://localhost
 ```
+
+Generate a long `JWT_SECRET` before deploying, for example with `openssl rand -hex 32`. In production the backend refuses to start if `JWT_SECRET` is shorter than 32 bytes.
 
 ### Docker Setup (Recommended)
 
