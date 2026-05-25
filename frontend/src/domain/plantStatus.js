@@ -14,7 +14,7 @@ function toValidDate(value) {
 }
 
 export function calculatePlantStatus(plant, season) {
-  const interval = getAdjustedInterval(plant?.baseInterval, season);
+  const interval = getAdjustedInterval(plant?.baseInterval, season, plant);
   const today = startOfDay(new Date());
   const last = toValidDate(plant?.lastWatered);
 
