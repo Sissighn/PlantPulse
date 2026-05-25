@@ -13,6 +13,7 @@ import {
   Thermometer,
   Wind,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { BACKEND_URL } from "../constants";
 
 const quickSearches = ["Monstera", "Orchidee", "Aloe Vera", "Calathea"];
@@ -68,6 +69,8 @@ function InfoTile({ icon, label, value }) {
 }
 
 function PlantBookDetail({ plant, loading, onAdd, onBack }) {
+  const { t } = useTranslation();
+
   if (loading) {
     return (
       <section className="space-y-3">
@@ -77,10 +80,10 @@ function PlantBookDetail({ plant, loading, onAdd, onBack }) {
           className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-emerald-700 dark:text-slate-400 dark:hover:text-emerald-300"
         >
           <ArrowLeft size={17} />
-          Zurück
+          {t("dic.plantBookBack")}
         </button>
         <div className="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
-          Pflegeprofil wird geladen...
+          {t("dic.plantBookLoadingDetail")}
         </div>
       </section>
     );
@@ -98,7 +101,7 @@ function PlantBookDetail({ plant, loading, onAdd, onBack }) {
         className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-emerald-700 dark:text-slate-400 dark:hover:text-emerald-300"
       >
         <ArrowLeft size={17} />
-        Zurück
+        {t("dic.plantBookBack")}
       </button>
 
       <div className="overflow-hidden rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
@@ -127,7 +130,7 @@ function PlantBookDetail({ plant, loading, onAdd, onBack }) {
                 onAdd(name || "Pflanze", plant.displayPid || plant.pid, null)
               }
               className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white hover:bg-emerald-700"
-              title="Zu meinen Pflanzen hinzufügen"
+              title={t("dic.plantBookAddTitle")}
             >
               <Plus size={18} />
             </button>
@@ -135,7 +138,7 @@ function PlantBookDetail({ plant, loading, onAdd, onBack }) {
 
           {plant.origin && (
             <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
-              Herkunft: {plant.origin}
+              {t("dic.plantBookOrigin", { origin: plant.origin })}
             </p>
           )}
         </div>
@@ -144,22 +147,22 @@ function PlantBookDetail({ plant, loading, onAdd, onBack }) {
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <InfoTile
           icon={<Thermometer size={15} />}
-          label="Temperatur"
+          label={t("dic.plantBookTemperature")}
           value={plant.environment?.temperature}
         />
         <InfoTile
           icon={<Sun size={15} />}
-          label="Licht"
+          label={t("dic.plantBookLight")}
           value={plant.environment?.light}
         />
         <InfoTile
           icon={<Droplets size={15} />}
-          label="Bodenfeuchte"
+          label={t("dic.plantBookSoilMoisture")}
           value={plant.environment?.soilMoisture}
         />
         <InfoTile
           icon={<Wind size={15} />}
-          label="Luftfeuchte"
+          label={t("dic.plantBookAirHumidity")}
           value={plant.environment?.airHumidity}
         />
       </div>
@@ -167,27 +170,27 @@ function PlantBookDetail({ plant, loading, onAdd, onBack }) {
       <div className="grid grid-cols-1 gap-3">
         <InfoTile
           icon={<Droplets size={15} />}
-          label="Gießen"
+          label={t("dic.plantBookWatering")}
           value={plant.care?.watering}
         />
         <InfoTile
           icon={<Sun size={15} />}
-          label="Sonnenlicht"
+          label={t("dic.plantBookSunlight")}
           value={plant.care?.sunlight}
         />
         <InfoTile
           icon={<Sprout size={15} />}
-          label="Erde"
+          label={t("dic.plantBookSoil")}
           value={plant.care?.soil}
         />
         <InfoTile
           icon={<Flower2 size={15} />}
-          label="Düngen"
+          label={t("dic.plantBookFertilization")}
           value={plant.care?.fertilization}
         />
         <InfoTile
           icon={<Scissors size={15} />}
-          label="Schnitt"
+          label={t("dic.plantBookPruning")}
           value={plant.care?.pruning}
         />
       </div>
@@ -196,6 +199,7 @@ function PlantBookDetail({ plant, loading, onAdd, onBack }) {
 }
 
 export default function PlantBook({ onAddPlant }) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const [selectedPid, setSelectedPid] = useState(null);
   const trimmedQuery = query.trim();
@@ -229,7 +233,7 @@ export default function PlantBook({ onAddPlant }) {
             setQuery(event.target.value);
             setSelectedPid(null);
           }}
-          placeholder="Pflanze suchen"
+          placeholder={t("dic.plantBookSearchPlaceholder")}
           className="w-full rounded-lg border border-slate-200 bg-white py-3 pl-10 pr-4 text-slate-900 outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
         />
       </div>
@@ -258,7 +262,7 @@ export default function PlantBook({ onAddPlant }) {
 
       {searchQuery.isLoading && (
         <div className="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
-          Pflanzen werden gesucht...
+          {t("dic.plantBookSearching")}
         </div>
       )}
 
@@ -302,7 +306,7 @@ export default function PlantBook({ onAddPlant }) {
         !searchQuery.isLoading &&
         !searchQuery.isError && (
           <div className="rounded-lg border border-slate-200 bg-white p-4 text-center text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
-            Keine Pflanzen gefunden.
+            {t("dic.plantBookNoResults")}
           </div>
         )}
 
