@@ -44,8 +44,9 @@ describe('plantService', () => {
         { id: '2', name: 'Unknown Plant', type: 'leaf', image: null }
       ]);
 
-      const result = await plantService.getAllPlants();
+      const result = await plantService.getAllPlants('user-1');
       
+      expect(db.findAll).toHaveBeenCalledWith('user-1');
       expect(result).toHaveLength(2);
       expect(result[0].imageUrl).toBe('/images/aloevera.png');
       expect(result[1].imageUrl).toBeNull(); 
@@ -58,14 +59,15 @@ describe('plantService', () => {
       db.create.mockResolvedValue(true);
 
       const newPlantData = { name: 'Aloe Vera', type: 'succulent' };
-      const result = await plantService.addPlant(newPlantData);
+      const result = await plantService.addPlant(newPlantData, 'user-1');
 
       expect(aiService.suggestInterval).toHaveBeenCalledWith('Aloe Vera');
       expect(db.create).toHaveBeenCalledWith(expect.objectContaining({
         name: 'Aloe Vera',
         type: 'succulent',
         baseInterval: 10,
-        image: 'aloevera.png'
+        image: 'aloevera.png',
+        userId: 'user-1'
       }));
       expect(result.name).toBe('Aloe Vera');
       expect(result.imageUrl).toBe('/images/aloevera.png');
@@ -75,7 +77,7 @@ describe('plantService', () => {
       db.create.mockResolvedValue(true);
 
       const newPlantData = { name: 'Monstera', type: 'leaf', baseInterval: 14 };
-      const result = await plantService.addPlant(newPlantData);
+      const result = await plantService.addPlant(newPlantData, 'user-1');
 
       expect(aiService.suggestInterval).not.toHaveBeenCalled();
       expect(db.create).toHaveBeenCalledWith(expect.objectContaining({
@@ -85,7 +87,7 @@ describe('plantService', () => {
     });
 
     it('should throw an error if name is missing', async () => {
-      await expect(plantService.addPlant({})).rejects.toThrow('Plant name is required.');
+      await expect(plantService.addPlant({}, 'user-1')).rejects.toThrow('Plant name is required.');
     });
   });
 
@@ -94,8 +96,9 @@ describe('plantService', () => {
       db.updateWatering.mockResolvedValue(true);
       db.findById.mockResolvedValue({ id: '1', name: 'Test', lastWatered: new Date().toISOString() });
 
-      const result = await plantService.waterPlant('1');
-      expect(db.updateWatering).toHaveBeenCalledWith('1', expect.any(String));
+      const result = await plantService.waterPlant('1', 'user-1');
+      expect(db.updateWatering).toHaveBeenCalledWith('1', expect.any(String), 'user-1');
+      expect(db.findById).toHaveBeenCalledWith('1', 'user-1');
       expect(result).not.toBeNull();
       expect(result.name).toBe('Test');
     });
@@ -103,7 +106,7 @@ describe('plantService', () => {
     it('should return null if update fails', async () => {
       db.updateWatering.mockResolvedValue(false);
       
-      const result = await plantService.waterPlant('2');
+      const result = await plantService.waterPlant('2', 'user-1');
       expect(result).toBeNull();
     });
   });
