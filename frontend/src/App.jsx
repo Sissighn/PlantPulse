@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Plus,
   Sun,
@@ -7,11 +8,15 @@ import {
   Bell,
   Settings,
   MoreHorizontal,
+  LogOut,
+  UserRound,
+  UserPlus,
 } from "lucide-react";
 import { BACKEND_URL, BASE_URL } from "./constants";
 import SeasonSelector from "./components/SeasonSelector";
 import PlantCard from "./components/PlantCardContainer";
 import AddPlantForm from "./components/AddPlantForm";
+import AuthPanel from "./components/AuthPanel";
 import { PixelBot } from "./features/pixelBot/PixelBot";
 import { PlantAssistant } from "./features/plantAssistant/PlantAssistant";
 import Notifications from "./components/Notifications";
@@ -23,19 +28,54 @@ import {
 } from "./components/FluidMenu";
 import { useTranslation } from "react-i18next";
 
+const plantsQueryKey = ["plants"];
+
+class UnauthorizedError extends Error {
+  constructor() {
+    super("Unauthorized");
+    this.name = "UnauthorizedError";
+  }
+}
+
+const fetchPlants = async ({ signal }) => {
+  const res = await fetch(`${BACKEND_URL}/plants`, {
+    credentials: "include",
+    signal,
+  });
+
+  if (res.status === 401) {
+    throw new UnauthorizedError();
+  }
+
+  if (!res.ok) {
+    throw new Error(`HTTP ${res.status}`);
+  }
+
+  const data = await res.json();
+  return data.plants || [];
+};
+
 const App = () => {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const [season, setSeason] = useState("summer");
-  const [plants, setPlants] = useState([]);
   const [isAdding, setIsAdding] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [user, setUser] = useState(null);
+  const [showGuestAccount, setShowGuestAccount] = useState(false);
   const [darkMode, setDarkMode] = useState(
     () => localStorage.getItem("theme") === "dark",
   );
   const [showAssistant, setShowAssistant] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const plantsQuery = useQuery({
+    queryKey: plantsQueryKey,
+    queryFn: fetchPlants,
+    enabled: Boolean(user),
+    retry: (failureCount, err) =>
+      !(err instanceof UnauthorizedError) && failureCount < 1,
+  });
+  const plants = user ? plantsQuery.data || [] : [];
   const notifications = useNotifications(plants, season);
   const notificationRef = useRef(null);
 
@@ -62,54 +102,173 @@ const App = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const fetchPlants = async () => {
-    try {
-      const res = await fetch(`${BACKEND_URL}/plants`);
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
-      }
-      const data = await res.json();
-      setPlants(data.plants || []);
-      setError(null);
-    } catch (e) {
-      setError("backendOffline");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchPlants();
+    const fetchSession = async () => {
+      try {
+        const res = await fetch(`${BACKEND_URL}/auth/session`, {
+          credentials: "include",
+        });
+
+        if (!res.ok) {
+          return;
+        }
+
+        const data = await res.json();
+        setUser(data.user);
+      } catch {
+        setUser(null);
+      } finally {
+        setAuthLoading(false);
+      }
+    };
+
+    fetchSession();
   }, []);
 
-  const addPlant = async (name, type, interval) => {
-    setIsSaving(true);
-    try {
+  useEffect(() => {
+    if (plantsQuery.error instanceof UnauthorizedError) {
+      setUser(null);
+      setShowGuestAccount(false);
+      queryClient.removeQueries({ queryKey: plantsQueryKey });
+    }
+  }, [plantsQuery.error, queryClient]);
+
+  const invalidatePlants = () =>
+    queryClient.invalidateQueries({ queryKey: plantsQueryKey });
+
+  const startSession = async (endpoint, payload) => {
+    const res = await fetch(`${BACKEND_URL}/auth/${endpoint}`, {
+      body: payload ? JSON.stringify(payload) : undefined,
+      credentials: "include",
+      headers: payload ? { "Content-Type": "application/json" } : undefined,
+      method: "POST",
+    });
+
+    const data = res.status === 204 ? null : await res.json();
+    if (!res.ok) {
+      throw new Error(data?.message || t("dic.authError"));
+    }
+
+    setUser(data.user);
+    setShowGuestAccount(false);
+    await invalidatePlants();
+  };
+
+  const logout = async () => {
+    await fetch(`${BACKEND_URL}/auth/logout`, {
+      credentials: "include",
+      method: "POST",
+    });
+    setUser(null);
+    setShowGuestAccount(false);
+    queryClient.removeQueries({ queryKey: plantsQueryKey });
+  };
+
+  const addPlantMutation = useMutation({
+    mutationFn: async ({ name, type, interval }) => {
       const res = await fetch(`${BACKEND_URL}/plants`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, type, baseInterval: interval }),
       });
-      if (res.ok) {
-        setIsAdding(false);
-        fetchPlants();
+
+      if (res.status === 401) {
+        throw new UnauthorizedError();
       }
-    } catch (e) {
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+    },
+    onSuccess: async () => {
+      setIsAdding(false);
+      await invalidatePlants();
+    },
+    onError: (err) => {
+      if (err instanceof UnauthorizedError) {
+        setUser(null);
+        setShowGuestAccount(false);
+        queryClient.removeQueries({ queryKey: plantsQueryKey });
+        return;
+      }
+
       alert("Fehler beim Speichern");
-    } finally {
-      setIsSaving(false);
-    }
+    },
+  });
+
+  const deletePlantMutation = useMutation({
+    mutationFn: async (id) => {
+      const res = await fetch(`${BACKEND_URL}/plants/${id}`, {
+        credentials: "include",
+        method: "DELETE",
+      });
+
+      if (res.status === 401) {
+        throw new UnauthorizedError();
+      }
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+    },
+    onSuccess: invalidatePlants,
+    onError: (err) => {
+      if (err instanceof UnauthorizedError) {
+        setUser(null);
+        setShowGuestAccount(false);
+        queryClient.removeQueries({ queryKey: plantsQueryKey });
+      }
+    },
+  });
+
+  const waterPlantMutation = useMutation({
+    mutationFn: async (id) => {
+      const res = await fetch(`${BACKEND_URL}/water/${id}`, {
+        credentials: "include",
+        method: "POST",
+      });
+
+      if (res.status === 401) {
+        throw new UnauthorizedError();
+      }
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+    },
+    onSuccess: invalidatePlants,
+    onError: (err) => {
+      if (err instanceof UnauthorizedError) {
+        setUser(null);
+        setShowGuestAccount(false);
+        queryClient.removeQueries({ queryKey: plantsQueryKey });
+      }
+    },
+  });
+
+  const addPlant = (name, type, interval) => {
+    addPlantMutation.mutate({ name, type, interval });
   };
 
-  const deletePlant = async (id) => {
-    await fetch(`${BACKEND_URL}/plants/${id}`, { method: "DELETE" });
-    fetchPlants();
+  const deletePlant = (id) => {
+    deletePlantMutation.mutate(id);
   };
 
-  const waterPlant = async (id) => {
-    await fetch(`${BACKEND_URL}/water/${id}`, { method: "POST" });
-    fetchPlants();
+  const waterPlant = (id) => {
+    waterPlantMutation.mutate(id);
   };
+
+  const loading = plantsQuery.isLoading;
+  const error =
+    plantsQuery.isError && !(plantsQuery.error instanceof UnauthorizedError)
+      ? "backendOffline"
+      : null;
+
+  const isSaving = addPlantMutation.isPending;
+
+  const accountLabel =
+    user?.displayName || user?.email || (user?.isGuest ? t("dic.guest") : "");
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-plant-body pb-32 transition-colors duration-300">
@@ -167,11 +326,33 @@ const App = () => {
               <span className="absolute top-1 right-1 w-2 h-2 bg-emerald-500 rounded-full border border-white dark:border-slate-800"></span>
             </button>
 
+            {user && (
+              <>
+                {user.isGuest && (
+                  <button
+                    onClick={() => setShowGuestAccount(true)}
+                    className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                    title={t("dic.signup")}
+                  >
+                    <UserPlus size={20} />
+                  </button>
+                )}
+                <div
+                  className="hidden max-w-32 items-center gap-2 truncate rounded-full bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-200 sm:flex"
+                  title={accountLabel}
+                >
+                  <UserRound size={16} />
+                  <span className="truncate">{accountLabel}</span>
+                </div>
+              </>
+            )}
+
             {/*
-              FluidMenu — three stacked items:
+              FluidMenu — stacked action items:
                 1. MoreHorizontal  ← always visible trigger
                 2. Settings
                 3. Language (Globe + DE/EN picker)
+                4. Logout / leave guest mode
             */}
             <MenuContainer>
               {/* Slot 0: Trigger */}
@@ -185,13 +366,22 @@ const App = () => {
 
               {/* Slot 2: Language switcher */}
               <LanguageMenuItem />
+
+              {/* Slot 3: Session exit */}
+              {user && (
+                <MenuItem
+                  icon={<LogOut size={20} />}
+                  onClick={logout}
+                  title={t("dic.logout")}
+                />
+              )}
             </MenuContainer>
           </div>
         </div>
       </nav>
 
       <main className="max-w-xl mx-auto px-6 py-8">
-        {loading && (
+        {(authLoading || (user && loading)) && (
           <div className="flex flex-col items-center justify-center pt-16">
             <PixelBot />
             <p className="mt-4 text-slate-500 dark:text-slate-400">
@@ -200,13 +390,30 @@ const App = () => {
           </div>
         )}
 
-        {!loading && error && (
+        {!authLoading && !user && (
+          <AuthPanel
+            onGuest={() => startSession("guest")}
+            onLogin={(payload) => startSession("login", payload)}
+            onRegister={(payload) => startSession("register", payload)}
+          />
+        )}
+
+        {!authLoading && user && showGuestAccount && (
+          <AuthPanel
+            initialMode="signup"
+            onGuest={() => startSession("guest")}
+            onLogin={(payload) => startSession("login", payload)}
+            onRegister={(payload) => startSession("register", payload)}
+          />
+        )}
+
+        {!authLoading && user && !showGuestAccount && !loading && error && (
           <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900 rounded-2xl p-4 text-red-700 dark:text-red-300 text-center">
             {t("dic.backendOffline")}
           </div>
         )}
 
-        {!loading && !error && (
+        {!authLoading && user && !showGuestAccount && !loading && !error && (
           <>
             <SeasonSelector currentSeason={season} onSeasonChange={setSeason} />
             {!isAdding ? (
@@ -239,7 +446,10 @@ const App = () => {
                 />
               ))}
               {showAssistant && (
-                <PlantAssistant onClose={() => setShowAssistant(false)} />
+                <PlantAssistant
+                  onClose={() => setShowAssistant(false)}
+                  userId={user.id}
+                />
               )}
             </div>
           </>
