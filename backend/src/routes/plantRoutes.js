@@ -2,10 +2,15 @@ const express = require("express");
 const router = express.Router();
 const controller = require("../controllers/plantController");
 const aiService = require("../services/aiService");
+const { requireAuth } = require("../middleware/auth");
 
 const multer = require("multer");
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({
+  limits: { fileSize: 5 * 1024 * 1024 },
+  storage: multer.memoryStorage(),
+});
 
+router.use(requireAuth);
 router.get("/plants", controller.getPlants);
 router.post("/plants", controller.createPlant);
 router.delete("/plants/:id", controller.removePlant);
