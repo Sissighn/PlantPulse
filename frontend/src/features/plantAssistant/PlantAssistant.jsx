@@ -4,7 +4,7 @@ import { PixelBot } from "../pixelBot/PixelBot";
 import { BACKEND_URL } from "../../constants";
 import { Image as ImageIcon, X, Trash2 } from "lucide-react";
 
-export const PlantAssistant = ({ onClose }) => {
+export const PlantAssistant = ({ onClose, userId }) => {
   const [input, setInput] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
   const fileInputRef = useRef(null);
@@ -15,10 +15,11 @@ export const PlantAssistant = ({ onClose }) => {
     },
   ]);
   const [isTyping, setIsTyping] = useState(false);
+  const chatStorageKey = `plantChatHistory:${userId || "session"}`;
 
   // A) Beim Starten: Alten Chat laden
   useEffect(() => {
-    const savedChat = localStorage.getItem("plantChatHistory");
+    const savedChat = localStorage.getItem(chatStorageKey);
     if (savedChat) {
       try {
         setMessages(JSON.parse(savedChat));
@@ -26,16 +27,16 @@ export const PlantAssistant = ({ onClose }) => {
         console.error("Konnte Chat nicht laden", e);
       }
     }
-  }, []);
+  }, [chatStorageKey]);
 
   // B) Bei jeder neuen Nachricht: Automatisch speichern
   useEffect(() => {
-    localStorage.setItem("plantChatHistory", JSON.stringify(messages));
-  }, [messages]);
+    localStorage.setItem(chatStorageKey, JSON.stringify(messages));
+  }, [chatStorageKey, messages]);
 
   // C) Funktion zum Löschen des Verlaufs (für den Header)
   const clearChat = () => {
-    localStorage.removeItem("plantChatHistory");
+    localStorage.removeItem(chatStorageKey);
     setMessages([
       {
         sender: "ai",
@@ -81,6 +82,7 @@ export const PlantAssistant = ({ onClose }) => {
       }
 
       const response = await fetch(`${BACKEND_URL}/chat`, {
+        credentials: "include",
         method: "POST",
         body: formData,
       });
