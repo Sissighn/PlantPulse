@@ -54,6 +54,130 @@
     "plantBookSoil": "Soil",
     "plantBookFertilization": "Fertilization",
     "plantBookPruning": "Pruning",
+    "plantBookRiskOverview": "Risk Overview",
+    "plantBookTechnicalValue": "Technical value",
+    "plantBookAdvice": "Advice",
+    "plantBookRisk.low": "Low",
+    "plantBookRisk.medium": "Medium",
+    "plantBookRisk.high": "High",
+    "plantBookCareEffort": "Care effort",
+    "plantBookCareEffort.easy": "easy care",
+    "plantBookCareEffort.medium": "moderate",
+    "plantBookCareEffort.demanding": "demanding",
+    "careInterpretation": {
+      "unavailable": {
+        "interpretedLabel": "no data",
+        "simpleExplanation": "No technical data is available for this value.",
+        "actionAdvice": "Do not derive an action from this value."
+      },
+      "riskSummaryNone": "No elevated risks from the technical values.",
+      "riskSummaryLead": {
+        "0": "Highest risk",
+        "1": "Second risk",
+        "2": "Third risk"
+      },
+      "riskSummaryItem": "{{label}}: {{message}}.",
+      "effort": {
+        "easy": {
+          "label": "easy care",
+          "explanation": "The values fit uncomplicated indoor care."
+        },
+        "medium": {
+          "label": "moderate",
+          "explanation": "This plant needs some attention around placement or watering."
+        },
+        "demanding": {
+          "label": "demanding",
+          "explanation": "This plant has several more demanding care requirements."
+        }
+      },
+      "effortReasons": {
+        "airHumidity": "needs higher air humidity",
+        "light": "needs lots of light",
+        "soilMoisture": "needs consistent soil moisture",
+        "temperature": "does not fit normal living-room temperatures well"
+      },
+      "temperature": {
+        "cold": {
+          "interpretedLabel": "too cold for living rooms",
+          "simpleExplanation": "The temperature value is below the usual indoor range.",
+          "actionAdvice": "Avoid cool hallways, basements, or cold windows.",
+          "riskMessage": "temperature too low"
+        },
+        "normal": {
+          "interpretedLabel": "normal indoor climate",
+          "simpleExplanation": "The temperature value fits normal indoor rooms.",
+          "actionAdvice": "A stable spot in a living room is suitable.",
+          "riskMessage": "none"
+        },
+        "warm": {
+          "interpretedLabel": "warm / avoid sun or heater nearby",
+          "simpleExplanation": "The temperature value is in the warm range.",
+          "actionAdvice": "Avoid radiators and strong midday sun.",
+          "riskMessage": "location too warm"
+        }
+      },
+      "airHumidity": {
+        "dry": {
+          "interpretedLabel": "dry indoor air (heating air)",
+          "simpleExplanation": "The humidity value is in the dry range.",
+          "actionAdvice": "Keep distance from heaters and monitor humidity.",
+          "riskMessage": "dry air from heating"
+        },
+        "normal": {
+          "interpretedLabel": "normal home",
+          "simpleExplanation": "The humidity value fits normal indoor air.",
+          "actionAdvice": "No extra action needed.",
+          "riskMessage": "none"
+        },
+        "humid": {
+          "interpretedLabel": "humid climate (bathroom / tropical)",
+          "simpleExplanation": "The humidity value is in the humid range.",
+          "actionAdvice": "A bright bathroom spot or higher humidity can fit.",
+          "riskMessage": "air too dry for humidity-loving plants"
+        }
+      },
+      "soilMoisture": {
+        "low": {
+          "interpretedLabel": "prefers drier soil",
+          "simpleExplanation": "This plant's care range is in the low soil moisture band.",
+          "actionAdvice": "Let the soil dry out noticeably between watering.",
+          "riskMessage": "watering too often for a drought-tolerant plant"
+        },
+        "medium": {
+          "interpretedLabel": "prefers lightly moist soil",
+          "simpleExplanation": "This plant's care range is in the middle soil moisture band.",
+          "actionAdvice": "Water when the top layer of soil has dried.",
+          "riskMessage": "none"
+        },
+        "high": {
+          "interpretedLabel": "needs consistently moist soil",
+          "simpleExplanation": "This plant's care range is in the high soil moisture band.",
+          "actionAdvice": "Do not let the soil dry out completely, but avoid standing water.",
+          "riskMessage": "drying out for a moisture-loving plant"
+        }
+      },
+      "light": {
+        "low": {
+          "interpretedLabel": "low light (north-facing room suitable)",
+          "simpleExplanation": "The light value is in the low range.",
+          "actionAdvice": "A bright spot without direct sun is usually enough.",
+          "riskMessage": "too little light in dark spots"
+        },
+        "medium": {
+          "interpretedLabel": "bright room without direct sun",
+          "simpleExplanation": "The light value is in the middle range.",
+          "actionAdvice": "Choose a bright location and avoid direct midday sun.",
+          "riskMessage": "none"
+        },
+        "high": {
+          "interpretedLabel": "needs lots of light (near a window)",
+          "simpleExplanation": "The light value is in the high range.",
+          "actionAdvice": "Place near a window, while avoiding leaf burn from direct sun.",
+          "riskMessage": "too little light away from windows"
+        }
+      }
+    },
     "backendOffline": "Backend offline. Please start the server.",
     "authTitle": "PlantPulse account",
     "authSubtitle": "Your plants, your inventory.",
