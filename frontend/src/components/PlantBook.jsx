@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Droplets,
@@ -15,6 +15,11 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { BACKEND_URL } from "../constants";
+import {
+  careEffortSummary,
+  careRiskSummary,
+  interpretCareData,
+} from "../domain/careInterpretation";
 
 const quickSearches = ["Monstera", "Orchidee", "Aloe Vera", "Calathea"];
 
@@ -68,8 +73,99 @@ function InfoTile({ icon, label, value }) {
   );
 }
 
-function PlantBookDetail({ plant, loading, onAdd, onBack }) {
+function effortClasses(level) {
+  if (level === "demanding") {
+    return "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900 dark:bg-rose-950/30 dark:text-rose-200";
+  }
+  if (level === "medium") {
+    return "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200";
+  }
+  return "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-200";
+}
+
+function InterpretationTile({ icon, label, interpretation }) {
   const { t } = useTranslation();
+
+  if (!interpretation?.rawValue) return null;
+
+  return (
+    <div className="rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+      <div className="mb-3 flex items-center gap-2 text-xs font-bold uppercase text-slate-400">
+        {icon}
+        <span>{label}</span>
+      </div>
+      <p className="mb-1 text-base font-bold text-slate-900 dark:text-white">
+        {t(interpretation.interpretedLabelKey)}
+      </p>
+      <p className="mb-3 text-xs font-semibold text-slate-400">
+        {t("dic.plantBookTechnicalValue")}: {interpretation.rawValue}
+      </p>
+      <p className="mb-3 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+        {t(interpretation.simpleExplanationKey)}
+      </p>
+      <p className="text-sm leading-relaxed text-slate-800 dark:text-slate-100">
+        <span className="font-bold">{t("dic.plantBookAdvice")}:</span>{" "}
+        {t(interpretation.actionAdviceKey)}
+      </p>
+    </div>
+  );
+}
+
+function CareEffortPanel({ effort }) {
+  const { t } = useTranslation();
+
+  return (
+    <div className="rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+      <div className="mb-3 flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-bold uppercase text-slate-400">
+            {t("dic.plantBookCareEffort")}
+          </p>
+          <p className="mt-1 text-xl font-bold text-slate-900 dark:text-white">
+            {t(effort.labelKey)}
+          </p>
+        </div>
+        <span
+          className={`shrink-0 rounded-full border px-3 py-1 text-xs font-bold ${effortClasses(
+            effort.level,
+          )}`}
+        >
+          {t(`dic.plantBookCareEffort.${effort.level}`)}
+        </span>
+      </div>
+      <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+        {t(effort.explanationKey)}
+      </p>
+      {effort.reasons.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {effort.reasons.map((reason) => (
+            <span
+              key={reason.key}
+              className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 dark:bg-slate-700 dark:text-slate-200"
+            >
+              {t(reason.reasonKey)}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PlantBookDetail({ plant, loading, onAdd, onBack }) {
+  const { i18n, t } = useTranslation();
+  const interpretedCare = useMemo(
+    () => interpretCareData(plant?.raw, i18n.language),
+    [i18n.language, plant?.raw],
+  );
+  const riskSummary = useMemo(
+    () => careRiskSummary(interpretedCare),
+    [interpretedCare],
+  );
+  const careEffort = useMemo(
+    () => careEffortSummary(interpretedCare, plant?.raw),
+    [interpretedCare, plant?.raw],
+  );
 
   if (loading) {
     return (
@@ -144,26 +240,48 @@ function PlantBookDetail({ plant, loading, onAdd, onBack }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <InfoTile
+      <div className="space-y-3">
+        <CareEffortPanel effort={careEffort} />
+
+        <div className="rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+          <p className="mb-2 text-xs font-bold uppercase text-slate-400">
+            {t("dic.plantBookRiskOverview")}
+          </p>
+          <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+            {riskSummary.summaryKey
+              ? t(riskSummary.summaryKey)
+              : riskSummary.items
+                  .map((risk, index) =>
+                    t("dic.careInterpretation.riskSummaryItem", {
+                      label: t(`dic.careInterpretation.riskSummaryLead.${index}`),
+                      message: t(risk.messageKey),
+                    }),
+                  )
+                  .join(" ")}
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-3">
+        <InterpretationTile
           icon={<Thermometer size={15} />}
           label={t("dic.plantBookTemperature")}
-          value={plant.environment?.temperature}
+          interpretation={interpretedCare.temperature}
         />
-        <InfoTile
+        <InterpretationTile
           icon={<Sun size={15} />}
           label={t("dic.plantBookLight")}
-          value={plant.environment?.light}
+          interpretation={interpretedCare.light}
         />
-        <InfoTile
+        <InterpretationTile
           icon={<Droplets size={15} />}
           label={t("dic.plantBookSoilMoisture")}
-          value={plant.environment?.soilMoisture}
+          interpretation={interpretedCare.soilMoisture}
         />
-        <InfoTile
+        <InterpretationTile
           icon={<Wind size={15} />}
           label={t("dic.plantBookAirHumidity")}
-          value={plant.environment?.airHumidity}
+          interpretation={interpretedCare.airHumidity}
         />
       </div>
 
