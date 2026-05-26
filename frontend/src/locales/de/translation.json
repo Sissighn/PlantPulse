@@ -54,6 +54,130 @@
     "plantBookSoil": "Erde",
     "plantBookFertilization": "Düngen",
     "plantBookPruning": "Schnitt",
+    "plantBookRiskOverview": "Risiko-Überblick",
+    "plantBookTechnicalValue": "Technischer Wert",
+    "plantBookAdvice": "Empfehlung",
+    "plantBookRisk.low": "Niedrig",
+    "plantBookRisk.medium": "Mittel",
+    "plantBookRisk.high": "Hoch",
+    "plantBookCareEffort": "Pflegeaufwand",
+    "plantBookCareEffort.easy": "pflegeleicht",
+    "plantBookCareEffort.medium": "mittel",
+    "plantBookCareEffort.demanding": "aufwendig",
+    "careInterpretation": {
+      "unavailable": {
+        "interpretedLabel": "keine Daten",
+        "simpleExplanation": "Für diesen Wert liegen keine technischen Daten vor.",
+        "actionAdvice": "Keine Handlung aus diesem Wert ableiten."
+      },
+      "riskSummaryNone": "Keine erhöhten Risiken aus den technischen Werten.",
+      "riskSummaryLead": {
+        "0": "Höchstes Risiko",
+        "1": "Zweites Risiko",
+        "2": "Drittes Risiko"
+      },
+      "riskSummaryItem": "{{label}}: {{message}}.",
+      "effort": {
+        "easy": {
+          "label": "pflegeleicht",
+          "explanation": "Die Werte passen zu unkomplizierter Zimmerpflege."
+        },
+        "medium": {
+          "label": "mittel",
+          "explanation": "Die Pflanze braucht etwas Aufmerksamkeit bei Standort oder Gießen."
+        },
+        "demanding": {
+          "label": "aufwendig",
+          "explanation": "Die Pflanze hat mehrere anspruchsvollere Pflegebedingungen."
+        }
+      },
+      "effortReasons": {
+        "airHumidity": "braucht erhöhte Luftfeuchtigkeit",
+        "light": "braucht viel Licht",
+        "soilMoisture": "braucht gleichmäßige Bodenfeuchte",
+        "temperature": "mag keinen normalen Wohnraum-Temperaturbereich"
+      },
+      "temperature": {
+        "cold": {
+          "interpretedLabel": "zu kalt für Wohnräume",
+          "simpleExplanation": "Der Temperaturwert liegt unter dem üblichen Wohnbereich.",
+          "actionAdvice": "Nicht in kühlen Fluren, Kellern oder an kalten Fenstern platzieren.",
+          "riskMessage": "zu niedrige Temperatur"
+        },
+        "normal": {
+          "interpretedLabel": "normales Wohnklima",
+          "simpleExplanation": "Der Temperaturwert passt zu normalen Innenräumen.",
+          "actionAdvice": "Ein stabiler Platz im Wohnraum ist geeignet.",
+          "riskMessage": "keines"
+        },
+        "warm": {
+          "interpretedLabel": "warm / Nähe Sonne oder Heizung vermeiden",
+          "simpleExplanation": "Der Temperaturwert liegt im warmen Bereich.",
+          "actionAdvice": "Nicht direkt an Heizkörper oder in starke Mittagssonne stellen.",
+          "riskMessage": "zu warmer Standort"
+        }
+      },
+      "airHumidity": {
+        "dry": {
+          "interpretedLabel": "trockene Raumluft (Heizungsluft)",
+          "simpleExplanation": "Der Feuchtigkeitswert liegt im trockenen Bereich.",
+          "actionAdvice": "Abstand zur Heizung halten und Luftfeuchte beobachten.",
+          "riskMessage": "trockene Luft durch Heizung"
+        },
+        "normal": {
+          "interpretedLabel": "normale Wohnung",
+          "simpleExplanation": "Der Feuchtigkeitswert passt zu normaler Wohnraumluft.",
+          "actionAdvice": "Keine zusätzliche Maßnahme nötig.",
+          "riskMessage": "keines"
+        },
+        "humid": {
+          "interpretedLabel": "feuchtes Klima (Bad / tropisch)",
+          "simpleExplanation": "Der Feuchtigkeitswert liegt im feuchten Bereich.",
+          "actionAdvice": "Ein heller Badplatz oder eine höhere Luftfeuchte kann passen.",
+          "riskMessage": "zu trockene Luft für feuchtigkeitsliebende Pflanzen"
+        }
+      },
+      "soilMoisture": {
+        "low": {
+          "interpretedLabel": "mag eher trockene Erde",
+          "simpleExplanation": "Der Pflegebereich dieser Pflanze liegt bei niedriger Bodenfeuchte.",
+          "actionAdvice": "Erde zwischen dem Gießen deutlich antrocknen lassen.",
+          "riskMessage": "zu häufiges Gießen bei trockenheitsliebender Pflanze"
+        },
+        "medium": {
+          "interpretedLabel": "mag leicht feuchte Erde",
+          "simpleExplanation": "Der Pflegebereich dieser Pflanze liegt bei mittlerer Bodenfeuchte.",
+          "actionAdvice": "Gießen, wenn die obere Erdschicht angetrocknet ist.",
+          "riskMessage": "keines"
+        },
+        "high": {
+          "interpretedLabel": "braucht gleichmäßig feuchte Erde",
+          "simpleExplanation": "Der Pflegebereich dieser Pflanze liegt bei hoher Bodenfeuchte.",
+          "actionAdvice": "Erde nicht komplett austrocknen lassen, aber Staunässe vermeiden.",
+          "riskMessage": "Austrocknen bei feuchtigkeitsliebender Pflanze"
+        }
+      },
+      "light": {
+        "low": {
+          "interpretedLabel": "wenig Licht (Nordzimmer geeignet)",
+          "simpleExplanation": "Der Lichtwert liegt im niedrigen Bereich.",
+          "actionAdvice": "Ein heller Platz ohne direkte Sonne ist meist ausreichend.",
+          "riskMessage": "zu wenig Licht an dunklen Standorten"
+        },
+        "medium": {
+          "interpretedLabel": "heller Raum ohne direkte Sonne",
+          "simpleExplanation": "Der Lichtwert liegt im mittleren Bereich.",
+          "actionAdvice": "Hellen Standort wählen, direkte Mittagssonne vermeiden.",
+          "riskMessage": "keines"
+        },
+        "high": {
+          "interpretedLabel": "viel Licht nötig (Fensternähe)",
+          "simpleExplanation": "Der Lichtwert liegt im hohen Bereich.",
+          "actionAdvice": "Nah ans Fenster stellen, aber Blattverbrennung durch direkte Sonne vermeiden.",
+          "riskMessage": "zu wenig Licht bei Abstand zum Fenster"
+        }
+      }
+    },
     "backendOffline": "Backend offline. Bitte starte den Server.",
     "authTitle": "PlantPulse Konto",
     "authSubtitle": "Deine Pflanzen, dein Bestand.",
