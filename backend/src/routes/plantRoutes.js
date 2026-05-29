@@ -4,11 +4,18 @@ const controller = require("../controllers/plantController");
 const plantBookController = require("../controllers/plantBookController");
 const aiService = require("../services/aiService");
 const { requireAuth } = require("../middleware/auth");
+const { validateRequest } = require("../middleware/validateRequest");
 const {
   chatBodySchema,
   chatHistorySchema,
+  plantBookDetailSchema,
+  plantBookParamSchema,
+  plantBookSearchQuerySchema,
+  plantCreateSchema,
   parseJsonField,
   sendValidationError,
+  tipsQuerySchema,
+  uuidParamSchema,
 } = require("../validation/requestSchemas");
 
 const multer = require("multer");
@@ -19,29 +26,72 @@ const upload = multer({
 
 router.use(requireAuth);
 router.get("/plants", controller.getPlants);
-router.post("/plants", controller.createPlant);
-router.delete("/plants/:id", controller.removePlant);
-router.post("/water/:id", controller.waterPlant);
-router.get("/tips", controller.getAiTips);
-router.get("/plant-book/search", plantBookController.searchPlants);
-router.get("/plant-book/:pid", plantBookController.getPlantDetail);
+router.post(
+  "/plants",
+  validateRequest({ body: plantCreateSchema }),
+  controller.createPlant
+);
+router.delete(
+  "/plants/:id",
+  validateRequest({ params: uuidParamSchema }),
+  controller.removePlant
+);
+router.post(
+  "/water/:id",
+  validateRequest({ params: uuidParamSchema }),
+  controller.waterPlant
+);
+router.get(
+  "/tips",
+  validateRequest({ query: tipsQuerySchema }),
+  controller.getAiTips
+);
+router.get(
+  "/plant-book/search",
+  validateRequest({ query: plantBookSearchQuerySchema }),
+  plantBookController.searchPlants
+);
+router.get(
+  "/plant-book/:pid",
+  validateRequest({
+    params: plantBookParamSchema,
+    query: plantBookDetailSchema,
+  }),
+  plantBookController.getPlantDetail
+);
 
-router.post("/chat", upload.single("image"), async (req, res) => {
+function validateChatHistory(req, res, next) {
   try {
-    const body = chatBodySchema.parse(req.body || {});
-    const message = body.message;
-    const imageFile = req.file;
-    const history =
-      parseJsonField(body.history, chatHistorySchema, "history") || [];
-
-    const reply = await aiService.chatWithBot(message, imageFile, history);
-
-    res.json({ reply });
+    req.chatHistory =
+      parseJsonField(req.body.history, chatHistorySchema, "history") || [];
+    next();
   } catch (error) {
     if (sendValidationError(res, error)) return;
-    console.error("Chat Route Error:", error);
-    res.status(500).json({ reply: "Fehler im System 🤖💥" });
+    next(error);
   }
-});
+}
+
+router.post(
+  "/chat",
+  upload.single("image"),
+  validateRequest({ body: chatBodySchema }),
+  validateChatHistory,
+  async (req, res) => {
+    try {
+      const imageFile = req.file;
+
+      const reply = await aiService.chatWithBot(
+        req.body.message,
+        imageFile,
+        req.chatHistory
+      );
+
+      res.json({ reply });
+    } catch (error) {
+      console.error("Chat Route Error:", error);
+      res.status(500).json({ reply: "Fehler im System 🤖💥" });
+    }
+  }
+);
 
 module.exports = router;
