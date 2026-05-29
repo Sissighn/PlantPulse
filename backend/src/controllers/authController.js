@@ -3,6 +3,12 @@ const {
   authCookieOptions,
   clearAuthCookie,
 } = require("../middleware/auth");
+const {
+  authLoginSchema,
+  authRegisterSchema,
+  emptyBodySchema,
+  sendValidationError,
+} = require("../validation/requestSchemas");
 
 function sendSession(res, user, status = 200) {
   res.cookie(
@@ -34,24 +40,30 @@ exports.getSession = (req, res) => {
 
 exports.register = async (req, res) => {
   try {
-    const user = await authService.register(req.body || {}, req.user);
+    const body = authRegisterSchema.parse(req.body || {});
+    const user = await authService.register(body, req.user);
     sendSession(res, user, 201);
   } catch (error) {
+    if (sendValidationError(res, error)) return;
     sendAuthError(res, error);
   }
 };
 
 exports.login = async (req, res) => {
   try {
-    const user = await authService.login(req.body || {});
+    const body = authLoginSchema.parse(req.body || {});
+    const user = await authService.login(body);
     sendSession(res, user);
   } catch (error) {
+    if (sendValidationError(res, error)) return;
     sendAuthError(res, error);
   }
 };
 
 exports.createGuest = async (req, res) => {
   try {
+    emptyBodySchema.parse(req.body || {});
+
     if (req.user) {
       sendSession(res, req.user);
       return;
@@ -60,11 +72,18 @@ exports.createGuest = async (req, res) => {
     const user = await authService.createGuest();
     sendSession(res, user, 201);
   } catch (error) {
+    if (sendValidationError(res, error)) return;
     sendAuthError(res, error);
   }
 };
 
 exports.logout = (req, res) => {
-  clearAuthCookie(res);
-  res.status(204).send();
+  try {
+    emptyBodySchema.parse(req.body || {});
+    clearAuthCookie(res);
+    res.status(204).send();
+  } catch (error) {
+    if (sendValidationError(res, error)) return;
+    sendAuthError(res, error);
+  }
 };
