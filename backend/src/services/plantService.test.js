@@ -1,22 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import sqlite3 from 'sqlite3';
 
-// Mock sqlite3 completely so database.js doesn't create plants.db
-vi.mock('sqlite3', () => ({
-  default: {
-    verbose: () => ({
-      Database: vi.fn().mockImplementation((path, cb) => {
-        if (cb) cb(null);
-        return {
-          serialize: vi.fn((cb) => { if (cb) cb(); }),
-          run: vi.fn(),
-          all: vi.fn(),
-          get: vi.fn()
-        };
-      })
-    })
-  }
-}));
+vi.hoisted(() => {
+  process.env.DB_PATH = `/tmp/plantpulse-plant-service-${process.pid}.db`;
+});
 
 import * as plantService from './plantService.js';
 const db = require('../db/database');
@@ -25,14 +11,13 @@ const aiService = require('./aiService');
 describe('plantService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    
-    // Use vi.spyOn to mock the actual methods since they are CommonJS exports
+
     vi.spyOn(db, 'findAll').mockReset();
     vi.spyOn(db, 'create').mockReset();
     vi.spyOn(db, 'deleteById').mockReset();
     vi.spyOn(db, 'updateWatering').mockReset();
     vi.spyOn(db, 'findById').mockReset();
-    
+
     vi.spyOn(aiService, 'suggestInterval').mockReset();
     vi.spyOn(aiService, 'getCareTips').mockReset();
   });
