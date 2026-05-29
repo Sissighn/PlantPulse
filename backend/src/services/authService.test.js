@@ -1,21 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("sqlite3", () => ({
-  default: {
-    verbose: () => ({
-      Database: vi.fn().mockImplementation((path, callback) => {
-        if (callback) callback(null);
-
-        return {
-          all: vi.fn(),
-          get: vi.fn(),
-          run: vi.fn(),
-          serialize: vi.fn((serializeCallback) => serializeCallback?.()),
-        };
-      }),
-    }),
-  },
-}));
+vi.hoisted(() => {
+  process.env.DB_PATH = `/tmp/plantpulse-auth-service-${process.pid}.db`;
+});
 
 import * as authService from "./authService.js";
 const db = require("../db/database");
