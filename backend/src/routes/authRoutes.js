@@ -1,6 +1,12 @@
 const express = require("express");
 const controller = require("../controllers/authController");
 const { createRateLimit } = require("../middleware/rateLimit");
+const { validateRequest } = require("../middleware/validateRequest");
+const {
+  authLoginSchema,
+  authRegisterSchema,
+  emptyBodySchema,
+} = require("../validation/requestSchemas");
 
 const router = express.Router();
 const authLimit = createRateLimit({
@@ -10,9 +16,28 @@ const authLimit = createRateLimit({
 });
 
 router.get("/session", controller.getSession);
-router.post("/register", authLimit, controller.register);
-router.post("/login", authLimit, controller.login);
-router.post("/guest", authLimit, controller.createGuest);
-router.post("/logout", controller.logout);
+router.post(
+  "/register",
+  authLimit,
+  validateRequest({ body: authRegisterSchema }),
+  controller.register
+);
+router.post(
+  "/login",
+  authLimit,
+  validateRequest({ body: authLoginSchema }),
+  controller.login
+);
+router.post(
+  "/guest",
+  authLimit,
+  validateRequest({ body: emptyBodySchema }),
+  controller.createGuest
+);
+router.post(
+  "/logout",
+  validateRequest({ body: emptyBodySchema }),
+  controller.logout
+);
 
 module.exports = router;
