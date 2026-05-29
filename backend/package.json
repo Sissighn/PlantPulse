@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
     "test": "vitest run"
@@ -14,16 +16,19 @@
   "type": "commonjs",
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "better-sqlite3": "^12.10.0",
     "body-parser": "^2.2.1",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
+    "drizzle-orm": "^0.45.2",
     "express": "^5.2.1",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.0.2",
-    "sqlite3": "^5.1.7"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
+    "drizzle-kit": "^0.31.10",
     "vitest": "^4.1.7"
   }
 }
