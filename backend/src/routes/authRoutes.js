@@ -1,5 +1,6 @@
 const express = require("express");
 const controller = require("../controllers/authController");
+const { asyncHandler } = require("../middleware/errorHandler");
 const { createRateLimit } = require("../middleware/rateLimit");
 const { validateRequest } = require("../middleware/validateRequest");
 const {
@@ -20,19 +21,19 @@ router.post(
   "/register",
   authLimit,
   validateRequest({ body: authRegisterSchema }),
-  controller.register
+  asyncHandler(controller.register)
 );
 router.post(
   "/login",
   authLimit,
   validateRequest({ body: authLoginSchema }),
-  controller.login
+  asyncHandler(controller.login)
 );
 router.post(
   "/guest",
   authLimit,
   validateRequest({ body: emptyBodySchema }),
-  controller.createGuest
+  asyncHandler(controller.createGuest)
 );
 router.post(
   "/logout",
