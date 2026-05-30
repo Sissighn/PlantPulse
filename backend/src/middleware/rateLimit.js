@@ -1,28 +1,29 @@
-function createRateLimit({ windowMs, max, message }) {
-  const attempts = new Map();
+const { rateLimit } = require("express-rate-limit");
 
-  return (req, res, next) => {
-    const now = Date.now();
-    const key = req.ip || req.socket.remoteAddress || "unknown";
-    const current = attempts.get(key);
-
-    if (!current || current.resetAt <= now) {
-      attempts.set(key, { count: 1, resetAt: now + windowMs });
-      next();
-      return;
-    }
-
-    current.count += 1;
-
-    if (current.count > max) {
-      const retryAfterSeconds = Math.ceil((current.resetAt - now) / 1000);
-      res.set("Retry-After", String(Math.max(retryAfterSeconds, 1)));
-      res.status(429).json({ message });
-      return;
-    }
-
-    next();
-  };
+function createRateLimit({ max, message, windowMs }) {
+  return rateLimit({
+    legacyHeaders: false,
+    limit: max,
+    message: { message },
+    standardHeaders: "draft-8",
+    windowMs,
+  });
 }
 
-module.exports = { createRateLimit };
+const apiLimit = createRateLimit({
+  max: 300,
+  message: "Too many API requests. Try again later.",
+  windowMs: 15 * 60 * 1000,
+});
+
+const aiLimit = createRateLimit({
+  max: 20,
+  message: "Too many AI requests. Try again later.",
+  windowMs: 15 * 60 * 1000,
+});
+
+module.exports = {
+  aiLimit,
+  apiLimit,
+  createRateLimit,
+};
