@@ -115,27 +115,18 @@ function parseJsonField(value, schema, fieldName) {
   }
 }
 
-function sendValidationError(res, error) {
-  if (error instanceof z.ZodError) {
-    res.status(400).json({ message: formatValidationError(error) });
-    return true;
-  }
-
-  return false;
-}
-
 module.exports = {
   authLoginSchema,
   authRegisterSchema,
   chatBodySchema,
   chatHistorySchema,
   emptyBodySchema,
+  formatValidationError,
   parseJsonField,
   plantBookDetailSchema,
   plantBookParamSchema,
   plantBookSearchQuerySchema,
   plantCreateSchema,
-  sendValidationError,
   tipsQuerySchema,
   uuidParamSchema,
 };
