@@ -4,6 +4,7 @@ const controller = require("../controllers/plantController");
 const plantBookController = require("../controllers/plantBookController");
 const aiService = require("../services/aiService");
 const { requireAuth } = require("../middleware/auth");
+const { asyncHandler } = require("../middleware/errorHandler");
 const { validateRequest } = require("../middleware/validateRequest");
 const {
   chatBodySchema,
@@ -13,7 +14,6 @@ const {
   plantBookSearchQuerySchema,
   plantCreateSchema,
   parseJsonField,
-  sendValidationError,
   tipsQuerySchema,
   uuidParamSchema,
 } = require("../validation/requestSchemas");
@@ -25,31 +25,31 @@ const upload = multer({
 });
 
 router.use(requireAuth);
-router.get("/plants", controller.getPlants);
+router.get("/plants", asyncHandler(controller.getPlants));
 router.post(
   "/plants",
   validateRequest({ body: plantCreateSchema }),
-  controller.createPlant
+  asyncHandler(controller.createPlant)
 );
 router.delete(
   "/plants/:id",
   validateRequest({ params: uuidParamSchema }),
-  controller.removePlant
+  asyncHandler(controller.removePlant)
 );
 router.post(
   "/water/:id",
   validateRequest({ params: uuidParamSchema }),
-  controller.waterPlant
+  asyncHandler(controller.waterPlant)
 );
 router.get(
   "/tips",
   validateRequest({ query: tipsQuerySchema }),
-  controller.getAiTips
+  asyncHandler(controller.getAiTips)
 );
 router.get(
   "/plant-book/search",
   validateRequest({ query: plantBookSearchQuerySchema }),
-  plantBookController.searchPlants
+  asyncHandler(plantBookController.searchPlants)
 );
 router.get(
   "/plant-book/:pid",
@@ -57,18 +57,13 @@ router.get(
     params: plantBookParamSchema,
     query: plantBookDetailSchema,
   }),
-  plantBookController.getPlantDetail
+  asyncHandler(plantBookController.getPlantDetail)
 );
 
 function validateChatHistory(req, res, next) {
-  try {
-    req.chatHistory =
-      parseJsonField(req.body.history, chatHistorySchema, "history") || [];
-    next();
-  } catch (error) {
-    if (sendValidationError(res, error)) return;
-    next(error);
-  }
+  req.chatHistory =
+    parseJsonField(req.body.history, chatHistorySchema, "history") || [];
+  next();
 }
 
 router.post(
@@ -76,22 +71,17 @@ router.post(
   upload.single("image"),
   validateRequest({ body: chatBodySchema }),
   validateChatHistory,
-  async (req, res) => {
-    try {
-      const imageFile = req.file;
+  asyncHandler(async (req, res) => {
+    const imageFile = req.file;
 
-      const reply = await aiService.chatWithBot(
-        req.body.message,
-        imageFile,
-        req.chatHistory
-      );
+    const reply = await aiService.chatWithBot(
+      req.body.message,
+      imageFile,
+      req.chatHistory
+    );
 
-      res.json({ reply });
-    } catch (error) {
-      console.error("Chat Route Error:", error);
-      res.status(500).json({ reply: "Fehler im System 🤖💥" });
-    }
-  }
+    res.json({ reply });
+  })
 );
 
 module.exports = router;
