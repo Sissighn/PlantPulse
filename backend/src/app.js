@@ -14,6 +14,7 @@ const {
   optionalAuth,
   requireTrustedOrigin,
 } = require("./middleware/auth");
+const { apiLimit } = require("./middleware/rateLimit");
 
 const app = express();
 
@@ -47,7 +48,7 @@ app.use(
   express.static(path.join(__dirname, "..", "public", "icons"))
 );
 
-app.use("/api", requireTrustedOrigin, optionalAuth);
+app.use("/api", apiLimit, requireTrustedOrigin, optionalAuth);
 app.use("/api/auth", authRoutes);
 app.use("/api", plantRoutes);
 app.use(notFoundHandler);
