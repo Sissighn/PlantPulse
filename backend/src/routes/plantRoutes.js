@@ -5,6 +5,7 @@ const plantBookController = require("../controllers/plantBookController");
 const aiService = require("../services/aiService");
 const { requireAuth } = require("../middleware/auth");
 const { asyncHandler } = require("../middleware/errorHandler");
+const { aiLimit } = require("../middleware/rateLimit");
 const { validateRequest } = require("../middleware/validateRequest");
 const {
   chatBodySchema,
@@ -43,6 +44,7 @@ router.post(
 );
 router.get(
   "/tips",
+  aiLimit,
   validateRequest({ query: tipsQuerySchema }),
   asyncHandler(controller.getAiTips)
 );
@@ -68,6 +70,7 @@ function validateChatHistory(req, res, next) {
 
 router.post(
   "/chat",
+  aiLimit,
   upload.single("image"),
   validateRequest({ body: chatBodySchema }),
   validateChatHistory,
