@@ -1,5 +1,6 @@
 # PlantPulse
 
+[![CI](https://github.com/Sissighn/PlantPulse/actions/workflows/ci.yml/badge.svg)](https://github.com/Sissighn/PlantPulse/actions/workflows/ci.yml)
 ![React](https://img.shields.io/badge/Frontend-React-61DAFB?logo=react&logoColor=white)
 ![Vite](https://img.shields.io/badge/Build-Vite-646CFF?logo=vite&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/Language-JavaScript-F7DF1E?logo=javascript&logoColor=black)
