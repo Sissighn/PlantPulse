@@ -3,6 +3,7 @@ const {
   authCookieOptions,
   clearAuthCookie,
 } = require("../middleware/auth");
+const { createHttpError } = require("../middleware/errorHandler");
 
 function sendSession(res, user, status = 200) {
   res.cookie(
@@ -13,55 +14,32 @@ function sendSession(res, user, status = 200) {
   res.status(status).json({ user: authService.publicUser(user) });
 }
 
-function sendAuthError(res, error) {
-  if (!error.status) {
-    console.error("Auth error:", error);
-    res.status(500).json({ message: "Authentication failed." });
-    return;
-  }
-
-  res.status(error.status).json({ message: error.message });
-}
-
 exports.getSession = (req, res) => {
   if (!req.user) {
-    res.status(401).json({ message: "No active session." });
-    return;
+    throw createHttpError(401, "No active session.");
   }
 
   res.json({ user: authService.publicUser(req.user) });
 };
 
 exports.register = async (req, res) => {
-  try {
-    const user = await authService.register(req.body, req.user);
-    sendSession(res, user, 201);
-  } catch (error) {
-    sendAuthError(res, error);
-  }
+  const user = await authService.register(req.body, req.user);
+  sendSession(res, user, 201);
 };
 
 exports.login = async (req, res) => {
-  try {
-    const user = await authService.login(req.body);
-    sendSession(res, user);
-  } catch (error) {
-    sendAuthError(res, error);
-  }
+  const user = await authService.login(req.body);
+  sendSession(res, user);
 };
 
 exports.createGuest = async (req, res) => {
-  try {
-    if (req.user) {
-      sendSession(res, req.user);
-      return;
-    }
-
-    const user = await authService.createGuest();
-    sendSession(res, user, 201);
-  } catch (error) {
-    sendAuthError(res, error);
+  if (req.user) {
+    sendSession(res, req.user);
+    return;
   }
+
+  const user = await authService.createGuest();
+  sendSession(res, user, 201);
 };
 
 exports.logout = (req, res) => {
