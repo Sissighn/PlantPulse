@@ -7,6 +7,10 @@ const authConfig = require("./config/auth");
 const authRoutes = require("./routes/authRoutes");
 const plantRoutes = require("./routes/plantRoutes");
 const {
+  errorHandler,
+  notFoundHandler,
+} = require("./middleware/errorHandler");
+const {
   optionalAuth,
   requireTrustedOrigin,
 } = require("./middleware/auth");
@@ -46,5 +50,7 @@ app.use(
 app.use("/api", requireTrustedOrigin, optionalAuth);
 app.use("/api/auth", authRoutes);
 app.use("/api", plantRoutes);
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 module.exports = app;
