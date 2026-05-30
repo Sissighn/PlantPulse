@@ -2,17 +2,16 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Kopiere package.json und package-lock.json
+RUN apk add --no-cache python3 make g++
+
 COPY package*.json ./
 
-# Installiere Abhängigkeiten
-RUN npm install
+RUN npm ci --omit=dev
 
-# Kopiere den restlichen Quellcode
 COPY . .
 
-# Exponiere den Port, auf dem das Backend läuft
+ENV NODE_ENV=production
+
 EXPOSE 3000
 
-# Starte den Server
 CMD ["npm", "start"]
