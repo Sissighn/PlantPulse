@@ -3,6 +3,12 @@ require("dotenv").config();
 const BASE_URL =
   process.env.OPEN_PLANTBOOK_BASE_URL || "https://open.plantbook.io/api/v1";
 
+function serviceError(message, status) {
+  const error = new Error(message);
+  error.status = status;
+  return error;
+}
+
 function getConfiguredAccessToken() {
   return (
     process.env.OPEN_PLANTBOOK_ACCESS_TOKEN || process.env.PLANTBOOK_ACCESS_TOKEN
@@ -55,7 +61,7 @@ async function getAccessToken() {
   const { clientId, clientSecret } = getClientCredentials();
 
   if (!clientId || !clientSecret) {
-    throw new Error("Open Plantbook credentials are missing.");
+    throw serviceError("Open Plantbook credentials are missing.", 503);
   }
 
   const body = new URLSearchParams({
@@ -71,7 +77,10 @@ async function getAccessToken() {
   });
 
   if (!res.ok) {
-    throw new Error(`Open Plantbook token request failed: HTTP ${res.status}`);
+    throw serviceError(
+      `Open Plantbook token request failed: HTTP ${res.status}`,
+      502
+    );
   }
 
   const data = await res.json();
@@ -86,7 +95,7 @@ async function getAccessToken() {
 
 async function request(endpoint, params = {}, hasRetried = false) {
   if (!isConfigured()) {
-    throw new Error("Open Plantbook is not configured.");
+    throw serviceError("Open Plantbook is not configured.", 503);
   }
 
   const token = await getAccessToken();
@@ -107,7 +116,7 @@ async function request(endpoint, params = {}, hasRetried = false) {
   }
 
   if (!res.ok) {
-    throw new Error(`Open Plantbook request failed: HTTP ${res.status}`);
+    throw serviceError(`Open Plantbook request failed: HTTP ${res.status}`, 502);
   }
 
   return res.json();
@@ -211,7 +220,7 @@ exports.searchPlants = async (query, { limit = 12, lang = "de" } = {}) => {
 
 exports.getPlantDetail = async (pid, { lang = "de" } = {}) => {
   const safePid = String(pid || "").trim();
-  if (!safePid) throw new Error("Plant PID is required.");
+  if (!safePid) throw serviceError("Plant PID is required.", 400);
 
   const cacheKey = `detail:${lang}:${safePid}`;
   const cached = getCached(cacheKey);
