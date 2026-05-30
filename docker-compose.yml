@@ -7,10 +7,13 @@ services:
     ports:
       - "3000:3000"
     env_file:
-      - ./backend/.env
+      - path: ./backend/.env
+        required: false
+    environment:
+      DB_PATH: /app/data/plants.db
+      FRONTEND_ORIGINS: http://localhost,http://localhost:5173
     volumes:
-      # Mounte die Datenbank und Bilder als Volume, damit sie bei Container-Neustarts nicht gelöscht werden
-      - ./backend/src/db:/app/src/db
+      - backend-data:/app/data
       - ./backend/public/plantImages:/app/public/plantImages
     restart: unless-stopped
 
@@ -24,3 +27,6 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
+
+volumes:
+  backend-data:
