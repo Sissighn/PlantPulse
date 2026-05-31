@@ -124,4 +124,8 @@ test("adds a plant and waters it", async ({ page }) => {
   await wateringRequest;
 
   await expect(page.getByText(/in \d+ days/i)).toBeVisible();
+
+  await page.getByRole("button", { name: /calendar/i }).click();
+  await expect(page.getByRole("heading", { name: "Calendar" })).toBeVisible();
+  await expect(page.getByText("Monstera").first()).toBeVisible();
 });
