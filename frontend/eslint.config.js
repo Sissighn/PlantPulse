@@ -2,12 +2,13 @@ import js from '@eslint/js'
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
+import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
   globalIgnores(['dist', 'playwright-report', 'test-results']),
   {
-    files: ['playwright.config.js'],
+    files: ['playwright.config.ts'],
     languageOptions: {
       ecmaVersion: 2022,
       globals: globals.node,
@@ -16,8 +17,9 @@ export default defineConfig([
       },
     },
   },
+  ...tseslint.configs.recommended,
   {
-    files: ['src/**/*.{js,jsx}'],
+    files: ['src/**/*.{js,jsx,ts,tsx}'],
     extends: [
       js.configs.recommended,
       reactHooks.configs.flat.recommended,
