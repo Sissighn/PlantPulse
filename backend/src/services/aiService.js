@@ -1,18 +1,30 @@
 const model = require("../config/gemini");
 
+const PLANT_CARE_SAFETY_RULES = `
+  Safety and quality rules:
+  - Do not give guaranteed diagnoses. Phrase plant diseases, pests, and deficiencies as plausible observations, not certainties.
+  - Briefly name uncertainty when the image, description, or symptoms are ambiguous.
+  - For image analysis: describe only visible signs and derive possible causes from them. Make clear that a photo cannot fully replace context such as location, soil, roots, smell, and symptom history.
+  - If toxicity, children, pets, or ingestion are involved: answer cautiously, do not guarantee safety, and advise checking reliable sources. If symptoms are present, recommend contacting a veterinarian, poison control center, or medical professional immediately.
+  - Do not recommend harsh chemicals or pesticides without mentioning gentler alternatives, protective measures, and label/manufacturer instructions.
+  - Reply in the user's language when it is recognizable.
+`;
+
 // --- AI Tips ---
 // Fetches concise care tips (water, light, fertilizer) for a specific plant and season.
 exports.getCareTips = async (plantName, season) => {
   if (!model) return "KI nicht konfiguriert.";
   try {
     const prompt = `
-      Du bist ein begeisterter, moderner Pflanzen-Buddy. 
-      Gib mir 3 ultra-kurze, knackige Pflege-Tipps für "${plantName}" im "${season}".
-      Antworte GENAU in diesem Format (keine Einleitungssätze, kein Markdown/**):
+      You are an enthusiastic, modern plant-care buddy.
+      Give me 3 ultra-short, practical care tips for "${plantName}" in "${season}".
+      ${PLANT_CARE_SAFETY_RULES}
+      Reply EXACTLY in this format, with no intro sentence and no Markdown emphasis:
       • Gießen: [Tipp]
       • Licht: [Tipp]
       • Dünger: [Tipp]
-      Halte dich kurz. Duz-Form. Motivierender Ton.
+      Keep it short, friendly, and motivating. If the user's language is German, use informal "du".
+      If toxicity or pets could be relevant, mention it briefly in the most fitting tip.
     `;
     const result = await model.generateContent(prompt);
     return result.response.text();
@@ -26,10 +38,12 @@ exports.suggestInterval = async (plantName) => {
   if (!model) return null;
   try {
     const result = await model.generateContent(
-      `Gießintervall für "${plantName}" in Tagen? Antworte NUR mit der Zahl.`
+      `Estimate a cautious watering interval for the indoor plant "${plantName}" in days.
+       Treat it only as a starting point because location, pot size, soil, and season can vary.
+       Reply ONLY with one integer between 1 and 365.`
     );
     const number = parseInt(result.response.text().replace(/[^0-9]/g, ""));
-    return isNaN(number) ? 7 : number;
+    return Number.isFinite(number) && number >= 1 && number <= 365 ? number : 7;
   } catch (error) {
     return 7;
   }
@@ -52,15 +66,17 @@ exports.chatWithBot = async (userMessage, imageFile, history = []) => {
 
   try {
     const systemPrompt = `
-      Du bist "SproutBot", ein kleiner, freundlicher Pixel-Roboter mit einem grünen Pflänzchen auf dem Kopf. 🌱🤖
-      Du lebst in einer Pflanzen-App.
+      You are "SproutBot", a small, friendly pixel robot with a green sprout on its head.
+      You live inside a plant-care app.
       
-      Regeln:
-      1. Antworte immer kurz, hilfreich und charmant und lieb, aber nicht kitschig!
-      2. Du bist Pflanzen-Experte, erklärst aber einfach (kein Fachchinesisch).
-      3. Wenn der User "Hallo" sagt, stell dich kurz als SproutBot vor.
-      4. Nutze Pflanzen-Emojis, aber übertreibe es nicht.
-      5. Wenn ein BILD dabei ist: Analysiere Blätter, Erde und Tofp genau. Suche nach Schädlingen, braunen Stellen oder Trockenheit.
+      Rules:
+      1. Always answer briefly, helpfully, warmly, and with charm, but avoid being cheesy.
+      2. You are a plant expert, but explain simply and avoid jargon.
+      3. If the user says hello, briefly introduce yourself as SproutBot.
+      4. Use plant emojis sparingly.
+      5. If an IMAGE is provided: analyze visible signs on leaves, stems, soil, and pot. Look for possible pests, brown spots, yellow leaves, dryness, overwatering, or light stress.
+      6. Start with the most likely causes, then give 2-4 concrete next steps.
+      ${PLANT_CARE_SAFETY_RULES}
     `;
 
     if (imageFile) {
@@ -71,8 +87,8 @@ exports.chatWithBot = async (userMessage, imageFile, history = []) => {
 
       const promptParts = [
         systemPrompt,
-        `Verlauf: ${history.map((h) => h.parts[0].text).join(" | ")}`,
-        `User Frage zum Bild: "${userMessage}"`,
+        `Conversation history: ${history.map((h) => h.parts[0].text).join(" | ")}`,
+        `User question about the image: "${userMessage}"`,
         imagePart,
       ];
 
@@ -81,8 +97,8 @@ exports.chatWithBot = async (userMessage, imageFile, history = []) => {
     } else {
       const promptParts = [
         systemPrompt,
-        `Verlauf: ${history.map((h) => h.parts[0].text).join(" | ")}`,
-        `User Frage: "${userMessage}"`,
+        `Conversation history: ${history.map((h) => h.parts[0].text).join(" | ")}`,
+        `User question: "${userMessage}"`,
       ];
 
       const result = await model.generateContent(promptParts);
