@@ -170,11 +170,16 @@ const App = () => {
 
   const addPlantMutation = useMutation({
     mutationFn: async ({ name, type, interval }) => {
+      const payload = { name, type };
+      if (Number.isFinite(interval) && interval > 0) {
+        payload.baseInterval = interval;
+      }
+
       const res = await fetch(`${BACKEND_URL}/plants`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, type, baseInterval: interval }),
+        body: JSON.stringify(payload),
       });
 
       if (res.status === 401) {
