@@ -13,6 +13,7 @@ import {
   UserPlus,
   BookOpen,
   Sprout,
+  CalendarDays,
 } from "lucide-react";
 import { BACKEND_URL, BASE_URL } from "./constants";
 import SeasonSelector from "./components/SeasonSelector";
@@ -20,6 +21,7 @@ import PlantCard from "./components/PlantCardContainer";
 import AddPlantForm from "./components/AddPlantForm";
 import AuthPanel from "./components/AuthPanel";
 import PlantBook from "./components/PlantBook";
+import WateringCalendar from "./components/WateringCalendar";
 import { PixelBot } from "./features/pixelBot/PixelBot";
 import { PlantAssistant } from "./features/plantAssistant/PlantAssistant";
 import Notifications from "./components/Notifications";
@@ -425,10 +427,13 @@ const App = () => {
 
         {!authLoading && user && !showGuestAccount && !loading && !error && (
           <>
-            <div className="mb-6 grid grid-cols-2 gap-2 rounded-lg bg-slate-100 p-1 dark:bg-slate-800">
+            <div className="mb-6 grid grid-cols-3 gap-2 rounded-lg bg-slate-100 p-1 dark:bg-slate-800">
               <button
                 type="button"
-                onClick={() => setCurrentView("garden")}
+                onClick={() => {
+                  setCurrentView("garden");
+                  setIsAdding(false);
+                }}
                 className={`flex items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-bold transition-colors ${
                   currentView === "garden"
                     ? "bg-white text-emerald-700 shadow-sm dark:bg-slate-700 dark:text-emerald-300"
@@ -437,6 +442,21 @@ const App = () => {
               >
                 <Sprout size={17} />
                 {t("dic.myPlants")}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setCurrentView("calendar");
+                  setIsAdding(false);
+                }}
+                className={`flex items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-bold transition-colors ${
+                  currentView === "calendar"
+                    ? "bg-white text-emerald-700 shadow-sm dark:bg-slate-700 dark:text-emerald-300"
+                    : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white"
+                }`}
+              >
+                <CalendarDays size={17} />
+                {t("dic.calendar")}
               </button>
               <button
                 type="button"
@@ -495,6 +515,16 @@ const App = () => {
             )}
 
             {currentView === "plantBook" && <PlantBook onAddPlant={addPlant} />}
+
+            {currentView === "calendar" && (
+              <>
+                <SeasonSelector
+                  currentSeason={season}
+                  onSeasonChange={setSeason}
+                />
+                <WateringCalendar plants={plants} season={season} />
+              </>
+            )}
 
             {showAssistant && (
               <PlantAssistant
