@@ -99,7 +99,10 @@ PLANTPULSE
 │   │   └── plantController.js     # Plant inventory request handling
 │   ├── db
 │   │   ├── database.js         # Database connection setup
-│   │   └── plants.db           # SQLite storage
+│   │   └── schema.js           # Drizzle ORM schema
+│   ├── middleware
+│   │   ├── errorHandler.js     # Central Express error handling
+│   │   └── validateRequest.js  # Zod request validation middleware
 │   ├── domain
 │   │   └── wateringProfiles.js # Deterministic plant watering profiles
 │   ├── public
@@ -113,9 +116,12 @@ PLANTPULSE
 │   │   └── plantService.js     # Business logic for plant data
 │   ├── app.js                  # Express app setup
 │   ├── server.js               # Server entry point
+│   ├── tsconfig.json           # TypeScript checking configuration
 │   └── .env                    # Environment variables
 │
 └── frontend
+    ├── e2e
+    │   └── plant-care.spec.ts  # Playwright user journey tests
     ├── src
     │   ├── components
     │   │   ├── AddPlantForm.jsx
@@ -126,9 +132,9 @@ PLANTPULSE
     │   │   ├── PlantSelectView.jsx
     │   │   └── SeasonSelector.jsx
     │   ├── domain
-    │   │   ├── plantStatus.js
-    │   │   ├── wateringProfiles.js
-    │   │   └── wateringSchedule.js
+    │   │   ├── plantStatus.ts
+    │   │   ├── wateringProfiles.ts
+    │   │   └── wateringSchedule.ts
     │   ├── hooks
     │   │   ├── useNotifications.js
     │   │   └── usePlantStatus.js
@@ -140,9 +146,11 @@ PLANTPULSE
     │   │   └── en/
     │   ├── App.jsx                 # Main application layout
     │   ├── i18n.js                 # Internationalization setup
-    │   ├── constants.js            # Global configuration
+    │   ├── constants.ts            # Global configuration
     │   └── main.jsx                # React entry point
+    ├── playwright.config.ts
     ├── tailwind.config.js
+    ├── tsconfig.json
     └── vite.config.js
 ```
 
@@ -150,11 +158,11 @@ PLANTPULSE
 
 ## Tech Stack
 
-- **Frontend:** React, Vite, Tailwind CSS, Lucide React
+- **Frontend:** React, Vite, TypeScript, Tailwind CSS, Lucide React
 
-- **Backend:** Node.js, Express.js
+- **Backend:** Node.js, Express.js, TypeScript type checking
 
-- **Database:** SQLite / JSON-based persistence
+- **Database:** SQLite with Drizzle ORM
 
 - **Plant Data:** Open Plantbook API
 
