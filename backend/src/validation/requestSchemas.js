@@ -22,7 +22,10 @@ const authLoginSchema = z
 
 const plantCreateSchema = z
   .object({
-    baseInterval: z.coerce.number().int().min(1).max(365).optional(),
+    baseInterval: z.preprocess(
+      (value) => (value === null || value === "" ? undefined : value),
+      z.coerce.number().int().min(1).max(365).optional()
+    ),
     name: trimmedString(80),
     type: z.string().trim().min(1).max(80).optional(),
   })
