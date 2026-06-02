@@ -230,6 +230,13 @@
     "signup": "Registrieren",
     "guest": "Gast",
     "guestMode": "Als Gast starten",
-    "logout": "Abmelden"
+    "logout": "Abmelden",
+    "settingsTitle": "Einstellungen",
+    "settingsSubtitle": "Passe PlantPulse an deine Pflege-Routine an.",
+    "settingsClose": "Einstellungen schließen",
+    "settingsCalendar": "Kalender",
+    "settingsWeekStartDescription": "Lege fest, mit welchem Wochentag der Kalender beginnt.",
+    "settingsWeekStartMonday": "Montag",
+    "settingsWeekStartSunday": "Sonntag"
   }
 }
