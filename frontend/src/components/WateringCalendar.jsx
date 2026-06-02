@@ -150,13 +150,13 @@ function DayDetailsPopover({ align, date, events, language, t }) {
   );
 }
 
-export default function WateringCalendar({ plants, season }) {
+export default function WateringCalendar({ plants, season, weekStartsOn = 1 }) {
   const { i18n, t } = useTranslation();
   const [visibleMonth, setVisibleMonth] = useState(() => startOfMonth(new Date()));
   const todayKey = toDateKey(new Date());
   const monthDates = useMemo(
-    () => getMonthGridDates(visibleMonth),
-    [visibleMonth],
+    () => getMonthGridDates(visibleMonth, weekStartsOn),
+    [visibleMonth, weekStartsOn],
   );
   const events = useMemo(
     () => buildWateringEventsForMonth(plants, season, visibleMonth),
@@ -187,12 +187,24 @@ export default function WateringCalendar({ plants, season }) {
       .slice(0, 5);
   }, [plants, season]);
   const weekdayLabels = useMemo(() => {
+    const firstMonday = new Date(2026, 5, 1);
+    const firstVisibleWeekday = new Date(firstMonday);
+    firstVisibleWeekday.setDate(firstMonday.getDate() + (weekStartsOn === 0 ? -1 : 0));
+
     return Array.from({ length: 7 }, (_, index) =>
-      formatDate(new Date(2026, 5, 1 + index), i18n.language, {
+      formatDate(
+        new Date(
+          firstVisibleWeekday.getFullYear(),
+          firstVisibleWeekday.getMonth(),
+          firstVisibleWeekday.getDate() + index,
+        ),
+        i18n.language,
+        {
         weekday: "short",
-      }),
+        },
+      ),
     );
-  }, [i18n.language]);
+  }, [i18n.language, weekStartsOn]);
 
   const monthLabel = formatDate(visibleMonth, i18n.language, {
     month: "long",
