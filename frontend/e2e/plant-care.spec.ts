@@ -128,4 +128,9 @@ test("adds a plant and waters it", async ({ page }) => {
   await page.getByRole("button", { name: /calendar/i }).click();
   await expect(page.getByRole("heading", { name: "Calendar" })).toBeVisible();
   await expect(page.getByText("Monstera").first()).toBeVisible();
+
+  const wateringDay = page.locator('[aria-label*="watering task"]').first();
+  await wateringDay.hover();
+  await expect(wateringDay.getByText(/1 watering task/i)).toBeVisible();
+  await expect(wateringDay.getByText(/interval:/i)).toBeVisible();
 });
