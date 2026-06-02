@@ -230,6 +230,13 @@
     "signup": "Sign up",
     "guest": "Guest",
     "guestMode": "Continue as guest",
-    "logout": "Log out"
+    "logout": "Log out",
+    "settingsTitle": "Settings",
+    "settingsSubtitle": "Adjust PlantPulse to your care routine.",
+    "settingsClose": "Close settings",
+    "settingsCalendar": "Calendar",
+    "settingsWeekStartDescription": "Choose which weekday the calendar starts with.",
+    "settingsWeekStartMonday": "Monday",
+    "settingsWeekStartSunday": "Sunday"
   }
 }
