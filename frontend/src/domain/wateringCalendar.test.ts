@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildWateringEventsForMonth,
+  getMonthGridDates,
   getNextWateringDate,
   toDateKey,
 } from "./wateringCalendar";
@@ -57,5 +58,12 @@ describe("wateringCalendar", () => {
     expect(toDateKey(getNextWateringDate(plant, "winter", new Date("2026-06-01")))).toBe(
       "2026-07-14",
     );
+  });
+
+  it("supports Monday or Sunday as the first weekday", () => {
+    const month = new Date("2026-06-01T00:00:00.000Z");
+
+    expect(toDateKey(getMonthGridDates(month, 1)[0])).toBe("2026-06-01");
+    expect(toDateKey(getMonthGridDates(month, 0)[0])).toBe("2026-05-31");
   });
 });
