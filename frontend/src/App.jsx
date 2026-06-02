@@ -22,6 +22,7 @@ import AddPlantForm from "./components/AddPlantForm";
 import AuthPanel from "./components/AuthPanel";
 import PlantBook from "./components/PlantBook";
 import WateringCalendar from "./components/WateringCalendar";
+import SettingsModal from "./components/SettingsModal";
 import { PixelBot } from "./features/pixelBot/PixelBot";
 import { PlantAssistant } from "./features/plantAssistant/PlantAssistant";
 import Notifications from "./components/Notifications";
@@ -34,6 +35,11 @@ import {
 import { useTranslation } from "react-i18next";
 
 const plantsQueryKey = ["plants"];
+const WEEK_START_STORAGE_KEY = "plantpulse.weekStartsOn";
+
+function readStoredWeekStart() {
+  return localStorage.getItem(WEEK_START_STORAGE_KEY) === "0" ? 0 : 1;
+}
 
 class UnauthorizedError extends Error {
   constructor() {
@@ -73,6 +79,8 @@ const App = () => {
   );
   const [showAssistant, setShowAssistant] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [weekStartsOn, setWeekStartsOn] = useState(readStoredWeekStart);
   const [currentView, setCurrentView] = useState("garden");
   const plantsQuery = useQuery({
     queryKey: plantsQueryKey,
@@ -94,6 +102,10 @@ const App = () => {
       localStorage.setItem("theme", "light");
     }
   }, [darkMode]);
+
+  useEffect(() => {
+    localStorage.setItem(WEEK_START_STORAGE_KEY, String(weekStartsOn));
+  }, [weekStartsOn]);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -373,7 +385,8 @@ const App = () => {
               {/* Slot 1: Settings */}
               <MenuItem
                 icon={<Settings size={20} />}
-                onClick={() => alert("Settings clicked!")}
+                onClick={() => setShowSettings(true)}
+                title={t("dic.settingsTitle")}
               />
 
               {/* Slot 2: Language switcher */}
@@ -522,8 +535,20 @@ const App = () => {
                   currentSeason={season}
                   onSeasonChange={setSeason}
                 />
-                <WateringCalendar plants={plants} season={season} />
+                <WateringCalendar
+                  plants={plants}
+                  season={season}
+                  weekStartsOn={weekStartsOn}
+                />
               </>
+            )}
+
+            {showSettings && (
+              <SettingsModal
+                onClose={() => setShowSettings(false)}
+                onWeekStartChange={setWeekStartsOn}
+                weekStartsOn={weekStartsOn}
+              />
             )}
 
             {showAssistant && (
