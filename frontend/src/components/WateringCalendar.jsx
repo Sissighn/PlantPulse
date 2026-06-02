@@ -70,6 +70,86 @@ function PlantAvatar({ plant }) {
   );
 }
 
+function MiniPlantAvatar({ plant }) {
+  const imageUrl = getImageUrl(plant.imageUrl);
+
+  if (!imageUrl) {
+    return (
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+        <Leaf size={14} />
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={imageUrl}
+      alt={plant.name}
+      className="h-8 w-8 shrink-0 rounded-lg object-cover"
+    />
+  );
+}
+
+function DayDetailsPopover({ align, date, events, language, t }) {
+  if (events.length === 0) return null;
+
+  const alignClasses = {
+    center: "left-1/2 -translate-x-1/2",
+    left: "left-0",
+    right: "right-0",
+  }[align];
+
+  return (
+    <div
+      className={`pointer-events-none absolute top-full z-40 mt-2 hidden w-64 rounded-2xl border border-slate-200 bg-white p-3 text-left shadow-xl shadow-slate-900/10 group-hover:block group-focus-within:block dark:border-slate-700 dark:bg-slate-800 ${alignClasses}`}
+      role="tooltip"
+    >
+      <p className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-300">
+        {formatDate(date, language, {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        })}
+      </p>
+      <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">
+        {t("dic.calendarWateringCount", { count: events.length })}
+      </p>
+      <div className="mt-3 space-y-2">
+        {events.map((event) => (
+          <div
+            key={`${event.plant.id}-${event.dateKey}-detail`}
+            className="flex items-center gap-2 rounded-xl bg-slate-50 p-2 dark:bg-slate-900/50"
+          >
+            <MiniPlantAvatar plant={event.plant} />
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-bold text-slate-900 dark:text-white">
+                {event.plant.name}
+              </p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                {event.isToday
+                  ? t("dic.calendarDueToday")
+                  : t("dic.calendarIntervalLabel", {
+                      count: event.interval,
+                    })}
+              </p>
+            </div>
+            <Droplets
+              className={
+                event.isToday
+                  ? "shrink-0 text-emerald-500"
+                  : event.isOverdue
+                    ? "shrink-0 text-rose-500"
+                    : "shrink-0 text-slate-400"
+              }
+              size={16}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function WateringCalendar({ plants, season }) {
   const { i18n, t } = useTranslation();
   const [visibleMonth, setVisibleMonth] = useState(() => startOfMonth(new Date()));
@@ -179,16 +259,32 @@ export default function WateringCalendar({ plants, season }) {
         </div>
 
         <div className="mt-1 grid grid-cols-7 gap-1">
-          {monthDates.map((date) => {
+          {monthDates.map((date, index) => {
             const dateKey = toDateKey(date);
             const dayEvents = eventsByDate.get(dateKey) || [];
             const isCurrentMonth = date.getMonth() === currentMonth;
             const isToday = dateKey === todayKey;
+            const column = index % 7;
+            const popoverAlign =
+              column <= 1 ? "left" : column >= 5 ? "right" : "center";
 
             return (
               <div
                 key={dateKey}
-                className={`min-h-24 rounded-xl border p-1.5 transition-colors ${
+                tabIndex={dayEvents.length > 0 ? 0 : undefined}
+                aria-label={
+                  dayEvents.length > 0
+                    ? t("dic.calendarDayAriaLabel", {
+                        count: dayEvents.length,
+                        date: formatDate(date, i18n.language, {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        }),
+                      })
+                    : undefined
+                }
+                className={`group relative min-h-24 rounded-xl border p-1.5 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
                   isToday
                     ? "border-emerald-400 bg-emerald-50 dark:border-emerald-600 dark:bg-emerald-950/30"
                     : "border-slate-100 bg-slate-50 dark:border-slate-700 dark:bg-slate-900/40"
@@ -218,6 +314,13 @@ export default function WateringCalendar({ plants, season }) {
                     />
                   ))}
                 </div>
+                <DayDetailsPopover
+                  align={popoverAlign}
+                  date={date}
+                  events={dayEvents}
+                  language={i18n.language}
+                  t={t}
+                />
               </div>
             );
           })}
