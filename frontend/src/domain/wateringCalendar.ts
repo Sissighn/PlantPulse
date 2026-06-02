@@ -19,6 +19,8 @@ export type WateringEvent = {
   plant: CalendarPlant;
 };
 
+export type WeekStartsOn = 0 | 1;
+
 function startOfDay(date: Date) {
   const normalized = new Date(date);
   normalized.setHours(0, 0, 0, 0);
@@ -51,12 +53,15 @@ export function toDateKey(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
-export function getMonthGridDates(monthDate: Date) {
+export function getMonthGridDates(
+  monthDate: Date,
+  weekStartsOn: WeekStartsOn = 1,
+) {
   const firstOfMonth = startOfDay(
     new Date(monthDate.getFullYear(), monthDate.getMonth(), 1),
   );
-  const mondayBasedWeekday = (firstOfMonth.getDay() + 6) % 7;
-  const gridStart = addDays(firstOfMonth, -mondayBasedWeekday);
+  const weekdayOffset = (firstOfMonth.getDay() - weekStartsOn + 7) % 7;
+  const gridStart = addDays(firstOfMonth, -weekdayOffset);
 
   return Array.from({ length: 42 }, (_, index) => addDays(gridStart, index));
 }
