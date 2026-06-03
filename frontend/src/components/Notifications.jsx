@@ -6,7 +6,11 @@ const Notifications = ({ notifications }) => {
   const { t } = useTranslation();
 
   return (
-    <div className="absolute top-14 right-0 w-80 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-lg z-30 animate-in fade-in-5 slide-in-from-top-2 duration-300">
+    <div
+      aria-label={t("dic.notificationsTitle")}
+      className="absolute top-14 right-0 w-80 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-lg z-30 animate-in fade-in-5 slide-in-from-top-2 duration-300"
+      role="dialog"
+    >
       <div className="p-4 border-b border-slate-200 dark:border-slate-700">
         <h3 className="font-bold text-lg text-slate-800 dark:text-white">
           {t("dic.notification")}
