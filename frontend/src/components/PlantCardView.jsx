@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Droplet,
   Trash2,
@@ -22,23 +22,50 @@ const PlantCardView = ({
 }) => {
   const [isWatering, setIsWatering] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const deleteButtonRef = useRef(null);
+  const deleteDialogRef = useRef(null);
+  const cancelDeleteRef = useRef(null);
 
   useEffect(() => {
     if (!showDeleteModal) return;
 
+    const triggerButton = deleteButtonRef.current;
     const handleKeyDown = (e) => {
-      if (e.key === "Enter") {
+      if (e.key === "Escape") {
         e.preventDefault();
-        onDelete(plant.id);
         setShowDeleteModal(false);
-      } else if (e.key === "Escape") {
-        setShowDeleteModal(false);
+        return;
+      }
+
+      if (e.key !== "Tab" || !deleteDialogRef.current) return;
+
+      const focusable = Array.from(
+        deleteDialogRef.current.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((element) => !element.disabled && element.offsetParent !== null);
+
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
       }
     };
 
+    cancelDeleteRef.current?.focus();
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [showDeleteModal, onDelete, plant.id]);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      triggerButton?.focus();
+    };
+  }, [showDeleteModal]);
 
   const getImageUrl = () => {
     if (!plant.imageUrl) return null;
@@ -119,11 +146,14 @@ const PlantCardView = ({
           </div>
 
           <button
+            aria-label={t("dic.deleteTitle")}
             onClick={() => setShowDeleteModal(true)}
-            className="text-slate-300 hover:text-red-400 p-2 opacity-0 group-hover:opacity-100 transition-opacity"
+            ref={deleteButtonRef}
+            type="button"
+            className="text-slate-300 hover:text-red-400 p-2 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
             title={t("dic.deleteTitle")}
           >
-            <Trash2 size={18} />
+            <Trash2 aria-hidden="true" size={18} />
           </button>
         </div>
 
@@ -134,7 +164,9 @@ const PlantCardView = ({
             </span>
 
             <button
+              aria-expanded={Boolean(tips)}
               onClick={fetchTips}
+              type="button"
               className="mt-1 flex items-center gap-1 text-amber-500 hover:text-amber-400 transition-colors"
             >
               {loadingTips ? (
@@ -152,10 +184,12 @@ const PlantCardView = ({
           </div>
 
           <button
+            aria-label={t("dic.waterTitle")}
             onClick={() => onWater(plant.id)}
             onMouseDown={() => setIsWatering(true)}
             onMouseUp={() => setIsWatering(false)}
             onMouseLeave={() => setIsWatering(false)}
+            type="button"
             className="relative flex items-center justify-center rounded-full active:scale-95 w-24 h-23 transition-all"
             title={t("dic.waterTitle")}
           >
@@ -163,7 +197,8 @@ const PlantCardView = ({
               src={`${BASE_URL}/icons/${
                 isWatering ? "wateringon.png" : "watering.png"
               }`}
-              alt="Watering can icon"
+              alt=""
+              aria-hidden="true"
               className="w-full h-full object-contain transition-transform duration-300"
             />
           </button>
@@ -197,8 +232,13 @@ const PlantCardView = ({
           onClick={() => setShowDeleteModal(false)}
         >
           <div
+            aria-describedby={`delete-plant-description-${plant.id}`}
+            aria-labelledby={`delete-plant-title-${plant.id}`}
+            aria-modal="true"
             className="bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-slate-100 dark:border-slate-700"
             onClick={(e) => e.stopPropagation()}
+            ref={deleteDialogRef}
+            role="dialog"
           >
             <div className="flex flex-col items-center text-center mb-6">
               <div className="p-3 bg-red-100 dark:bg-red-900/30 text-red-500 rounded-full mb-4">
@@ -206,18 +246,28 @@ const PlantCardView = ({
               </div>
 
               <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
-                {t("dic.deleteQuestion")}
+                <span id={`delete-plant-title-${plant.id}`}>
+                  {t("dic.deleteQuestion")}
+                </span>
               </h3>
 
-              <p className="text-slate-500 dark:text-slate-400 text-sm">
+              <p
+                className="text-slate-500 dark:text-slate-400 text-sm"
+                id={`delete-plant-description-${plant.id}`}
+              >
                 {t("dic.deleteConfirmStart")} <strong>{plant.name}</strong>{" "}
                 {t("dic.deleteConfirmEnd")}
+              </p>
+              <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
+                {t("dic.deleteWarning")}
               </p>
             </div>
 
             <div className="flex gap-3">
               <button
                 onClick={() => setShowDeleteModal(false)}
+                ref={cancelDeleteRef}
+                type="button"
                 className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700"
               >
                 {t("dic.cancel")}
@@ -228,6 +278,7 @@ const PlantCardView = ({
                   onDelete(plant.id);
                   setShowDeleteModal(false);
                 }}
+                type="button"
                 className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-red-500 hover:bg-red-600"
               >
                 {t("dic.deleteBtn")}
