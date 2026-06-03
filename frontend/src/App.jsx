@@ -121,6 +121,20 @@ const App = () => {
   }, []);
 
   useEffect(() => {
+    if (!showNotifications) return undefined;
+
+    function handleKeyDown(event) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setShowNotifications(false);
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [showNotifications]);
+
+  useEffect(() => {
     const fetchSession = async () => {
       try {
         const res = await fetch(`${BACKEND_URL}/auth/session`, {
@@ -315,8 +329,12 @@ const App = () => {
           <div className="flex items-center gap-3">
             {/* Dark mode toggle */}
             <button
+              aria-label={t(darkMode ? "dic.lightMode" : "dic.darkMode")}
+              aria-pressed={darkMode}
               onClick={() => setDarkMode(!darkMode)}
+              type="button"
               className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+              title={t(darkMode ? "dic.lightMode" : "dic.darkMode")}
             >
               {darkMode ? <Sun size={20} /> : <Moon size={20} />}
             </button>
@@ -324,7 +342,11 @@ const App = () => {
             {/* Notifications */}
             <div className="relative" ref={notificationRef}>
               <button
+                aria-expanded={showNotifications}
+                aria-label={t("dic.notificationsTitle")}
+                aria-haspopup="dialog"
                 onClick={() => setShowNotifications(!showNotifications)}
+                type="button"
                 className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                 title={t("dic.notificationsTitle")}
               >
@@ -342,7 +364,9 @@ const App = () => {
 
             {/* AI Assistant */}
             <button
+              aria-label={t("dic.aiAssistantTitle")}
               onClick={() => setShowAssistant(true)}
+              type="button"
               className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors relative"
               title={t("dic.aiAssistantTitle")}
             >
@@ -354,7 +378,9 @@ const App = () => {
               <>
                 {user.isGuest && (
                   <button
+                    aria-label={t("dic.signup")}
                     onClick={() => setShowGuestAccount(true)}
+                    type="button"
                     className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                     title={t("dic.signup")}
                   >
@@ -378,7 +404,7 @@ const App = () => {
                 3. Language (Globe + DE/EN picker)
                 4. Logout / leave guest mode
             */}
-            <MenuContainer>
+            <MenuContainer label={t("dic.moreActions")}>
               {/* Slot 0: Trigger */}
               <MenuItem icon={<MoreHorizontal size={20} />} />
 
@@ -386,6 +412,7 @@ const App = () => {
               <MenuItem
                 icon={<Settings size={20} />}
                 onClick={() => setShowSettings(true)}
+                ariaLabel={t("dic.settingsTitle")}
                 title={t("dic.settingsTitle")}
               />
 
@@ -397,6 +424,7 @@ const App = () => {
                 <MenuItem
                   icon={<LogOut size={20} />}
                   onClick={logout}
+                  ariaLabel={t("dic.logout")}
                   title={t("dic.logout")}
                 />
               )}
