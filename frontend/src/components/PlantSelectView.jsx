@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { ChevronDown, Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useClickOutside } from "../hooks/useClickOutside";
@@ -13,8 +13,23 @@ const PlantSelectView = ({
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const listboxId = "plant-select-listbox";
 
   useClickOutside(dropdownRef, () => setIsOpen(false));
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
+
+    function handleKeyDown(event) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setIsOpen(false);
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen]);
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -23,6 +38,9 @@ const PlantSelectView = ({
       </label>
 
       <button
+        aria-controls={listboxId}
+        aria-expanded={isOpen}
+        aria-haspopup="listbox"
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
         className="w-full p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl flex items-center justify-between hover:border-emerald-400 transition-colors focus:ring-2 focus:ring-emerald-500 outline-none"
@@ -45,6 +63,7 @@ const PlantSelectView = ({
         </div>
 
         <ChevronDown
+          aria-hidden="true"
           size={20}
           className={`text-slate-400 transition-transform ${
             isOpen ? "rotate-180" : ""
@@ -53,16 +72,22 @@ const PlantSelectView = ({
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 w-full mt-2 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl shadow-xl max-h-60 overflow-y-auto">
+        <div
+          className="absolute z-50 w-full mt-2 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl shadow-xl max-h-60 overflow-y-auto"
+          id={listboxId}
+          role="listbox"
+        >
           {plants.map((plant) => (
             <button
               key={plant.id}
+              aria-selected={selectedId === plant.id}
               type="button"
               onClick={() => {
                 onChange(plant.id);
                 setIsOpen(false);
               }}
               className="w-full p-2 flex items-center gap-3 hover:bg-emerald-50 dark:hover:bg-slate-700 transition-colors"
+              role="option"
             >
               <div className="w-10 h-10 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-100 dark:border-slate-600 overflow-hidden flex items-center justify-center">
                 <img
@@ -87,6 +112,7 @@ const PlantSelectView = ({
 
               {selectedId === plant.id && (
                 <Check
+                  aria-hidden="true"
                   size={16}
                   className="ml-auto text-emerald-600 dark:text-emerald-400"
                 />
