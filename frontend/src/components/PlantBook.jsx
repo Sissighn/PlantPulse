@@ -221,6 +221,7 @@ function PlantBookDetail({ plant, loading, onAdd, onBack }) {
               )}
             </div>
             <button
+              aria-label={t("dic.plantBookAddTitle")}
               type="button"
               onClick={() =>
                 onAdd(name || "Pflanze", plant.displayPid || plant.pid, null)
@@ -228,7 +229,7 @@ function PlantBookDetail({ plant, loading, onAdd, onBack }) {
               className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white hover:bg-emerald-700"
               title={t("dic.plantBookAddTitle")}
             >
-              <Plus size={18} />
+              <Plus aria-hidden="true" size={18} />
             </button>
           </div>
 
@@ -346,6 +347,7 @@ export default function PlantBook({ onAddPlant }) {
           className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
         />
         <input
+          aria-label={t("dic.plantBookSearchPlaceholder")}
           value={query}
           onChange={(event) => {
             setQuery(event.target.value);
