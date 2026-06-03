@@ -9,6 +9,7 @@ export function Menu({
   children,
   align = "left",
   showChevron = true,
+  label = "Menu",
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
@@ -23,14 +24,29 @@ export function Menu({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    function handleKeyDown(event) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setIsOpen(false);
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen]);
+
   return (
     <div className="relative inline-block text-left" ref={menuRef}>
-      <div
+      <button
+        aria-label={label}
         onClick={() => setIsOpen(!isOpen)}
         className="cursor-pointer inline-flex items-center"
-        role="button"
         aria-haspopup="true"
         aria-expanded={isOpen}
+        type="button"
       >
         {trigger}
         {showChevron && (
@@ -39,7 +55,7 @@ export function Menu({
             aria-hidden="true"
           />
         )}
-      </div>
+      </button>
 
       {isOpen && (
         <div
@@ -66,9 +82,40 @@ export function MenuItem({
   icon,
   isActive = false,
   title,
+  ariaLabel,
+  tabIndex,
 }) {
+  const label = ariaLabel || title;
+  const content = (
+    <span className="flex items-center justify-center h-full">
+      {icon && (
+        <span className="h-5 w-5 transition-all duration-200 group-hover:[&_svg]:stroke-[2.5]">
+          {React.cloneElement(icon, { "aria-hidden": true })}
+        </span>
+      )}
+      {children}
+    </span>
+  );
+
+  if (!onClick) {
+    return (
+      <span
+        aria-hidden="true"
+        className={`relative block w-full h-10 text-center group ${
+          disabled
+            ? "text-slate-400 dark:text-slate-500"
+            : "text-slate-600 dark:text-slate-300"
+        } ${isActive ? "bg-white/10" : ""}`}
+        title={title}
+      >
+        {content}
+      </span>
+    );
+  }
+
   return (
     <button
+      aria-label={label}
       className={`relative block w-full h-10 text-center group
         ${
           disabled
@@ -80,24 +127,20 @@ export function MenuItem({
       role="menuitem"
       onClick={onClick}
       disabled={disabled}
+      tabIndex={tabIndex}
       title={title}
+      type="button"
     >
-      <span className="flex items-center justify-center h-full">
-        {icon && (
-          <span className="h-5 w-5 transition-all duration-200 group-hover:[&_svg]:stroke-[2.5]">
-            {icon}
-          </span>
-        )}
-        {children}
-      </span>
+      {content}
     </button>
   );
 }
 
-export function MenuContainer({ children }) {
+export function MenuContainer({ children, label = "More actions" }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const childrenArray = React.Children.toArray(children);
   const menuRef = useRef(null);
+  const triggerRef = useRef(null);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -109,6 +152,21 @@ export function MenuContainer({ children }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    if (!isExpanded) return;
+
+    function handleKeyDown(event) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setIsExpanded(false);
+        triggerRef.current?.focus();
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isExpanded]);
+
   const handleToggle = () => {
     setIsExpanded(!isExpanded);
   };
@@ -116,19 +174,32 @@ export function MenuContainer({ children }) {
   return (
     <div className="relative w-[40px]" data-expanded={isExpanded} ref={menuRef}>
       <div className="relative">
-        {/* Trigger button (first child) */}
-        <div
+        <button
+          aria-expanded={isExpanded}
+          aria-label={label}
+          aria-haspopup="menu"
           className="relative w-10 h-10 bg-slate-100 dark:bg-slate-800 cursor-pointer rounded-full group will-change-transform z-50 flex items-center justify-center"
           onClick={handleToggle}
+          ref={triggerRef}
+          type="button"
         >
           {childrenArray[0]}
-        </div>
+        </button>
 
-        {/* Expanded items (remaining children) */}
-        {childrenArray.slice(1).map((child, index) => (
+        <div aria-label={label} role="menu">
+          {childrenArray.slice(1).map((child, index) => {
+            const menuChild = React.isValidElement(child)
+              ? React.cloneElement(child, {
+                  tabIndex: isExpanded ? 0 : -1,
+                })
+              : child;
+
+            return (
           <div
             key={index}
+            aria-hidden={!isExpanded}
             className="absolute top-0 left-0 w-10 h-10 bg-slate-100 dark:bg-slate-800 will-change-transform flex items-center justify-center"
+            role="none"
             style={{
               transform: `translateY(${isExpanded ? (index + 1) * 44 : 0}px)`,
               opacity: isExpanded ? 1 : 0,
@@ -147,9 +218,11 @@ export function MenuContainer({ children }) {
               WebkitFontSmoothing: "antialiased",
             }}
           >
-            {child}
+            {menuChild}
           </div>
-        ))}
+            );
+          })}
+        </div>
       </div>
     </div>
   );
@@ -161,7 +234,7 @@ export function MenuContainer({ children }) {
  * The dropdown is rendered via a React Portal directly into document.body,
  * so it is never clipped by the parent's clipPath or overflow.
  */
-export function LanguageMenuItem() {
+export function LanguageMenuItem({ tabIndex }) {
   const { i18n } = useTranslation();
   const [open, setOpen] = useState(false);
   const buttonRef = useRef(null);
@@ -198,6 +271,21 @@ export function LanguageMenuItem() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [open]);
 
+  useEffect(() => {
+    if (!open) return;
+
+    function handleKeyDown(event) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setOpen(false);
+        buttonRef.current?.focus();
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [open]);
+
   const handleChange = (lang) => {
     i18n.changeLanguage(lang);
     setOpen(false);
@@ -213,10 +301,13 @@ export function LanguageMenuItem() {
         onClick={() => setOpen((prev) => !prev)}
         className="w-10 h-10 rounded-full flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
         title={`Language: ${currentLang}`}
+        aria-label={`Language: ${currentLang}`}
         aria-haspopup="true"
         aria-expanded={open}
+        tabIndex={tabIndex}
+        type="button"
       >
-        <Globe className="w-5 h-5" />
+        <Globe aria-hidden="true" className="w-5 h-5" />
       </button>
 
       {/* Dropdown rendered in body via Portal — not clipped by clipPath */}
@@ -237,6 +328,7 @@ export function LanguageMenuItem() {
               <button
                 key={lang}
                 onClick={() => handleChange(lang)}
+                aria-label={`Switch language to ${lang.toUpperCase()}`}
                 className={`block w-full px-4 py-2.5 text-sm font-semibold transition-colors
                   ${
                     i18n.language?.startsWith(lang)
@@ -244,6 +336,7 @@ export function LanguageMenuItem() {
                       : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                   }`}
                 role="menuitem"
+                type="button"
               >
                 {lang.toUpperCase()}
               </button>
