@@ -89,7 +89,7 @@ const PlantCardView = ({
         <div className="flex justify-between items-start">
           <div className="flex gap-4">
             <div
-              className={`w-16 h-16 rounded-2xl flex items-center justify-center overflow-hidden border relative transition-colors duration-500 ${
+              className={`w-20 h-20 shrink-0 rounded-2xl flex items-center justify-center overflow-hidden border relative transition-colors duration-500 ${
                 status.isThirsty
                   ? "bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800"
                   : "bg-slate-50 dark:bg-slate-700 border-slate-100 dark:border-slate-700"
@@ -118,7 +118,7 @@ const PlantCardView = ({
               )}
             </div>
 
-            <div>
+            <div className="pt-1">
               <h3 className="font-bold text-slate-800 dark:text-slate-100 text-lg">
                 {plant.name}
               </h3>
