@@ -524,13 +524,28 @@ const App = () => {
                 />
                 {!isAdding ? (
                   <button
+                    type="button"
                     onClick={() => setIsAdding(true)}
-                    className="w-full bg-white dark:bg-slate-800 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-3xl p-6 flex flex-col items-center justify-center gap-2 text-slate-400 hover:border-emerald-400 dark:hover:border-emerald-600 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-all group mb-8"
+                    className="group relative mb-8 flex w-full flex-col items-center justify-center gap-2 overflow-hidden rounded-3xl border-2 border-dashed border-slate-200 bg-white p-6 text-slate-400 transition-all hover:border-emerald-400 hover:bg-emerald-50 hover:text-emerald-600 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-emerald-600 dark:hover:bg-emerald-950/30 dark:hover:text-emerald-400"
                   >
-                    <div className="bg-slate-100 dark:bg-slate-700 p-3 rounded-full group-hover:bg-emerald-200 dark:group-hover:bg-emerald-800 transition-colors">
+                    <img
+                      src={`${BASE_URL}/icons/decor-add-new.png`}
+                      alt=""
+                      aria-hidden="true"
+                      className="pointer-events-none absolute -bottom-3 left-5 h-32 w-32 object-contain opacity-75 transition-all duration-300 group-hover:scale-105 group-hover:opacity-95"
+                    />
+                    <img
+                      src={`${BASE_URL}/icons/decor-shovel.png`}
+                      alt=""
+                      aria-hidden="true"
+                      className="pointer-events-none absolute bottom-4 right-12 h-16 w-16 rotate-6 object-contain opacity-75 transition-all duration-300 group-hover:-rotate-3 group-hover:scale-105 group-hover:opacity-95"
+                    />
+                    <div className="relative z-10 rounded-full bg-slate-100 p-3 transition-colors group-hover:bg-emerald-200 dark:bg-slate-700 dark:group-hover:bg-emerald-800">
                       <Plus size={24} />
                     </div>
-                    <span className="font-medium">{t("dic.addPlantCta")}</span>
+                    <span className="relative z-10 font-medium">
+                      {t("dic.addPlantCta")}
+                    </span>
                   </button>
                 ) : (
                   <div className="mb-8">
