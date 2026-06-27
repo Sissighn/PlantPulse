@@ -13,6 +13,7 @@ const {
 } = require("./middleware/errorHandler");
 const {
   optionalAuth,
+  requireCsrfToken,
   requireTrustedOrigin,
 } = require("./middleware/auth");
 const { apiLimit } = require("./middleware/rateLimit");
@@ -65,7 +66,7 @@ app.use(
   express.static(path.join(__dirname, "..", "public", "icons"))
 );
 
-app.use("/api", apiLimit, requireTrustedOrigin, optionalAuth);
+app.use("/api", apiLimit, requireTrustedOrigin, optionalAuth, requireCsrfToken);
 app.use("/api/auth", authRoutes);
 app.use("/api", plantRoutes);
 app.use(notFoundHandler);
