@@ -2,6 +2,8 @@ const authService = require("../services/authService");
 const {
   authCookieOptions,
   clearAuthCookie,
+  clearCsrfCookie,
+  setCsrfCookie,
 } = require("../middleware/auth");
 const { createHttpError } = require("../middleware/errorHandler");
 
@@ -11,6 +13,7 @@ function sendSession(res, user, status = 200) {
     authService.createToken(user),
     authCookieOptions()
   );
+  setCsrfCookie(res);
   res.status(status).json({ user: authService.publicUser(user) });
 }
 
@@ -19,6 +22,7 @@ exports.getSession = (req, res) => {
     throw createHttpError(401, "No active session.");
   }
 
+  setCsrfCookie(res);
   res.json({ user: authService.publicUser(req.user) });
 };
 
@@ -44,5 +48,6 @@ exports.createGuest = async (req, res) => {
 
 exports.logout = (req, res) => {
   clearAuthCookie(res);
+  clearCsrfCookie(res);
   res.status(204).send();
 };
