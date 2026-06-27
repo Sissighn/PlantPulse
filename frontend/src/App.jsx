@@ -309,31 +309,28 @@ const App = () => {
     user?.displayName || user?.email || (user?.isGuest ? t("dic.guest") : "");
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-plant-body pb-32 transition-colors duration-300">
-      <nav className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 sticky top-0 z-20 transition-colors duration-300">
-        <div className="max-w-xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-3">
-              <img
-                src={`${BASE_URL}/icons/logo.png`}
-                alt="PlantPulse Logo"
-                className="h-10 w-auto object-contain"
-                style={{ mixBlendMode: "multiply" }}
-              />
-            </div>
-            <h1 className="text-2xl font-bold text-slate-800 dark:text-white font-plant-title tracking-wide">
+    <div className="pp-shell font-plant-body transition-colors duration-300">
+      <nav className="pp-header">
+        <div className="pp-header-inner">
+          <div className="pp-brand">
+            <img
+              src={`${BASE_URL}/icons/logo.png`}
+              alt="PlantPulse Logo"
+              className="pp-logo"
+            />
+            <h1 className="pp-title font-plant-title">
               PlantPulse
             </h1>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="pp-header-actions">
             {/* Dark mode toggle */}
             <button
               aria-label={t(darkMode ? "dic.lightMode" : "dic.darkMode")}
               aria-pressed={darkMode}
               onClick={() => setDarkMode(!darkMode)}
               type="button"
-              className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+              className="pp-icon-button"
               title={t(darkMode ? "dic.lightMode" : "dic.darkMode")}
             >
               {darkMode ? <Sun size={20} /> : <Moon size={20} />}
@@ -347,7 +344,7 @@ const App = () => {
                 aria-haspopup="dialog"
                 onClick={() => setShowNotifications(!showNotifications)}
                 type="button"
-                className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                className="pp-icon-button relative"
                 title={t("dic.notificationsTitle")}
               >
                 <Bell size={20} />
@@ -367,7 +364,7 @@ const App = () => {
               aria-label={t("dic.aiAssistantTitle")}
               onClick={() => setShowAssistant(true)}
               type="button"
-              className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors relative"
+              className="pp-icon-button relative"
               title={t("dic.aiAssistantTitle")}
             >
               <Bot size={20} />
@@ -381,14 +378,14 @@ const App = () => {
                     aria-label={t("dic.signup")}
                     onClick={() => setShowGuestAccount(true)}
                     type="button"
-                    className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                    className="pp-icon-button"
                     title={t("dic.signup")}
                   >
                     <UserPlus size={20} />
                   </button>
                 )}
                 <div
-                  className="hidden max-w-32 items-center gap-2 truncate rounded-full bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-200 sm:flex"
+                  className="pp-user-chip"
                   title={accountLabel}
                 >
                   <UserRound size={16} />
@@ -433,7 +430,7 @@ const App = () => {
         </div>
       </nav>
 
-      <main className="max-w-xl mx-auto px-6 py-8">
+      <main className="pp-main relative z-10">
         {(authLoading || (user && loading)) && (
           <div className="flex flex-col items-center justify-center pt-16">
             <PixelBot />
@@ -468,17 +465,17 @@ const App = () => {
 
         {!authLoading && user && !showGuestAccount && !loading && !error && (
           <>
-            <div className="mb-6 grid grid-cols-3 gap-2 rounded-lg bg-slate-100 p-1 dark:bg-slate-800">
+            <div className="pp-panel pp-tabs">
               <button
                 type="button"
                 onClick={() => {
                   setCurrentView("garden");
                   setIsAdding(false);
                 }}
-                className={`flex items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-bold transition-colors ${
+                className={`pp-tab ${
                   currentView === "garden"
-                    ? "bg-white text-emerald-700 shadow-sm dark:bg-slate-700 dark:text-emerald-300"
-                    : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white"
+                    ? "pp-tab-active"
+                    : ""
                 }`}
               >
                 <Sprout size={17} />
@@ -490,10 +487,10 @@ const App = () => {
                   setCurrentView("calendar");
                   setIsAdding(false);
                 }}
-                className={`flex items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-bold transition-colors ${
+                className={`pp-tab ${
                   currentView === "calendar"
-                    ? "bg-white text-emerald-700 shadow-sm dark:bg-slate-700 dark:text-emerald-300"
-                    : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white"
+                    ? "pp-tab-active"
+                    : ""
                 }`}
               >
                 <CalendarDays size={17} />
@@ -505,10 +502,10 @@ const App = () => {
                   setCurrentView("plantBook");
                   setIsAdding(false);
                 }}
-                className={`flex items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-bold transition-colors ${
+                className={`pp-tab ${
                   currentView === "plantBook"
-                    ? "bg-white text-emerald-700 shadow-sm dark:bg-slate-700 dark:text-emerald-300"
-                    : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white"
+                    ? "pp-tab-active"
+                    : ""
                 }`}
               >
                 <BookOpen size={17} />
@@ -526,25 +523,28 @@ const App = () => {
                   <button
                     type="button"
                     onClick={() => setIsAdding(true)}
-                    className="group relative mb-8 flex w-full flex-col items-center justify-center gap-2 overflow-hidden rounded-3xl border-2 border-dashed border-slate-200 bg-white p-6 text-slate-400 transition-all hover:border-emerald-400 hover:bg-emerald-50 hover:text-emerald-600 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-emerald-600 dark:hover:bg-emerald-950/30 dark:hover:text-emerald-400"
+                    className="pp-panel pp-add-card group mb-8"
                   >
                     <img
                       src={`${BASE_URL}/icons/decor-add-new.png`}
                       alt=""
                       aria-hidden="true"
-                      className="pointer-events-none absolute -bottom-3 left-5 h-32 w-32 object-contain opacity-75 transition-all duration-300 group-hover:scale-105 group-hover:opacity-95"
+                      className="pp-add-decor pp-add-decor-left"
                     />
                     <img
                       src={`${BASE_URL}/icons/decor-shovel.png`}
                       alt=""
                       aria-hidden="true"
-                      className="pointer-events-none absolute bottom-4 right-12 h-16 w-16 rotate-6 object-contain opacity-75 transition-all duration-300 group-hover:-rotate-3 group-hover:scale-105 group-hover:opacity-95"
+                      className="pp-add-decor pp-add-decor-right"
                     />
-                    <div className="relative z-10 rounded-full bg-slate-100 p-3 transition-colors group-hover:bg-emerald-200 dark:bg-slate-700 dark:group-hover:bg-emerald-800">
+                    <div className="pp-add-plus">
                       <Plus size={24} />
                     </div>
-                    <span className="relative z-10 font-medium">
+                    <span className="pp-add-title">
                       {t("dic.addPlantCta")}
+                    </span>
+                    <span className="pp-add-subtitle">
+                      {t("dic.addPlantSubtitle")}
                     </span>
                   </button>
                 ) : (
@@ -603,6 +603,7 @@ const App = () => {
           </>
         )}
       </main>
+      <div className="pp-footer-decor" aria-hidden="true" />
     </div>
   );
 };
