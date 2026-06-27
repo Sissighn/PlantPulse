@@ -63,6 +63,7 @@
     "calendarSubtitle": "Your watering dates are calculated automatically from plants, intervals, and season.",
     "calendarPreviousMonth": "Previous month",
     "calendarNextMonth": "Next month",
+    "calendarGoToday": "Today",
     "calendarUpcoming": "Up next",
     "calendarEmpty": "No plants in the calendar yet.",
     "calendarDueToday": "Water today",
