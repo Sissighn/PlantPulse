@@ -172,13 +172,17 @@ export function MenuContainer({ children, label = "More actions" }) {
   };
 
   return (
-    <div className="relative w-[40px]" data-expanded={isExpanded} ref={menuRef}>
+    <div
+      className="relative w-[clamp(2.35rem,8vw,2.85rem)]"
+      data-expanded={isExpanded}
+      ref={menuRef}
+    >
       <div className="relative">
         <button
           aria-expanded={isExpanded}
           aria-label={label}
           aria-haspopup="menu"
-          className="relative w-10 h-10 bg-slate-100 dark:bg-slate-800 cursor-pointer rounded-full group will-change-transform z-50 flex items-center justify-center"
+          className="pp-icon-button relative z-50 cursor-pointer group will-change-transform"
           onClick={handleToggle}
           ref={triggerRef}
           type="button"
@@ -195,31 +199,27 @@ export function MenuContainer({ children, label = "More actions" }) {
               : child;
 
             return (
-          <div
-            key={index}
-            aria-hidden={!isExpanded}
-            className="absolute top-0 left-0 w-10 h-10 bg-slate-100 dark:bg-slate-800 will-change-transform flex items-center justify-center"
-            role="none"
-            style={{
-              transform: `translateY(${isExpanded ? (index + 1) * 44 : 0}px)`,
-              opacity: isExpanded ? 1 : 0,
-              pointerEvents: isExpanded ? "auto" : "none",
-              zIndex: 40 - index,
-              clipPath:
-                index === childrenArray.length - 2
-                  ? "circle(50% at 50% 50%)"
-                  : "circle(50% at 50% 55%)",
-              transition: `transform ${
-                isExpanded ? "300ms" : "300ms"
-              } cubic-bezier(0.4, 0, 0.2, 1),
-                         opacity ${isExpanded ? "300ms" : "350ms"}`,
-              backfaceVisibility: "hidden",
-              perspective: 1000,
-              WebkitFontSmoothing: "antialiased",
-            }}
-          >
-            {menuChild}
-          </div>
+              <div
+                key={index}
+                aria-hidden={!isExpanded}
+                className="pp-icon-button absolute left-0 top-0 will-change-transform"
+                role="none"
+                style={{
+                  transform: `translateY(${isExpanded ? (index + 1) * 3.35 : 0}rem)`,
+                  opacity: isExpanded ? 1 : 0,
+                  pointerEvents: isExpanded ? "auto" : "none",
+                  zIndex: 40 - index,
+                  transition: `transform ${
+                    isExpanded ? "300ms" : "300ms"
+                  } cubic-bezier(0.4, 0, 0.2, 1),
+                            opacity ${isExpanded ? "300ms" : "350ms"}`,
+                  backfaceVisibility: "hidden",
+                  perspective: 1000,
+                  WebkitFontSmoothing: "antialiased",
+                }}
+              >
+                {menuChild}
+              </div>
             );
           })}
         </div>
@@ -294,12 +294,12 @@ export function LanguageMenuItem({ tabIndex }) {
   const currentLang = i18n.language?.slice(0, 2).toUpperCase() || "DE";
 
   return (
-    <div className="flex items-center justify-center w-10 h-10">
+    <div className="flex h-full w-full items-center justify-center">
       {/* Globe trigger */}
       <button
         ref={buttonRef}
         onClick={() => setOpen((prev) => !prev)}
-        className="w-10 h-10 rounded-full flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
+        className="flex h-full w-full items-center justify-center rounded-[0.9rem] text-[#f8e7b7] transition-colors hover:text-white"
         title={`Language: ${currentLang}`}
         aria-label={`Language: ${currentLang}`}
         aria-haspopup="true"
@@ -321,7 +321,7 @@ export function LanguageMenuItem({ tabIndex }) {
               left: dropdownPos.left,
               zIndex: 9999,
             }}
-            className="bg-white dark:bg-slate-800 shadow-xl rounded-xl overflow-hidden border border-slate-100 dark:border-slate-700 min-w-[68px]"
+            className="overflow-hidden rounded-2xl border-2 border-[var(--border)] bg-[#fff9ea] text-[var(--text)] shadow-[var(--shadow-pixel)] min-w-[72px]"
             role="menu"
           >
             {["de", "en"].map((lang) => (
@@ -329,11 +329,11 @@ export function LanguageMenuItem({ tabIndex }) {
                 key={lang}
                 onClick={() => handleChange(lang)}
                 aria-label={`Switch language to ${lang.toUpperCase()}`}
-                className={`block w-full px-4 py-2.5 text-sm font-semibold transition-colors
+                className={`block w-full px-4 py-2.5 text-sm font-bold transition-colors
                   ${
                     i18n.language?.startsWith(lang)
-                      ? "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400"
-                      : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                      ? "bg-[var(--green)] text-[#fff7e6]"
+                      : "text-[var(--text-muted)] hover:bg-[var(--surface-soft)] hover:text-[var(--green-dark)]"
                   }`}
                 role="menuitem"
                 type="button"
