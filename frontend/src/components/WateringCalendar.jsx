@@ -9,7 +9,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { BASE_URL } from "../constants";
 import {
-  buildWateringEventsForMonth,
+  buildWateringEventsForDateRange,
   getMonthGridDates,
   getNextWateringDate,
   toDateKey,
@@ -158,10 +158,17 @@ export default function WateringCalendar({ plants, season, weekStartsOn = 1 }) {
     () => getMonthGridDates(visibleMonth, weekStartsOn),
     [visibleMonth, weekStartsOn],
   );
-  const events = useMemo(
-    () => buildWateringEventsForMonth(plants, season, visibleMonth),
-    [plants, season, visibleMonth],
-  );
+  const events = useMemo(() => {
+    const rangeStart = monthDates[0];
+    const rangeEnd = monthDates[monthDates.length - 1];
+
+    return buildWateringEventsForDateRange(
+      plants,
+      season,
+      rangeStart,
+      rangeEnd,
+    );
+  }, [plants, season, monthDates]);
   const eventsByDate = useMemo(() => {
     return events.reduce((map, event) => {
       const current = map.get(event.dateKey) || [];
