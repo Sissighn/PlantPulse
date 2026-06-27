@@ -6,6 +6,8 @@ import { Image as ImageIcon, X, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+const ACCEPTED_IMAGE_TYPES = "image/jpeg,image/png,image/webp";
 const LEGACY_CLEARED_MESSAGES = [
   "The chat history has been cleared. We can start fresh.",
   "Der Chatverlauf wurde gelöscht. Wir können neu starten.",
@@ -172,6 +174,13 @@ export const PlantAssistant = ({ onClose, userId }) => {
       return;
     }
 
+    if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+      setSelectedImage(null);
+      setUploadError(t("dic.assistantUploadUnsupported"));
+      e.target.value = "";
+      return;
+    }
+
     setSelectedImage(file);
   };
 
@@ -216,7 +225,14 @@ export const PlantAssistant = ({ onClose, userId }) => {
         body: formData,
       });
 
-      if (!response.ok) throw new Error("Assistant request failed");
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        const message =
+          response.status < 500
+            ? errorData?.message || t("dic.assistantSendError")
+            : t("dic.assistantSendError");
+        throw new Error(message);
+      }
 
       const data = await response.json();
 
@@ -225,7 +241,7 @@ export const PlantAssistant = ({ onClose, userId }) => {
       console.error(error);
       setMessages((prev) => [
         ...prev,
-        { sender: "ai", text: t("dic.assistantSendError") },
+        { sender: "ai", text: error.message || t("dic.assistantSendError") },
       ]);
     } finally {
       setIsTyping(false);
@@ -325,7 +341,7 @@ export const PlantAssistant = ({ onClose, userId }) => {
 
           <div className="input-area">
             <input
-              accept="image/*"
+              accept={ACCEPTED_IMAGE_TYPES}
               aria-label={t("dic.assistantUploadPhoto")}
               className="visually-hidden-file"
               onChange={handleImageSelect}
