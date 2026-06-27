@@ -10,11 +10,13 @@ COPY . .
 
 RUN npm run build
 
-FROM nginx:alpine
+FROM alpine:3.23
+
+RUN apk add --no-cache nginx nginx-mod-http-brotli
 
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/http.d/default.conf
 
 EXPOSE 80
 
