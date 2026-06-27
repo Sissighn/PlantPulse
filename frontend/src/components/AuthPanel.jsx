@@ -67,33 +67,33 @@ export default function AuthPanel({
   };
 
   return (
-    <section className="min-h-[calc(100vh-92px)] flex items-center">
-      <div className="w-full border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8">
+    <section className="flex min-h-[calc(100vh-92px)] items-center">
+      <div className="pp-panel w-full rounded-3xl p-6 sm:p-8">
         <div className="mb-6 flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-200">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl border-2 border-[var(--border)] bg-[#fff9ea] text-[var(--green)] shadow-[0_3px_0_rgba(111,85,44,0.22)]">
             <Sprout size={22} />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+            <h2 className="text-2xl font-bold text-[var(--text)]">
               {t("dic.authTitle")}
             </h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <p className="text-sm text-[var(--text-muted)]">
               {t("dic.authSubtitle")}
             </p>
           </div>
         </div>
 
         <div
-          className="mb-5 grid grid-cols-2 rounded-xl bg-slate-100 p-1 dark:bg-slate-800"
+          className="mb-5 grid grid-cols-2 rounded-2xl bg-[var(--surface-soft)] p-1"
           role="tablist"
         >
           <button
             type="button"
             onClick={() => setMode("login")}
-            className={`flex min-h-11 items-center justify-center gap-2 rounded-lg px-3 text-sm font-semibold transition-colors ${
+            className={`flex min-h-11 items-center justify-center gap-2 rounded-xl px-3 text-sm font-semibold transition-colors ${
               mode === "login"
-                ? "bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-white"
-                : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white"
+                ? "bg-[var(--surface)] text-[var(--green-dark)] shadow-[0_3px_0_rgba(111,85,44,0.22)]"
+                : "text-[var(--text-muted)] hover:text-[var(--green-dark)]"
             }`}
           >
             <LogIn size={17} />
@@ -102,10 +102,10 @@ export default function AuthPanel({
           <button
             type="button"
             onClick={() => setMode("signup")}
-            className={`flex min-h-11 items-center justify-center gap-2 rounded-lg px-3 text-sm font-semibold transition-colors ${
+            className={`flex min-h-11 items-center justify-center gap-2 rounded-xl px-3 text-sm font-semibold transition-colors ${
               mode === "signup"
-                ? "bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-white"
-                : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white"
+                ? "bg-[var(--surface)] text-[var(--green-dark)] shadow-[0_3px_0_rgba(111,85,44,0.22)]"
+                : "text-[var(--text-muted)] hover:text-[var(--green-dark)]"
             }`}
           >
             <UserPlus size={17} />
