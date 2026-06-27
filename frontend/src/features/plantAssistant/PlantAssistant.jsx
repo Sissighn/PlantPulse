@@ -4,6 +4,7 @@ import { PixelBot } from "../pixelBot/PixelBot";
 import { BACKEND_URL } from "../../constants";
 import { Image as ImageIcon, X, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { apiFetch } from "../../api/http";
 
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
@@ -219,8 +220,7 @@ export const PlantAssistant = ({ onClose, userId }) => {
         formData.append("image", imageToSend);
       }
 
-      const response = await fetch(`${BACKEND_URL}/chat`, {
-        credentials: "include",
+      const response = await apiFetch(`${BACKEND_URL}/chat`, {
         method: "POST",
         body: formData,
       });

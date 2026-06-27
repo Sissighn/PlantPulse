@@ -209,6 +209,30 @@ test("logs in from the auth screen", async ({ page }) => {
   await expect(page.getByText("Mina")).toBeVisible();
 });
 
+test("keeps app view navigation in browser history", async ({ page }) => {
+  const plants: E2EPlant[] = [];
+  await mockAuthenticatedSession(page, { plants });
+
+  await page.goto("/");
+  await expect(page.getByRole("button", { name: "My plants" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Plant Book" }).click();
+  await expect(page).toHaveURL(/\/plant-book$/);
+  await expect(page.getByLabel("Search plants")).toBeVisible();
+
+  await page.getByRole("button", { name: "Calendar" }).click();
+  await expect(page).toHaveURL(/\/calendar$/);
+  await expect(page.getByRole("heading", { name: "Calendar" })).toBeVisible();
+
+  await page.goBack();
+  await expect(page).toHaveURL(/\/plant-book$/);
+  await expect(page.getByLabel("Search plants")).toBeVisible();
+
+  await page.goBack();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByRole("button", { name: /add new plant/i })).toBeVisible();
+});
+
 test("adds a plant, waters it, and shows it in the calendar", async ({ page }) => {
   const plants: E2EPlant[] = [];
   await mockAuthenticatedSession(page, { plants });
@@ -237,6 +261,7 @@ test("adds a plant, waters it, and shows it in the calendar", async ({ page }) =
   await page.getByRole("button", { name: /add new plant/i }).click();
   await page.getByRole("button", { name: "Add" }).click();
 
+  await expect(page.getByText("Monstera was added.")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Monstera" })).toBeVisible();
   await expect(page.getByText(/overdue/i)).toBeVisible();
 
@@ -250,6 +275,7 @@ test("adds a plant, waters it, and shows it in the calendar", async ({ page }) =
     .evaluate((button) => (button as HTMLButtonElement).click());
   await wateringRequest;
 
+  await expect(page.getByText("Monstera was marked as watered.")).toBeVisible();
   await expect(page.getByText(/in \d+ days/i)).toBeVisible();
 
   await page.getByRole("button", { name: /calendar/i }).click();
