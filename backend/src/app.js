@@ -4,6 +4,7 @@ const helmet = require("helmet");
 const bodyParser = require("body-parser");
 const path = require("path");
 const authConfig = require("./config/auth");
+const db = require("./db/database");
 const authRoutes = require("./routes/authRoutes");
 const plantRoutes = require("./routes/plantRoutes");
 const {
@@ -19,6 +20,9 @@ const { apiLimit } = require("./middleware/rateLimit");
 const app = express();
 
 app.disable("x-powered-by");
+if (process.env.NODE_ENV === "production" || process.env.TRUST_PROXY === "true") {
+  app.set("trust proxy", 1);
+}
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
@@ -38,6 +42,19 @@ app.use(
   })
 );
 app.use(bodyParser.json({ limit: "32kb" }));
+
+app.get("/healthz", (req, res) => {
+  res.status(204).send();
+});
+
+app.get("/readyz", (req, res, next) => {
+  try {
+    db.raw.prepare("select 1").get();
+    res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+});
 
 app.use(
   "/images",
