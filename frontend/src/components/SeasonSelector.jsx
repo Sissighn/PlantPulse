@@ -29,7 +29,13 @@ const SeasonSelector = ({ currentSeason, onSeasonChange }) => {
   ];
 
   return (
-    <div className="bg-white dark:bg-slate-800 p-2 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex justify-between mb-6 transition-colors duration-300">
+    <div className="pp-panel pp-season-selector">
+      <img
+        src={`${BASE_URL}/icons/season-frame.png`}
+        alt=""
+        aria-hidden="true"
+        className="pp-season-frame"
+      />
       {seasons.map((s) => {
         const isActive = currentSeason === s.id;
         return (
@@ -39,21 +45,19 @@ const SeasonSelector = ({ currentSeason, onSeasonChange }) => {
             onClick={() => onSeasonChange(s.id)}
             aria-label={s.label}
             aria-pressed={isActive}
-            className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all duration-200 ${
-              isActive
-                ? "bg-slate-800 dark:bg-slate-200 text-white dark:text-slate-900 shadow-md transform scale-105"
-                : "text-slate-400 dark:text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700"
+            className={`pp-season-button ${
+              isActive ? "pp-season-button-active" : ""
             }`}
           >
             <img
               src={`${BASE_URL}/icons/${s.icon}`}
               alt=""
-              className={`h-8 w-8 object-contain drop-shadow-sm transition-transform duration-200 ${
+              className={`pp-season-icon transition-transform duration-200 ${
                 isActive ? "scale-110" : "opacity-85"
               }`}
               aria-hidden="true"
             />
-            <span className="text-[10px] font-medium uppercase tracking-wider">
+            <span className="text-[10px] uppercase tracking-wider">
               {s.label}
             </span>
           </button>
