@@ -4,7 +4,6 @@ import {
   Droplets,
   ArrowLeft,
   AlertCircle,
-  CheckCircle2,
   Flower2,
   Leaf,
   Plus,
@@ -472,17 +471,9 @@ export default function PlantBook({ onAddPlant }) {
   const { i18n, t } = useTranslation();
   const [query, setQuery] = useState("");
   const [selectedPid, setSelectedPid] = useState(null);
-  const [toast, setToast] = useState(null);
   const trimmedQuery = query.trim();
   const debouncedQuery = useDebouncedValue(trimmedQuery, SEARCH_DEBOUNCE_MS);
   const plantBookLanguage = i18n.language?.startsWith("de") ? "de" : "en";
-
-  useEffect(() => {
-    if (!toast) return undefined;
-
-    const timeout = window.setTimeout(() => setToast(null), 2800);
-    return () => window.clearTimeout(timeout);
-  }, [toast]);
 
   const searchQuery = useQuery({
     queryKey: ["plant-book-search", plantBookLanguage, debouncedQuery],
@@ -507,21 +498,10 @@ export default function PlantBook({ onAddPlant }) {
 
   const handleAddPlant = (name, type, interval) => {
     onAddPlant(name, type, interval);
-    setToast(t("dic.plantBookAddedToast", { name }));
   };
 
   return (
     <div className="pp-section relative">
-      {toast && (
-        <div
-          className="pp-card sticky top-20 z-20 flex items-center gap-2 px-4 py-3 text-sm font-bold text-[var(--green)]"
-          role="status"
-        >
-          <CheckCircle2 size={18} />
-          <span>{toast}</span>
-        </div>
-      )}
-
       <div className="pp-section-header">
         <div>
           <p className="pp-eyebrow">Open Plantbook</p>
