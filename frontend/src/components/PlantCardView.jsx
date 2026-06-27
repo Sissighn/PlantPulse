@@ -6,6 +6,7 @@ import {
   AlertTriangle,
   Zap,
   Sparkles,
+  CalendarDays,
 } from "lucide-react";
 import { PixelBot } from "../features/pixelBot/PixelBot";
 import { BASE_URL } from "../constants";
@@ -85,102 +86,89 @@ const PlantCardView = ({
 
   return (
     <>
-      <div className="group bg-white dark:bg-slate-800 rounded-3xl p-5 shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-all duration-300">
-        <div className="flex justify-between items-start">
-          <div className="flex gap-4">
-            <div
-              className={`w-20 h-20 shrink-0 rounded-2xl flex items-center justify-center overflow-hidden border relative transition-colors duration-500 ${
-                status.isThirsty
-                  ? "bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800"
-                  : "bg-slate-50 dark:bg-slate-700 border-slate-100 dark:border-slate-700"
-              }`}
-            >
-              {imageUrl ? (
-                <img
-                  src={imageUrl}
-                  alt={plant.name}
-                  className={`w-full h-full object-cover transition-all duration-500 ${
-                    status.isThirsty ? "grayscale-[0.1]" : ""
-                  }`}
-                  onError={(e) => {
-                    if (e.target.src.includes("/thirsty/")) {
-                      e.target.src = e.target.src.replace("/thirsty/", "/");
-                    } else {
-                      e.target.onerror = null;
-                      e.target.style.display = "none";
-                    }
-                  }}
-                />
-              ) : (
-                <span className="text-2xl font-bold text-slate-400">
-                  {(plant.name || "?").charAt(0)}
-                </span>
-              )}
-            </div>
-
-            <div className="pt-1">
-              <h3 className="font-bold text-slate-800 dark:text-slate-100 text-lg">
-                {plant.name}
-              </h3>
-
-              <div
-                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border mt-1 ${
-                  status.overdue
-                    ? "bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800"
-                    : "bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800"
-                }`}
-              >
-                {status.overdue ? (
-                  <AlertTriangle size={12} />
-                ) : (
-                  <Droplet size={12} />
-                )}
-
-                {status.overdue
-                  ? t("dic.overdue", { count: Math.abs(status.days) })
-                  : status.today
-                    ? t("dic.today")
-                    : t("dic.inDays", { count: status.days })}
-              </div>
-            </div>
-          </div>
-
+      <div className="pp-panel pp-plant-card group">
           <button
             aria-label={t("dic.deleteTitle")}
             onClick={() => setShowDeleteModal(true)}
             ref={deleteButtonRef}
             type="button"
-            className="text-slate-300 hover:text-red-400 p-2 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+            className="pp-delete-button"
             title={t("dic.deleteTitle")}
           >
             <Trash2 aria-hidden="true" size={18} />
           </button>
-        </div>
 
-        <div className="mt-4 flex justify-between items-center pl-1 gap-2">
-          <div className="flex flex-col text-xs text-slate-400 dark:text-slate-500 font-medium">
-            <span>
-              {t("dic.interval")}: {status.interval} {t("dic.days")}
-            </span>
+        <div className="pp-plant-layout">
+          <div className="pp-plant-thumb">
+            {imageUrl ? (
+              <img
+                src={imageUrl}
+                alt={plant.name}
+                className={`h-full w-full object-cover transition-all duration-500 ${
+                  status.isThirsty ? "grayscale-[0.1]" : ""
+                }`}
+                onError={(e) => {
+                  if (e.target.src.includes("/thirsty/")) {
+                    e.target.src = e.target.src.replace("/thirsty/", "/");
+                  } else {
+                    e.target.onerror = null;
+                    e.target.style.display = "none";
+                  }
+                }}
+              />
+            ) : (
+              <span className="text-2xl font-bold text-slate-400">
+                {(plant.name || "?").charAt(0)}
+              </span>
+            )}
+          </div>
 
-            <button
-              aria-expanded={Boolean(tips)}
-              onClick={fetchTips}
-              type="button"
-              className="mt-1 flex items-center gap-1 text-amber-500 hover:text-amber-400 transition-colors"
+          <div className="min-w-0">
+            <h3 className="pp-plant-title truncate">{plant.name}</h3>
+
+            <div
+              className={`pp-status ${
+                status.overdue ? "pp-status-danger" : ""
+              }`}
             >
-              {loadingTips ? (
-                <Loader2 size={12} className="animate-spin" />
+              {status.overdue ? (
+                <AlertTriangle size={13} />
               ) : (
-                <Zap size={12} />
+                <Droplet size={13} />
               )}
 
-              {loadingTips
-                ? t("dic.searching")
-                : tips
-                  ? t("dic.hideTips")
-                  : t("dic.aiTips")}
-            </button>
+              {status.overdue
+                ? t("dic.overdue", { count: Math.abs(status.days) })
+                : status.today
+                  ? t("dic.today")
+                  : t("dic.inDays", { count: status.days })}
+            </div>
+
+            <div className="pp-detail-list">
+              <span className="inline-flex items-center gap-1.5">
+                <CalendarDays size={14} />
+                {t("dic.interval")}: {status.interval} {t("dic.days")}
+              </span>
+
+              <button
+                aria-expanded={Boolean(tips)}
+                onClick={fetchTips}
+                type="button"
+                className="pp-ai-button"
+              >
+                {loadingTips ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : (
+                  <Zap size={14} />
+                )}
+
+                {loadingTips
+                  ? t("dic.searching")
+                  : tips
+                    ? t("dic.hideTips")
+                    : t("dic.aiTips")}
+              </button>
+            </div>
           </div>
 
           <button
@@ -190,7 +178,7 @@ const PlantCardView = ({
             onMouseUp={() => setIsWatering(false)}
             onMouseLeave={() => setIsWatering(false)}
             type="button"
-            className="relative flex items-center justify-center rounded-full active:scale-95 w-24 h-23 transition-all"
+            className="pp-water-button"
             title={t("dic.waterTitle")}
           >
             <img
@@ -199,7 +187,7 @@ const PlantCardView = ({
               }`}
               alt=""
               aria-hidden="true"
-              className="w-full h-full object-contain transition-transform duration-300"
+              className="h-full w-full object-contain transition-transform duration-300"
             />
           </button>
         </div>
@@ -214,7 +202,7 @@ const PlantCardView = ({
         )}
 
         {tips && (
-          <div className="mt-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900 p-3 rounded-xl text-sm text-slate-700 dark:text-slate-300 whitespace-pre-line">
+          <div className="pp-tips-panel">
             <div className="flex gap-2">
               <Sparkles
                 size={16}
