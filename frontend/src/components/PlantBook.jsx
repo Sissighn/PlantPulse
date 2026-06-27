@@ -80,7 +80,7 @@ function ErrorPanel({ message, onRetry }) {
   const { t } = useTranslation();
 
   return (
-    <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
+    <div className="pp-card p-4 text-[var(--text)]">
       <div className="flex items-start gap-3">
         <AlertCircle className="mt-0.5 shrink-0" size={18} />
         <div className="min-w-0 flex-1">
@@ -91,7 +91,7 @@ function ErrorPanel({ message, onRetry }) {
       <button
         type="button"
         onClick={onRetry}
-        className="mt-3 inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-sm font-bold text-amber-800 shadow-sm hover:bg-amber-100 dark:bg-slate-900 dark:text-amber-100 dark:hover:bg-slate-800"
+        className="pp-chip mt-3 px-3 py-1.5 text-sm"
       >
         <RotateCcw size={14} />
         {t("dic.plantBookRetry")}
@@ -106,12 +106,12 @@ function SearchSkeleton() {
       {[0, 1, 2].map((item) => (
         <div
           key={item}
-          className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-800"
+          className="pp-book-result"
         >
-          <div className="h-14 w-14 shrink-0 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-700" />
+          <div className="h-14 w-14 shrink-0 animate-pulse rounded-lg bg-[var(--surface-soft)]" />
           <div className="min-w-0 flex-1 space-y-2">
-            <div className="h-4 w-2/3 animate-pulse rounded bg-slate-100 dark:bg-slate-700" />
-            <div className="h-3 w-1/2 animate-pulse rounded bg-slate-100 dark:bg-slate-700" />
+            <div className="h-4 w-2/3 animate-pulse rounded bg-[var(--surface-soft)]" />
+            <div className="h-3 w-1/2 animate-pulse rounded bg-[var(--surface-soft)]" />
           </div>
         </div>
       ))}
@@ -127,26 +127,26 @@ function DetailSkeleton({ onBack }) {
       <button
         type="button"
         onClick={onBack}
-        className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-emerald-700 dark:text-slate-400 dark:hover:text-emerald-300"
+        className="pp-back-button"
       >
         <ArrowLeft size={17} />
         {t("dic.plantBookBack")}
       </button>
-      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
-        <div className="h-56 animate-pulse bg-slate-100 dark:bg-slate-700" />
+      <div className="pp-card overflow-hidden">
+        <div className="h-56 animate-pulse bg-[var(--surface-soft)]" />
         <div className="space-y-3 p-4">
-          <div className="h-5 w-2/3 animate-pulse rounded bg-slate-100 dark:bg-slate-700" />
-          <div className="h-4 w-1/2 animate-pulse rounded bg-slate-100 dark:bg-slate-700" />
+          <div className="h-5 w-2/3 animate-pulse rounded bg-[var(--surface-soft)]" />
+          <div className="h-4 w-1/2 animate-pulse rounded bg-[var(--surface-soft)]" />
         </div>
       </div>
       <div className="grid grid-cols-1 gap-3">
         {[0, 1, 2].map((item) => (
           <div
             key={item}
-            className="rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800"
+            className="pp-card p-4"
           >
-            <div className="mb-3 h-3 w-24 animate-pulse rounded bg-slate-100 dark:bg-slate-700" />
-            <div className="h-4 w-3/4 animate-pulse rounded bg-slate-100 dark:bg-slate-700" />
+            <div className="mb-3 h-3 w-24 animate-pulse rounded bg-[var(--surface-soft)]" />
+            <div className="h-4 w-3/4 animate-pulse rounded bg-[var(--surface-soft)]" />
           </div>
         ))}
       </div>
@@ -156,12 +156,12 @@ function DetailSkeleton({ onBack }) {
 
 function EmptySearchState({ title, message }) {
   return (
-    <div className="rounded-lg border border-dashed border-slate-200 bg-white p-6 text-center dark:border-slate-700 dark:bg-slate-800">
-      <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+    <div className="pp-card p-6 text-center">
+      <div className="pp-section-icon mx-auto mb-3">
         <Search size={20} />
       </div>
-      <p className="font-bold text-slate-800 dark:text-white">{title}</p>
-      <p className="mt-1 text-sm leading-relaxed text-slate-500 dark:text-slate-400">
+      <p className="font-bold text-[var(--text)]">{title}</p>
+      <p className="mt-1 text-sm leading-relaxed text-[var(--text-muted)]">
         {message}
       </p>
     </div>
@@ -172,12 +172,12 @@ function InfoTile({ icon, label, value }) {
   if (!value) return null;
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-800">
-      <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase text-slate-400">
+    <div className="pp-card p-3">
+      <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase text-[var(--text-muted)]">
         {icon}
         <span>{label}</span>
       </div>
-      <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+      <p className="text-sm leading-relaxed text-[var(--text)]">
         {value}
       </p>
     </div>
@@ -186,12 +186,12 @@ function InfoTile({ icon, label, value }) {
 
 function effortClasses(level) {
   if (level === "demanding") {
-    return "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900 dark:bg-rose-950/30 dark:text-rose-200";
+    return "border-[#e6a591] bg-[#f9ddc8] text-[var(--danger)]";
   }
   if (level === "medium") {
-    return "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200";
+    return "border-[#e8c282] bg-[#fff1cf] text-[var(--orange)]";
   }
-  return "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-200";
+  return "border-[#9fbd82] bg-[#eaf3d8] text-[var(--green)]";
 }
 
 function InterpretationTile({ icon, label, interpretation }) {
@@ -200,21 +200,21 @@ function InterpretationTile({ icon, label, interpretation }) {
   if (!interpretation?.rawValue) return null;
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
-      <div className="mb-3 flex items-center gap-2 text-xs font-bold uppercase text-slate-400">
+    <div className="pp-card p-4">
+      <div className="mb-3 flex items-center gap-2 text-xs font-bold uppercase text-[var(--text-muted)]">
         {icon}
         <span>{label}</span>
       </div>
-      <p className="mb-1 text-base font-bold text-slate-900 dark:text-white">
+      <p className="mb-1 text-base font-bold text-[var(--text)]">
         {t(interpretation.interpretedLabelKey)}
       </p>
-      <p className="mb-3 text-xs font-semibold text-slate-400">
+      <p className="mb-3 text-xs font-semibold text-[var(--text-muted)]">
         {t("dic.plantBookTechnicalValue")}: {interpretation.rawValue}
       </p>
-      <p className="mb-3 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+      <p className="mb-3 text-sm leading-relaxed text-[var(--text-muted)]">
         {t(interpretation.simpleExplanationKey)}
       </p>
-      <p className="text-sm leading-relaxed text-slate-800 dark:text-slate-100">
+      <p className="text-sm leading-relaxed text-[var(--text)]">
         <span className="font-bold">{t("dic.plantBookAdvice")}:</span>{" "}
         {t(interpretation.actionAdviceKey)}
       </p>
@@ -226,13 +226,13 @@ function CareEffortPanel({ effort }) {
   const { t } = useTranslation();
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+    <div className="pp-card p-4">
       <div className="mb-3 flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-bold uppercase text-slate-400">
+          <p className="text-xs font-bold uppercase text-[var(--text-muted)]">
             {t("dic.plantBookCareEffort")}
           </p>
-          <p className="mt-1 text-xl font-bold text-slate-900 dark:text-white">
+          <p className="mt-1 text-xl font-bold text-[var(--text)]">
             {t(effort.labelKey)}
           </p>
         </div>
@@ -244,7 +244,7 @@ function CareEffortPanel({ effort }) {
           {t(`dic.plantBookCareEffort.${effort.level}`)}
         </span>
       </div>
-      <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+      <p className="text-sm leading-relaxed text-[var(--text-muted)]">
         {t(effort.explanationKey)}
       </p>
       {effort.reasons.length > 0 && (
@@ -252,7 +252,7 @@ function CareEffortPanel({ effort }) {
           {effort.reasons.map((reason) => (
             <span
               key={reason.key}
-              className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 dark:bg-slate-700 dark:text-slate-200"
+              className="rounded-full bg-[var(--surface-soft)] px-3 py-1 text-xs font-semibold text-[var(--text-muted)]"
             >
               {t(reason.reasonKey)}
             </span>
@@ -286,7 +286,7 @@ function PlantBookDetail({ error, loading, onAdd, onBack, onRetry, plant }) {
         <button
           type="button"
           onClick={onBack}
-          className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-emerald-700 dark:text-slate-400 dark:hover:text-emerald-300"
+          className="pp-back-button"
         >
           <ArrowLeft size={17} />
           {t("dic.plantBookBack")}
@@ -355,32 +355,32 @@ function PlantBookDetail({ error, loading, onAdd, onBack, onRetry, plant }) {
       <button
         type="button"
         onClick={onBack}
-        className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-emerald-700 dark:text-slate-400 dark:hover:text-emerald-300"
+        className="pp-back-button"
       >
         <ArrowLeft size={17} />
         {t("dic.plantBookBack")}
       </button>
 
-      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
+      <div className="pp-card overflow-hidden">
         {plant.imageUrl ? (
           <img
             src={plant.imageUrl}
             alt={name}
-            className="h-56 w-full object-cover"
+            className="pp-detail-image"
           />
         ) : (
-          <div className="flex h-56 w-full items-center justify-center bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-200">
+          <div className="flex h-56 w-full items-center justify-center bg-[var(--surface-soft)] text-[var(--green)]">
             <Leaf size={42} />
           </div>
         )}
         <div className="p-4">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <h3 className="truncate text-xl font-bold text-slate-900 dark:text-white">
+              <h3 className="truncate text-xl font-bold text-[var(--text)]">
                 {name}
               </h3>
               {plant.scientificName && (
-                <p className="mt-1 text-sm italic text-slate-500 dark:text-slate-400">
+                <p className="mt-1 text-sm italic text-[var(--text-muted)]">
                   {plant.scientificName}
                 </p>
               )}
@@ -391,14 +391,14 @@ function PlantBookDetail({ error, loading, onAdd, onBack, onRetry, plant }) {
               onClick={() =>
                 onAdd(name || "Pflanze", plant.displayPid || plant.pid, null)
               }
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white hover:bg-emerald-700"
+              className="pp-round-button shrink-0 bg-[var(--green)] text-[#fff7e6] hover:text-[#fff7e6]"
               title={t("dic.plantBookAddTitle")}
             >
               <Plus aria-hidden="true" size={18} />
             </button>
           </div>
 
-          <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
+          <p className="mt-3 text-sm text-[var(--text-muted)]">
             {plant.origin
               ? t("dic.plantBookOrigin", { origin: plant.origin })
               : t("dic.plantBookOriginUnknown")}
@@ -409,11 +409,11 @@ function PlantBookDetail({ error, loading, onAdd, onBack, onRetry, plant }) {
       <div className="space-y-3">
         <CareEffortPanel effort={careEffort} />
 
-        <div className="rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
-          <p className="mb-2 text-xs font-bold uppercase text-slate-400">
+        <div className="pp-card p-4">
+          <p className="mb-2 text-xs font-bold uppercase text-[var(--text-muted)]">
             {t("dic.plantBookRiskOverview")}
           </p>
-          <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+          <p className="text-sm leading-relaxed text-[var(--text-muted)]">
             {riskSummary.summaryKey
               ? t(riskSummary.summaryKey)
               : riskSummary.items
@@ -455,11 +455,11 @@ function PlantBookDetail({ error, loading, onAdd, onBack, onRetry, plant }) {
       )}
 
       {!hasDetailData && (
-        <div className="rounded-lg border border-dashed border-slate-200 bg-white p-5 text-center dark:border-slate-700 dark:bg-slate-800">
-          <p className="font-bold text-slate-800 dark:text-white">
+        <div className="pp-card p-5 text-center">
+          <p className="font-bold text-[var(--text)]">
             {t("dic.plantBookMissingDataTitle")}
           </p>
-          <p className="mt-1 text-sm leading-relaxed text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-sm leading-relaxed text-[var(--text-muted)]">
             {t("dic.plantBookMissingDataMessage")}
           </p>
         </div>
@@ -511,10 +511,10 @@ export default function PlantBook({ onAddPlant }) {
   };
 
   return (
-    <div className="relative space-y-5">
+    <div className="pp-section relative">
       {toast && (
         <div
-          className="sticky top-20 z-20 flex items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-800 shadow-sm dark:border-emerald-900 dark:bg-emerald-950/70 dark:text-emerald-100"
+          className="pp-card sticky top-20 z-20 flex items-center gap-2 px-4 py-3 text-sm font-bold text-[var(--green)]"
           role="status"
         >
           <CheckCircle2 size={18} />
@@ -522,10 +522,23 @@ export default function PlantBook({ onAddPlant }) {
         </div>
       )}
 
+      <div className="pp-section-header">
+        <div>
+          <p className="pp-eyebrow">Open Plantbook</p>
+          <h2 className="pp-heading">{t("dic.plantBook")}</h2>
+          <p className="pp-muted mt-1 text-sm leading-relaxed">
+            {t("dic.plantBookEmptyMessage")}
+          </p>
+        </div>
+        <div className="pp-section-icon">
+          <Leaf size={22} />
+        </div>
+      </div>
+
       <div className="relative">
         <Search
           size={18}
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]"
         />
         <input
           aria-label={t("dic.plantBookSearchPlaceholder")}
@@ -535,7 +548,7 @@ export default function PlantBook({ onAddPlant }) {
             setSelectedPid(null);
           }}
           placeholder={t("dic.plantBookSearchPlaceholder")}
-          className="w-full rounded-lg border border-slate-200 bg-white py-3 pl-10 pr-4 text-slate-900 outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+          className="pp-input py-3 pl-10 pr-4"
         />
       </div>
 
@@ -548,7 +561,7 @@ export default function PlantBook({ onAddPlant }) {
               setQuery(term);
               setSelectedPid(null);
             }}
-            className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-600 hover:border-emerald-300 hover:text-emerald-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-emerald-700"
+            className="pp-chip px-3 py-1.5 text-sm"
           >
             {term}
           </button>
@@ -578,25 +591,25 @@ export default function PlantBook({ onAddPlant }) {
               key={plant.pid}
               type="button"
               onClick={() => setSelectedPid(plant.pid)}
-              className="flex w-full items-center gap-3 rounded-lg border border-slate-200 bg-white p-3 text-left hover:border-emerald-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-emerald-700"
+              className="pp-book-result"
             >
               {plant.imageUrl ? (
                 <img
                   src={plant.imageUrl}
                   alt={plant.alias || plant.displayPid}
-                  className="h-14 w-14 shrink-0 rounded-lg object-cover"
+                  className="pp-book-thumb object-cover"
                 />
               ) : (
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+                <div className="pp-book-thumb">
                   <Leaf size={22} />
                 </div>
               )}
               <div className="min-w-0 flex-1">
-                <p className="truncate font-bold text-slate-800 dark:text-white">
+                <p className="truncate font-bold text-[var(--text)]">
                   {plant.alias || plant.scientificName || plant.displayPid}
                 </p>
                 {plant.scientificName && (
-                  <p className="truncate text-sm italic text-slate-500 dark:text-slate-400">
+                  <p className="truncate text-sm italic text-[var(--text-muted)]">
                     {plant.scientificName}
                   </p>
                 )}
