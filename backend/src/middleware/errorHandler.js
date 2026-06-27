@@ -31,6 +31,11 @@ function errorHandler(error, req, res, next) {
   }
 
   if (error instanceof multer.MulterError) {
+    if (error.code === "LIMIT_FILE_SIZE") {
+      res.status(413).json({ message: "Uploaded image must be 5 MB or smaller." });
+      return;
+    }
+
     res.status(400).json({ message: error.message || "Invalid upload." });
     return;
   }
