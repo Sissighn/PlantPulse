@@ -212,6 +212,9 @@ export default function WateringCalendar({ plants, season, weekStartsOn = 1 }) {
   });
 
   const currentMonth = visibleMonth.getMonth();
+  const isViewingCurrentMonth =
+    visibleMonth.getFullYear() === new Date().getFullYear() &&
+    visibleMonth.getMonth() === new Date().getMonth();
 
   return (
     <section className="pp-section">
@@ -243,13 +246,23 @@ export default function WateringCalendar({ plants, season, weekStartsOn = 1 }) {
           >
             <ChevronLeft size={19} />
           </button>
-          <div className="text-center">
+          <div className="flex flex-col items-center text-center">
             <h3 className="text-lg font-bold capitalize text-[var(--text)]">
               {monthLabel}
             </h3>
             <p className="text-xs font-semibold text-[var(--text-muted)]">
               {t(`dic.season.${season}`)}
             </p>
+            <button
+              type="button"
+              onClick={() => setVisibleMonth(startOfMonth(new Date()))}
+              disabled={isViewingCurrentMonth}
+              className="pp-chip mt-2 px-3 py-1 text-xs disabled:cursor-default disabled:opacity-45 disabled:hover:translate-y-0"
+              aria-label={t("dic.calendarGoToday")}
+              title={t("dic.calendarGoToday")}
+            >
+              {t("dic.calendarGoToday")}
+            </button>
           </div>
           <button
             type="button"
