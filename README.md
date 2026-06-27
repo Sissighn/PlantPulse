@@ -13,13 +13,13 @@
 ![Open Plantbook](https://img.shields.io/badge/Plant%20Data-Open%20Plantbook-2F855A)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 
-PlantPulse is a comprehensive plant care management application designed to help users track watering schedules, browse plant care data, and maintain plant health. The application combines a traditional task-management interface with Open Plantbook plant data and AI integration for personalized care advice and interactive assistance.
+PlantPulse is a comprehensive plant care management application designed to help users track watering schedules, browse plant care data, and maintain plant health. The application combines a cozy retro pixel-inspired dashboard with Open Plantbook plant data and AI integration for personalized care advice and interactive assistance.
 
 ---
 
 ## Project Overview
 
-This project serves as a digital assistant for plant enthusiasts. It allows users to build a digital inventory of their plants, automatically calculating watering needs based on plant-specific profiles and seasonal factors. The app also includes a Plant Book powered by Open Plantbook, so users can search plants before buying them and inspect care data such as light, temperature, humidity, watering, soil, and fertilization. Google Gemini powers optional care tips and the conversational plant assistant.
+This project serves as a digital assistant for plant enthusiasts. It allows users to build a digital inventory of their plants, automatically calculating watering needs based on plant-specific profiles and seasonal factors. The app also includes an interactive watering calendar and a Plant Book powered by Open Plantbook, so users can search plants before buying them and inspect care data such as light, temperature, humidity, watering, soil, and fertilization. Google Gemini powers optional care tips and the conversational plant assistant.
 
 ---
 
@@ -51,6 +51,18 @@ This project serves as a digital assistant for plant enthusiasts. It allows user
 
 - **Visual Indicators:** The UI visually represents plant status (e.g., "thirsty" states, grayscale filters) to provide immediate feedback on care urgency.
 
+- **Cozy Pixel Dashboard:** The main UI uses warm cream surfaces, forest-green accents, pixel-art assets, framed panels, and responsive sizing for a cohesive retro garden feel.
+
+### Watering Calendar
+
+- **Automatic Calendar Events:** Watering dates are generated from each plant's stored interval, last watered date, and the currently selected season.
+
+- **Season-Aware Planning:** Switching seasons recalculates future watering dates immediately.
+
+- **Interactive Day Details:** Calendar days expose detailed watering tasks for the plants due on that date.
+
+- **User Settings:** Users can choose whether the calendar week starts on Monday or Sunday.
+
 ### Plant Book
 
 - **Open Plantbook Search:** Users can search the Open Plantbook database from inside the app.
@@ -61,6 +73,8 @@ This project serves as a digital assistant for plant enthusiasts. It allows user
 
 - **Add From Plant Book:** Users can add a discovered plant directly to their personal inventory.
 
+- **Robust UX States:** Search uses debouncing, skeleton loading states, retry UI, missing-data guidance, and a success toast after adding a plant.
+
 ### AI Integration
 
 - **Contextual Care Tips:** Users can generate specific, concise care instructions (Watering, Light, Fertilizer) for any plant directly from the dashboard.
@@ -68,6 +82,8 @@ This project serves as a digital assistant for plant enthusiasts. It allows user
 - **Interactive Chatbot:** A dedicated AI assistant allows users to ask complex questions regarding plant health and diagnosis.
 
 - **Image Analysis:** Support for image-based queries, allowing users to upload context for the AI to analyze.
+
+- **Safety Boundaries:** AI responses are framed as care guidance rather than guaranteed diagnoses, with extra caution around toxicity, pets, children, and uncertain image analysis.
 
 ---
 
@@ -78,6 +94,12 @@ This project serves as a digital assistant for plant enthusiasts. It allows user
 - **Robust Backend:** Node.js and Express server handling API requests, managing a local SQLite database for persistence.
 
 - **Authentication:** Email/password login uses server-side password hashing and an HTTP-only JWT cookie; guest sessions stay isolated from registered accounts.
+
+- **Accessibility:** Icon buttons use accessible labels, dialogs provide modal semantics, and interactive overlays support Escape-to-close and focus management.
+
+- **Internationalization:** German and English UI strings are managed through i18next, including the assistant, settings, Plant Book, and calendar flows.
+
+- **Pixel Asset Integration:** Static PNG assets for seasonal icons, frames, watering states, and decorative dashboard elements are served from the backend `/icons` route.
 
 - **Open Plantbook Proxy:** The backend handles Open Plantbook OAuth credentials, token refresh, response caching, search, and detail lookups so secrets never reach the browser.
 
@@ -106,7 +128,7 @@ PLANTPULSE
 │   ├── domain
 │   │   └── wateringProfiles.js # Deterministic plant watering profiles
 │   ├── public
-│   │   ├── icons               # Static assets
+│   │   ├── icons               # Pixel-art icons, frames, and decorative UI assets
 │   │   └── plantImages         # Uploaded plant imagery
 │   ├── routes
 │   │   └── plantRoutes.js      # API endpoint definitions
@@ -125,13 +147,17 @@ PLANTPULSE
     ├── src
     │   ├── components
     │   │   ├── AddPlantForm.jsx
+    │   │   ├── FluidMenu.jsx
     │   │   ├── PlantCardContainer.jsx
     │   │   ├── PlantCardView.jsx
     │   │   ├── PlantBook.jsx
     │   │   ├── PlantSelectContainer.jsx
     │   │   ├── PlantSelectView.jsx
-    │   │   └── SeasonSelector.jsx
+    │   │   ├── SettingsModal.jsx
+    │   │   ├── SeasonSelector.jsx
+    │   │   └── WateringCalendar.jsx
     │   ├── domain
+    │   │   ├── wateringCalendar.ts
     │   │   ├── plantStatus.ts
     │   │   ├── wateringProfiles.ts
     │   │   └── wateringSchedule.ts
@@ -177,6 +203,8 @@ PLANTPULSE
 - **Advanced Image Recognition:** Enhancing the AI's ability to automatically identify plant species and diagnose diseases from uploaded photos.
 
 - **Enhanced Chatbot Context:** Improving the chatbot's memory to reference previous interactions and specific plant history.
+
+- **Expanded Pixel Asset Set:** Replace CSS fallback decorations with final transparent frame and footer assets where desired.
 
 ---
 
