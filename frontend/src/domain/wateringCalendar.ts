@@ -95,6 +95,25 @@ export function buildWateringEventsForMonth(
   const monthEnd = startOfDay(
     new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0),
   );
+
+  return buildWateringEventsForDateRange(
+    plants,
+    season,
+    monthStart,
+    monthEnd,
+    todayDate,
+  );
+}
+
+export function buildWateringEventsForDateRange(
+  plants: CalendarPlant[],
+  season: Season,
+  rangeStartDate: Date,
+  rangeEndDate: Date,
+  todayDate = new Date(),
+) {
+  const rangeStart = startOfDay(rangeStartDate);
+  const rangeEnd = startOfDay(rangeEndDate);
   const today = startOfDay(todayDate);
   const events: WateringEvent[] = [];
 
@@ -103,11 +122,11 @@ export function buildWateringEventsForMonth(
     const lastWatered = toValidDate(plant.lastWatered);
     let dueDate = lastWatered ? addDays(startOfDay(lastWatered), interval) : today;
 
-    while (dueDate < monthStart) {
+    while (dueDate < rangeStart) {
       dueDate = addDays(dueDate, interval);
     }
 
-    while (dueDate <= monthEnd) {
+    while (dueDate <= rangeEnd) {
       const daysFromToday = daysBetween(today, dueDate);
       events.push({
         date: dueDate,
