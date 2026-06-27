@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildWateringEventsForDateRange,
   buildWateringEventsForMonth,
   getMonthGridDates,
   getNextWateringDate,
@@ -65,5 +66,27 @@ describe("wateringCalendar", () => {
 
     expect(toDateKey(getMonthGridDates(month, 1)[0])).toBe("2026-06-01");
     expect(toDateKey(getMonthGridDates(month, 0)[0])).toBe("2026-05-31");
+  });
+
+  it("builds events for spillover days visible in the calendar grid", () => {
+    const month = new Date("2026-06-01T00:00:00.000Z");
+    const gridDates = getMonthGridDates(month, 1);
+    const events = buildWateringEventsForDateRange(
+      [
+        {
+          baseInterval: 5,
+          id: "plant-1",
+          lastWatered: "2026-06-27T10:00:00.000Z",
+          name: "Monstera",
+          type: "monstra",
+        },
+      ],
+      "summer",
+      gridDates[0],
+      gridDates[gridDates.length - 1],
+      new Date("2026-06-27T00:00:00.000Z"),
+    );
+
+    expect(events.map((event) => event.dateKey)).toContain("2026-07-01");
   });
 });
