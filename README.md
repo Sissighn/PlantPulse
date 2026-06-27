@@ -107,6 +107,34 @@ This project serves as a digital assistant for plant enthusiasts. It allows user
 
 ---
 
+## Architecture
+
+```mermaid
+flowchart LR
+    User["User"] --> UI["React + Vite frontend"]
+    UI --> Auth["Auth + session API"]
+    UI --> Plants["Plant inventory API"]
+    UI --> Calendar["Season-aware watering calendar"]
+    UI --> Book["Plant Book UI"]
+    UI --> Assistant["Plant AI assistant"]
+
+    Auth --> Backend["Express backend"]
+    Plants --> Backend
+    Book --> Backend
+    Assistant --> Backend
+
+    Backend --> SQLite["SQLite + Drizzle ORM"]
+    Backend --> Gemini["Google Gemini"]
+    Backend --> OpenPlantbook["Open Plantbook API"]
+    Backend --> StaticAssets["/icons and plant images"]
+
+    Calendar --> Profiles["Deterministic watering profiles"]
+```
+
+The frontend owns presentation, i18n, accessibility states, and user interactions. The backend keeps secrets server-side, handles authentication, persists plant inventory, proxies Open Plantbook, and applies AI safety prompts before calling Gemini.
+
+---
+
 ## Project Structure
 
 The project is organized into a clear separation of concerns between the client (frontend) and server (backend).
@@ -139,7 +167,7 @@ PLANTPULSE
 │   ├── app.js                  # Express app setup
 │   ├── server.js               # Server entry point
 │   ├── tsconfig.json           # TypeScript checking configuration
-│   └── .env                    # Environment variables
+│   └── .env.example            # Environment variable template
 │
 └── frontend
     ├── e2e
@@ -224,7 +252,13 @@ cd plantpulse
 
 ### Environment variables (Backend)
 
-Create [backend/.env](backend/.env) with:
+Use [backend/.env.example](backend/.env.example) as the template and create a local `backend/.env`:
+
+```bash
+cp backend/.env.example backend/.env
+```
+
+Then fill in:
 
 ```env
 GEMINI_API_KEY=your_api_key_here
@@ -239,6 +273,8 @@ OPEN_PLANTBOOK_CLIENT_SECRET=your_client_secret_here
 Generate a long `JWT_SECRET` before deploying, for example with `openssl rand -hex 32`. In production the backend refuses to start if `JWT_SECRET` is shorter than 32 bytes.
 
 Open Plantbook uses OAuth client credentials. Prefer `OPEN_PLANTBOOK_CLIENT_ID` and `OPEN_PLANTBOOK_CLIENT_SECRET`; the backend caches and refreshes access tokens automatically. A pre-generated bearer token can also be supplied with `OPEN_PLANTBOOK_ACCESS_TOKEN`, but it may expire and should not be committed.
+
+Never commit `backend/.env`; it is intentionally ignored by Git.
 
 ### Docker Setup (Recommended)
 
@@ -288,16 +324,26 @@ npm install
 npm run dev
 ```
 
+## Known Limitations
+
+- **AI guidance is advisory:** Plant AI can suggest care steps, but it does not provide guaranteed diagnoses and should not replace expert advice for toxicity, pet safety, or severe plant disease concerns.
+- **Open Plantbook data varies:** Some plants have incomplete care details or missing images, so the UI includes missing-data guidance and fallback states.
+- **Local SQLite by default:** The default setup is ideal for local development and portfolio review. Production deployments should configure persistent storage and backup strategy.
+- **Calendar is rule-based:** Watering events are calculated from stored intervals, plant profiles, and selected season. Microclimate, pot size, soil mix, and plant condition still require user judgment.
+- **Push notifications are not implemented yet:** In-app notifications exist, but email/push reminders are listed as future work.
+
+---
+
 ## Troubleshooting
 
 - If you see `pm run dev: command not found`, use `npm run dev`.
 - If frontend shows "Backend offline", make sure backend is running on `http://localhost:3000`.
-- If AI features fail, verify `GEMINI_API_KEY` in [backend/.env](backend/.env).
-- If Plant Book search or details fail, verify `OPEN_PLANTBOOK_CLIENT_ID` and `OPEN_PLANTBOOK_CLIENT_SECRET` in [backend/.env](backend/.env), then restart the backend.
+- If AI features fail, verify `GEMINI_API_KEY` in your local `backend/.env`.
+- If Plant Book search or details fail, verify `OPEN_PLANTBOOK_CLIENT_ID` and `OPEN_PLANTBOOK_CLIENT_SECRET` in your local `backend/.env`, then restart the backend.
 - If Plant Book details return `HTTP 401`, remove an expired `OPEN_PLANTBOOK_ACCESS_TOKEN` and use the client credentials instead.
 
 ---
 
 ## License
 
-MIT License © 2026 Setayesh Golshan
+MIT License © 2026 Setayesh Golshan. See [LICENSE](LICENSE).
