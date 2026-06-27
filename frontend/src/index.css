@@ -56,7 +56,7 @@
       radial-gradient(circle at top left, rgba(98, 128, 58, 0.12), transparent 32rem),
       linear-gradient(180deg, rgba(23, 57, 24, 0.08), transparent 16rem);
     color: var(--text);
-    padding-bottom: 8.5rem;
+    padding-bottom: clamp(8rem, 18vw, 12rem);
   }
 
   .dark .pp-shell {
@@ -764,12 +764,61 @@
     bottom: 0;
     left: 0;
     z-index: 0;
-    height: 5rem;
-    opacity: 0.86;
-    background:
-      linear-gradient(90deg, transparent 0 1rem, rgba(79, 127, 56, 0.5) 1rem 1.25rem, transparent 1.25rem 2rem) bottom / 2rem 1.2rem repeat-x,
-      linear-gradient(0deg, rgba(23, 57, 24, 0.9), rgba(46, 84, 35, 0.9));
-    mask-image: linear-gradient(to top, black 45%, transparent 100%);
+    height: clamp(6rem, 16vw, 10rem);
+    overflow: hidden;
+  }
+
+  .pp-footer-decor::before {
+    content: "";
+    position: absolute;
+    inset: auto 0 0;
+    height: 58%;
+    background: linear-gradient(
+      to top,
+      rgba(23, 57, 24, 0.88),
+      rgba(46, 84, 35, 0.5) 55%,
+      transparent
+    );
+  }
+
+  .pp-footer-grass,
+  .pp-footer-flowers,
+  .pp-footer-creature {
+    pointer-events: none;
+    position: absolute;
+    display: block;
+    object-fit: contain;
+    image-rendering: pixelated;
+    user-select: none;
+  }
+
+  .pp-footer-grass {
+    right: 50%;
+    bottom: -0.55rem;
+    z-index: 1;
+    width: max(58rem, 118vw);
+    height: clamp(3.2rem, 8vw, 5.3rem);
+    transform: translateX(50%);
+    object-fit: cover;
+    object-position: bottom center;
+  }
+
+  .pp-footer-flowers {
+    bottom: -0.15rem;
+    left: max(0.4rem, env(safe-area-inset-left));
+    z-index: 2;
+    width: clamp(7.5rem, 20vw, 13.5rem);
+    height: clamp(7.5rem, 20vw, 13.5rem);
+    object-position: bottom left;
+  }
+
+  .pp-footer-creature {
+    right: max(0.4rem, env(safe-area-inset-right));
+    bottom: -0.1rem;
+    z-index: 2;
+    width: clamp(8rem, 22vw, 14.5rem);
+    height: clamp(6.5rem, 18vw, 11rem);
+    object-position: bottom right;
   }
 
   @media (max-width: 460px) {
@@ -828,6 +877,29 @@
       grid-column: 2;
       justify-self: end;
       margin-top: -0.6rem;
+    }
+
+    .pp-footer-decor {
+      height: 6.75rem;
+    }
+
+    .pp-footer-grass {
+      width: 52rem;
+      height: 3.3rem;
+    }
+
+    .pp-footer-flowers {
+      left: -1.8rem;
+      width: 8.2rem;
+      height: 8.2rem;
+      opacity: 0.9;
+    }
+
+    .pp-footer-creature {
+      right: -1.6rem;
+      width: 8.7rem;
+      height: 7rem;
+      opacity: 0.92;
     }
   }
 }
