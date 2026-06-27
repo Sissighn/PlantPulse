@@ -6,6 +6,11 @@ const aiService = require("../services/aiService");
 const { requireAuth } = require("../middleware/auth");
 const { asyncHandler } = require("../middleware/errorHandler");
 const { aiLimit } = require("../middleware/rateLimit");
+const {
+  MAX_CHAT_IMAGE_SIZE_BYTES,
+  chatImageFileFilter,
+  validateChatImage,
+} = require("../middleware/uploadValidation");
 const { validateRequest } = require("../middleware/validateRequest");
 const {
   chatBodySchema,
@@ -21,7 +26,8 @@ const {
 
 const multer = require("multer");
 const upload = multer({
-  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: chatImageFileFilter,
+  limits: { fileSize: MAX_CHAT_IMAGE_SIZE_BYTES, files: 1 },
   storage: multer.memoryStorage(),
 });
 
@@ -72,6 +78,7 @@ router.post(
   "/chat",
   aiLimit,
   upload.single("image"),
+  validateChatImage,
   validateRequest({ body: chatBodySchema }),
   validateChatHistory,
   asyncHandler(async (req, res) => {
