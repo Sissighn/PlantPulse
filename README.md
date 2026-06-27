@@ -8,6 +8,10 @@
 ![Node.js](https://img.shields.io/badge/Backend-Node.js-339933?logo=node.js&logoColor=white)
 ![Express](https://img.shields.io/badge/Framework-Express-black?logo=express&logoColor=white)
 ![SQLite](https://img.shields.io/badge/Database-SQLite-044a64?logo=sqlite&logoColor=white)
+![Drizzle ORM](https://img.shields.io/badge/ORM-Drizzle-8BC34A)
+![Docker](https://img.shields.io/badge/Containers-Docker-2496ED?logo=docker&logoColor=white)
+![Nginx](https://img.shields.io/badge/Reverse%20Proxy-Nginx-009639?logo=nginx&logoColor=white)
+![Playwright](https://img.shields.io/badge/E2E-Playwright-2EAD33?logo=playwright&logoColor=white)
 ![i18next](https://img.shields.io/badge/i18n-i18next-26A69A?logo=i18next&logoColor=white)
 ![Gemini](https://img.shields.io/badge/AI-Google%20Gemini-4285F4?logo=google&logoColor=white)
 ![Open Plantbook](https://img.shields.io/badge/Plant%20Data-Open%20Plantbook-2F855A)
@@ -105,19 +109,26 @@ This project serves as a digital assistant for plant enthusiasts. It allows user
 
 - **API Integration:** Seamless connection with Google Gemini for natural language processing and content generation.
 
+- **Deployment-Ready Reverse Proxy:** The Docker production setup serves the React build through Nginx, proxies `/api`, `/icons`, and `/images` to the backend, and applies cache, compression, and security headers.
+
+- **Health Checks:** Backend `/healthz` and `/readyz` endpoints support container orchestration; Docker Compose waits for a healthy backend before starting the frontend.
+
 ---
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-    User["User"] --> UI["React + Vite frontend"]
+    User["User"] --> Nginx["Nginx reverse proxy"]
+    Nginx --> UI["React + Vite frontend build"]
+    Nginx --> APIProxy["/api, /icons, /images proxy"]
     UI --> Auth["Auth + session API"]
     UI --> Plants["Plant inventory API"]
     UI --> Calendar["Season-aware watering calendar"]
     UI --> Book["Plant Book UI"]
     UI --> Assistant["Plant AI assistant"]
 
+    APIProxy --> Backend["Express backend"]
     Auth --> Backend["Express backend"]
     Plants --> Backend
     Book --> Backend
@@ -132,6 +143,32 @@ flowchart LR
 ```
 
 The frontend owns presentation, i18n, accessibility states, and user interactions. The backend keeps secrets server-side, handles authentication, persists plant inventory, proxies Open Plantbook, and applies AI safety prompts before calling Gemini.
+
+---
+
+## Deployment Architecture
+
+During local development, the app can run as two separate dev servers: Vite serves the frontend on `http://localhost:5173`, and Express serves the backend on `http://localhost:3000`.
+
+For the Docker production-style setup, Nginx becomes the single public entry point at `http://localhost`. It serves the compiled React app and forwards backend-related requests internally:
+
+- `/api/*` -> Express backend
+- `/icons/*` -> backend static icon assets
+- `/images/*` -> backend plant image assets
+
+This is different from the earlier setup, where the frontend container only served static files and the browser still had to call the backend directly on `localhost:3000`. That worked locally, but it was less representative of a real deployment because the frontend and API behaved like two separate public services.
+
+The current setup is closer to a production architecture:
+
+- **Single origin:** The browser can load the app and call the API from the same host, reducing CORS and cookie complexity.
+- **Reverse proxy:** Nginx routes API and asset requests to the backend without exposing backend internals to the frontend bundle.
+- **Security headers:** Nginx adds browser-facing headers for the static frontend.
+- **Caching:** Hashed build assets are cached long-term, while `index.html` stays fresh.
+- **Compression:** gzip and Brotli reduce transferred CSS/JS size.
+- **Health checks:** Docker Compose can detect whether frontend and backend containers are actually healthy.
+- **Startup ordering:** The frontend waits until the backend readiness check passes.
+
+Everything still runs locally unless deployed elsewhere. Docker Compose exposes the app at `http://localhost`; no cloud service is used by default.
 
 ---
 
@@ -278,7 +315,7 @@ Never commit `backend/.env`; it is intentionally ignored by Git.
 
 ### Docker Setup (Recommended)
 
-You can run the entire application (Frontend & Backend) with a single command using Docker.
+You can run the entire application with a single command using Docker. This starts an Express backend container and an Nginx frontend container. Nginx serves the React build and proxies `/api`, `/icons`, and `/images` to the backend.
 
 **Prerequisites:**
 - Docker and Docker Compose installed.
@@ -286,16 +323,17 @@ You can run the entire application (Frontend & Backend) with a single command us
 **Run with Docker Compose:**
 ```bash
 # Build and start the containers in the background
-docker-compose up -d --build
+docker compose up -d --build
 ```
 
 The application will be available at:
-- **Frontend:** http://localhost
-- **Backend API:** http://localhost:3000
+- **App:** http://localhost
+- **API through Nginx:** http://localhost/api
+- **Backend health check:** http://localhost:3000/readyz
 
 To stop the application:
 ```bash
-docker-compose down
+docker compose down
 ```
 
 ---
