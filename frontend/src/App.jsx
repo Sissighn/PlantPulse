@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useCallback, useState, useEffect, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Plus,
@@ -23,6 +23,7 @@ import AuthPanel from "./components/AuthPanel";
 import PlantBook from "./components/PlantBook";
 import WateringCalendar from "./components/WateringCalendar";
 import SettingsModal from "./components/SettingsModal";
+import ToastViewport from "./components/ToastViewport";
 import { PixelBot } from "./features/pixelBot/PixelBot";
 import { PlantAssistant } from "./features/plantAssistant/PlantAssistant";
 import Notifications from "./components/Notifications";
@@ -33,12 +34,27 @@ import {
   LanguageMenuItem,
 } from "./components/FluidMenu";
 import { useTranslation } from "react-i18next";
+import { apiFetch } from "./api/http";
 
 const plantsQueryKey = ["plants"];
 const WEEK_START_STORAGE_KEY = "plantpulse.weekStartsOn";
+const TOAST_DURATION_MS = 4200;
+const VIEW_PATHS = {
+  calendar: "/calendar",
+  garden: "/",
+  plantBook: "/plant-book",
+};
+const PATH_VIEWS = Object.entries(VIEW_PATHS).reduce(
+  (paths, [view, path]) => ({ ...paths, [path]: view }),
+  {},
+);
 
 function readStoredWeekStart() {
   return localStorage.getItem(WEEK_START_STORAGE_KEY) === "0" ? 0 : 1;
+}
+
+function readViewFromLocation() {
+  return PATH_VIEWS[window.location.pathname] || "garden";
 }
 
 class UnauthorizedError extends Error {
@@ -49,8 +65,7 @@ class UnauthorizedError extends Error {
 }
 
 const fetchPlants = async ({ signal }) => {
-  const res = await fetch(`${BACKEND_URL}/plants`, {
-    credentials: "include",
+  const res = await apiFetch(`${BACKEND_URL}/plants`, {
     signal,
   });
 
@@ -80,8 +95,11 @@ const App = () => {
   const [showAssistant, setShowAssistant] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [toasts, setToasts] = useState([]);
   const [weekStartsOn, setWeekStartsOn] = useState(readStoredWeekStart);
-  const [currentView, setCurrentView] = useState("garden");
+  const [currentView, setCurrentView] = useState(readViewFromLocation);
+  const lastPlantErrorToastRef = useRef(null);
+  const toastTimersRef = useRef(new Map());
   const plantsQuery = useQuery({
     queryKey: plantsQueryKey,
     queryFn: fetchPlants,
@@ -102,6 +120,56 @@ const App = () => {
       localStorage.setItem("theme", "light");
     }
   }, [darkMode]);
+
+  useEffect(() => {
+    const timers = toastTimersRef.current;
+    return () => {
+      timers.forEach((timer) => window.clearTimeout(timer));
+      timers.clear();
+    };
+  }, []);
+
+  const dismissToast = useCallback((id) => {
+    const timer = toastTimersRef.current.get(id);
+    if (timer) {
+      window.clearTimeout(timer);
+      toastTimersRef.current.delete(id);
+    }
+
+    setToasts((current) => current.filter((toast) => toast.id !== id));
+  }, []);
+
+  const showToast = useCallback(({ action, duration = TOAST_DURATION_MS, message, type }) => {
+    const id =
+      globalThis.crypto?.randomUUID?.() ||
+      `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+    setToasts((current) => [
+      ...current.filter((toast) => toast.message !== message),
+      { action, id, message, type },
+    ].slice(-4));
+
+    if (duration > 0) {
+      const timer = window.setTimeout(() => dismissToast(id), duration);
+      toastTimersRef.current.set(id, timer);
+    }
+
+    return id;
+  }, [dismissToast]);
+
+  const clearSession = useCallback(() => {
+    setUser(null);
+    setShowGuestAccount(false);
+    queryClient.removeQueries({ queryKey: plantsQueryKey });
+  }, [queryClient]);
+
+  const handleUnauthorized = useCallback(() => {
+    clearSession();
+    showToast({
+      message: t("dic.toastSessionExpired"),
+      type: "info",
+    });
+  }, [clearSession, showToast, t]);
 
   useEffect(() => {
     localStorage.setItem(WEEK_START_STORAGE_KEY, String(weekStartsOn));
@@ -137,9 +205,7 @@ const App = () => {
   useEffect(() => {
     const fetchSession = async () => {
       try {
-        const res = await fetch(`${BACKEND_URL}/auth/session`, {
-          credentials: "include",
-        });
+        const res = await apiFetch(`${BACKEND_URL}/auth/session`);
 
         if (!res.ok) {
           return;
@@ -159,19 +225,51 @@ const App = () => {
 
   useEffect(() => {
     if (plantsQuery.error instanceof UnauthorizedError) {
-      setUser(null);
-      setShowGuestAccount(false);
-      queryClient.removeQueries({ queryKey: plantsQueryKey });
+      handleUnauthorized();
     }
-  }, [plantsQuery.error, queryClient]);
+  }, [handleUnauthorized, plantsQuery.error]);
+
+  useEffect(() => {
+    window.history.replaceState(
+      { plantpulseView: readViewFromLocation() },
+      "",
+      window.location.pathname,
+    );
+
+    function handlePopState() {
+      setCurrentView(readViewFromLocation());
+      setIsAdding(false);
+      setShowGuestAccount(false);
+      setShowAssistant(false);
+      setShowSettings(false);
+      setShowNotifications(false);
+    }
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
 
   const invalidatePlants = () =>
     queryClient.invalidateQueries({ queryKey: plantsQueryKey });
 
+  const navigateToView = (view, { replace = false } = {}) => {
+    const path = VIEW_PATHS[view] || VIEW_PATHS.garden;
+    setCurrentView(view);
+    setIsAdding(false);
+
+    if (window.location.pathname === path) return;
+
+    const state = { plantpulseView: view };
+    if (replace) {
+      window.history.replaceState(state, "", path);
+    } else {
+      window.history.pushState(state, "", path);
+    }
+  };
+
   const startSession = async (endpoint, payload) => {
-    const res = await fetch(`${BACKEND_URL}/auth/${endpoint}`, {
+    const res = await apiFetch(`${BACKEND_URL}/auth/${endpoint}`, {
       body: payload ? JSON.stringify(payload) : undefined,
-      credentials: "include",
       headers: payload ? { "Content-Type": "application/json" } : undefined,
       method: "POST",
     });
@@ -183,17 +281,25 @@ const App = () => {
 
     setUser(data.user);
     setShowGuestAccount(false);
+    showToast({
+      message: data.user?.isGuest
+        ? t("dic.toastGuestSessionStarted")
+        : t("dic.toastSignedIn"),
+      type: "success",
+    });
     await invalidatePlants();
   };
 
   const logout = async () => {
-    await fetch(`${BACKEND_URL}/auth/logout`, {
-      credentials: "include",
+    await apiFetch(`${BACKEND_URL}/auth/logout`, {
       method: "POST",
     });
-    setUser(null);
-    setShowGuestAccount(false);
-    queryClient.removeQueries({ queryKey: plantsQueryKey });
+    clearSession();
+    navigateToView("garden", { replace: true });
+    showToast({
+      message: t("dic.toastSignedOut"),
+      type: "info",
+    });
   };
 
   const addPlantMutation = useMutation({
@@ -203,9 +309,8 @@ const App = () => {
         payload.baseInterval = interval;
       }
 
-      const res = await fetch(`${BACKEND_URL}/plants`, {
+      const res = await apiFetch(`${BACKEND_URL}/plants`, {
         method: "POST",
-        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
@@ -217,28 +322,40 @@ const App = () => {
       if (!res.ok) {
         throw new Error(`HTTP ${res.status}`);
       }
+
+      return res.json();
     },
-    onSuccess: async () => {
+    onSuccess: async (plant, variables) => {
       setIsAdding(false);
-      setCurrentView("garden");
+      navigateToView("garden");
+      showToast({
+        message: t("dic.toastPlantAdded", {
+          name: plant?.name || variables.name,
+        }),
+        type: "success",
+      });
       await invalidatePlants();
     },
-    onError: (err) => {
+    onError: (err, variables) => {
       if (err instanceof UnauthorizedError) {
-        setUser(null);
-        setShowGuestAccount(false);
-        queryClient.removeQueries({ queryKey: plantsQueryKey });
+        handleUnauthorized();
         return;
       }
 
-      alert("Fehler beim Speichern");
+      showToast({
+        action: {
+          label: t("dic.toastRetry"),
+          onClick: () => addPlantMutation.mutate(variables),
+        },
+        message: t("dic.toastPlantAddFailed"),
+        type: "error",
+      });
     },
   });
 
   const deletePlantMutation = useMutation({
     mutationFn: async (id) => {
-      const res = await fetch(`${BACKEND_URL}/plants/${id}`, {
-        credentials: "include",
+      const res = await apiFetch(`${BACKEND_URL}/plants/${id}`, {
         method: "DELETE",
       });
 
@@ -250,20 +367,31 @@ const App = () => {
         throw new Error(`HTTP ${res.status}`);
       }
     },
-    onSuccess: invalidatePlants,
+    onSuccess: async (_, id) => {
+      const plantName =
+        plants.find((plant) => plant.id === id)?.name || t("dic.plantFallback");
+      showToast({
+        message: t("dic.toastPlantDeleted", { name: plantName }),
+        type: "success",
+      });
+      await invalidatePlants();
+    },
     onError: (err) => {
       if (err instanceof UnauthorizedError) {
-        setUser(null);
-        setShowGuestAccount(false);
-        queryClient.removeQueries({ queryKey: plantsQueryKey });
+        handleUnauthorized();
+        return;
       }
+
+      showToast({
+        message: t("dic.toastPlantDeleteFailed"),
+        type: "error",
+      });
     },
   });
 
   const waterPlantMutation = useMutation({
     mutationFn: async (id) => {
-      const res = await fetch(`${BACKEND_URL}/water/${id}`, {
-        credentials: "include",
+      const res = await apiFetch(`${BACKEND_URL}/water/${id}`, {
         method: "POST",
       });
 
@@ -275,13 +403,25 @@ const App = () => {
         throw new Error(`HTTP ${res.status}`);
       }
     },
-    onSuccess: invalidatePlants,
+    onSuccess: async (_, id) => {
+      const plantName =
+        plants.find((plant) => plant.id === id)?.name || t("dic.plantFallback");
+      showToast({
+        message: t("dic.toastPlantWatered", { name: plantName }),
+        type: "success",
+      });
+      await invalidatePlants();
+    },
     onError: (err) => {
       if (err instanceof UnauthorizedError) {
-        setUser(null);
-        setShowGuestAccount(false);
-        queryClient.removeQueries({ queryKey: plantsQueryKey });
+        handleUnauthorized();
+        return;
       }
+
+      showToast({
+        message: t("dic.toastPlantWaterFailed"),
+        type: "error",
+      });
     },
   });
 
@@ -308,8 +448,24 @@ const App = () => {
   const accountLabel =
     user?.displayName || user?.email || (user?.isGuest ? t("dic.guest") : "");
 
+  useEffect(() => {
+    if (!error || lastPlantErrorToastRef.current === error) return;
+
+    lastPlantErrorToastRef.current = error;
+    showToast({
+      action: {
+        label: t("dic.toastRetry"),
+        onClick: () => plantsQuery.refetch(),
+      },
+      duration: 0,
+      message: t("dic.backendOffline"),
+      type: "error",
+    });
+  }, [error, plantsQuery, showToast, t]);
+
   return (
     <div className="pp-shell font-plant-body transition-colors duration-300">
+      <ToastViewport onDismiss={dismissToast} toasts={toasts} />
       <nav className="pp-header">
         <div className="pp-header-inner">
           <div className="pp-brand">
@@ -458,8 +614,15 @@ const App = () => {
         )}
 
         {!authLoading && user && !showGuestAccount && !loading && error && (
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900 rounded-2xl p-4 text-red-700 dark:text-red-300 text-center">
-            {t("dic.backendOffline")}
+          <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-center text-red-700 dark:border-red-900 dark:bg-red-900/20 dark:text-red-300">
+            <p className="font-semibold">{t("dic.backendOffline")}</p>
+            <button
+              className="mt-3 rounded-xl border border-current/30 px-4 py-2 text-sm font-bold transition hover:bg-red-100 dark:hover:bg-red-950"
+              onClick={() => plantsQuery.refetch()}
+              type="button"
+            >
+              {t("dic.toastRetry")}
+            </button>
           </div>
         )}
 
@@ -469,8 +632,7 @@ const App = () => {
               <button
                 type="button"
                 onClick={() => {
-                  setCurrentView("garden");
-                  setIsAdding(false);
+                  navigateToView("garden");
                 }}
                 className={`pp-tab ${
                   currentView === "garden"
@@ -484,8 +646,7 @@ const App = () => {
               <button
                 type="button"
                 onClick={() => {
-                  setCurrentView("calendar");
-                  setIsAdding(false);
+                  navigateToView("calendar");
                 }}
                 className={`pp-tab ${
                   currentView === "calendar"
@@ -499,8 +660,7 @@ const App = () => {
               <button
                 type="button"
                 onClick={() => {
-                  setCurrentView("plantBook");
-                  setIsAdding(false);
+                  navigateToView("plantBook");
                 }}
                 className={`pp-tab ${
                   currentView === "plantBook"
