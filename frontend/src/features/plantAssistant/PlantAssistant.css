@@ -6,35 +6,37 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(23, 34, 17, 0.42);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  backdrop-filter: blur(3px);
+  backdrop-filter: blur(4px);
 }
 
 .assistant-window {
   width: 95%;
   max-width: 500px;
   height: 80vh;
-  background: #ffffff;
-  border: 4px solid #e2e8f0;
-  border-radius: 16px;
+  background: linear-gradient(180deg, #fff9ea, var(--surface));
+  border: 3px solid var(--border);
+  border-radius: 20px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-pixel), 0 24px 70px rgba(23, 34, 17, 0.28);
   transition: all 0.3s ease;
 }
 
 .assistant-header {
-  background: #f1f5f9;
-  padding: 0 15px;
+  background:
+    linear-gradient(180deg, rgba(35, 73, 30, 0.96), rgba(21, 50, 22, 0.96)),
+    var(--green-dark);
+  padding: 0 14px;
   display: flex;
   align-items: center;
-  border-bottom: 2px solid #e2e8f0;
-  height: 60px;
+  border-bottom: 3px solid rgba(111, 85, 44, 0.55);
+  height: 64px;
 }
 
 .bot-avatar-small {
@@ -49,31 +51,31 @@
 
 .header-title h3 {
   margin: 0;
-  color: #334155;
-  font-family: "VT323", monospace;
+  color: #f8e7b7;
+  font-family: "Saira Stencil One", "VT323", monospace;
   font-size: 1.5rem;
-  letter-spacing: 1px;
+  letter-spacing: 0.02em;
   line-height: 1;
+  text-shadow: 0 2px 0 rgba(32, 25, 14, 0.45);
 }
 
 .header-title p {
   margin: 4px 0 0;
-  font-family: "VT323", monospace;
   font-size: 1.05rem;
-  color: #64748b;
+  color: rgba(248, 231, 183, 0.78);
   line-height: 1;
 }
 
 .assistant-header-btn,
 .close-btn {
-  background: none;
-  border: none;
-  color: #64748b;
+  background: rgba(255, 247, 230, 0.12);
+  border: 2px solid rgba(217, 184, 117, 0.36);
+  color: #f8e7b7;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
+  border-radius: 12px;
   transition:
     background-color 0.2s,
     color 0.2s;
@@ -111,9 +113,10 @@
   display: flex;
   flex-direction: column;
   gap: 15px;
-  background: #ffffff;
-  font-family: "VT323", monospace;
-  font-size: 1.4rem;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(217, 184, 117, 0.13) 0 1px, transparent 2px),
+    linear-gradient(180deg, #fff9ea, var(--surface));
+  font-size: 1.12rem;
 }
 
 .message {
@@ -146,7 +149,7 @@
   max-width: 100%;
   max-height: 200px;
   border-radius: 12px;
-  border: 2px solid #cbd5e1;
+  border: 2px solid var(--border);
   object-fit: cover;
 }
 
@@ -154,32 +157,32 @@
   padding: 12px 18px;
   border-radius: 12px;
   line-height: 1.2;
-  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 3px 0 rgba(111, 85, 44, 0.2);
   overflow-wrap: anywhere;
 }
 
 .message.user .bubble {
-  background: #dcfce7;
-  color: #14532d;
-  border: 2px solid #bbf7d0;
+  background: #eaf3d8;
+  color: var(--green-dark);
+  border: 2px solid #9fbd82;
   border-bottom-right-radius: 2px;
 }
 
 .message.ai .bubble {
-  background: #f8fafc;
-  color: #334155;
-  border: 2px solid #e2e8f0;
+  background: #fff9ea;
+  color: var(--text);
+  border: 2px solid rgba(217, 184, 117, 0.75);
   border-bottom-left-radius: 2px;
 }
 
 .bubble.typing {
-  color: #94a3b8;
+  color: var(--text-muted);
   font-style: italic;
 }
 
 .input-area-wrapper {
-  background: #f1f5f9;
-  border-top: 2px solid #e2e8f0;
+  background: var(--surface-soft);
+  border-top: 3px solid rgba(111, 85, 44, 0.22);
   display: flex;
   flex-direction: column;
 }
@@ -187,23 +190,21 @@
 .assistant-upload-error {
   margin: 0;
   padding: 8px 15px;
-  border-bottom: 1px solid #fecaca;
-  background: #fef2f2;
-  color: #b91c1c;
-  font-family: "VT323", monospace;
-  font-size: 1.1rem;
+  border-bottom: 2px solid rgba(201, 82, 61, 0.28);
+  background: #f9ddc8;
+  color: var(--danger);
+  font-size: 0.95rem;
 }
 
 .image-preview-bar {
-  background: #e2e8f0;
+  background: rgba(255, 249, 234, 0.74);
   padding: 5px 15px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-family: "VT323", monospace;
-  font-size: 1.1rem;
-  color: #334155;
-  border-bottom: 1px solid #cbd5e1;
+  font-size: 0.95rem;
+  color: var(--text);
+  border-bottom: 2px solid rgba(217, 184, 117, 0.48);
 }
 
 .image-preview-bar button {
@@ -230,42 +231,42 @@
 
 .input-area input {
   flex: 1;
+  min-width: 0;
   padding: 12px 15px;
   border-radius: 12px;
-  border: 2px solid #cbd5e1;
-  background: #ffffff;
-  color: #334155;
+  border: 2px solid rgba(217, 184, 117, 0.75);
+  background: #fff9ea;
+  color: var(--text);
   outline: none;
-  font-family: "VT323", monospace;
-  font-size: 1.3rem;
+  font-size: 1rem;
   transition: border-color 0.2s;
 }
 
 .input-area input:focus {
-  border-color: #16a34a;
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(79, 127, 56, 0.18);
 }
 
 .input-area .send-btn {
-  padding: 0 20px;
+  padding: 0 14px;
   height: 46px;
   border-radius: 12px;
-  border: 2px solid #16a34a;
-  background: #22c55e;
-  color: white;
-  font-family: "VT323", monospace;
-  font-size: 1.3rem;
+  border: 2px solid var(--green-dark);
+  background: var(--green);
+  color: #fff7e6;
+  font-size: 0.9rem;
   cursor: pointer;
   text-transform: uppercase;
-  box-shadow: 2px 2px 0 #14532d;
+  box-shadow: 0 3px 0 var(--green-dark);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .input-area .send-btn:disabled {
-  background: #94a3b8;
-  border-color: #94a3b8;
-  box-shadow: 2px 2px 0 #475569;
+  background: var(--text-muted);
+  border-color: var(--text-muted);
+  box-shadow: 0 3px 0 var(--border-dark);
   cursor: not-allowed;
   opacity: 0.75;
 }
@@ -278,7 +279,12 @@
 .input-area .icon-btn {
   background: transparent;
   border: none;
-  color: #64748b;
+  width: 42px;
+  height: 42px;
+  border: 2px solid rgba(217, 184, 117, 0.65);
+  border-radius: 12px;
+  background: #fff9ea;
+  color: var(--text-muted);
   cursor: pointer;
   padding: 0 5px;
   display: flex;
@@ -288,12 +294,13 @@
 }
 
 .input-area .icon-btn:hover {
-  color: #16a34a;
+  color: var(--green);
+  border-color: var(--green);
 }
 
 .input-area .icon-btn:focus-visible,
 .input-area .send-btn:focus-visible {
-  outline: 2px solid #16a34a;
+  outline: 2px solid var(--green);
   outline-offset: 2px;
 }
 
@@ -310,45 +317,45 @@
 }
 
 .dark .assistant-window {
-  background: #1e293b;
-  border-color: #334155;
+  background: linear-gradient(180deg, #2a3d25, #172b18);
+  border-color: rgba(217, 184, 117, 0.65);
 }
 
 .dark .assistant-header {
-  background: #0f172a;
-  border-color: #334155;
+  background: var(--green-dark);
+  border-color: rgba(217, 184, 117, 0.45);
 }
 
 .dark .header-title h3 {
-  color: #f1f5f9;
+  color: #f8e7b7;
 }
 
 .dark .header-title p {
-  color: #94a3b8;
+  color: rgba(248, 231, 183, 0.78);
 }
 
 .dark .assistant-header-btn:hover,
 .dark .assistant-header-btn:focus-visible,
 .dark .close-btn:hover,
 .dark .close-btn:focus-visible {
-  background: #1e293b;
-  color: #f1f5f9;
+  background: rgba(255, 247, 230, 0.2);
+  color: #f8e7b7;
 }
 
 .dark .chat-history {
-  background: #1e293b;
+  background: #172b18;
 }
 
 .dark .message.ai .bubble {
-  background: #334155;
-  color: #e2e8f0;
-  border-color: #475569;
+  background: #22391f;
+  color: #f8e7b7;
+  border-color: rgba(217, 184, 117, 0.5);
 }
 
 .dark .message.user .bubble {
-  background: #064e3b;
-  color: #dcfce7;
-  border-color: #065f46;
+  background: #385f2c;
+  color: #fff7e6;
+  border-color: #6f8d4c;
 }
 
 .dark .chat-upload-preview {
@@ -356,30 +363,32 @@
 }
 
 .dark .input-area-wrapper {
-  background: #0f172a;
-  border-color: #334155;
+  background: #22391f;
+  border-color: rgba(217, 184, 117, 0.36);
 }
 
 .dark .assistant-upload-error {
-  background: #450a0a;
-  border-color: #7f1d1d;
-  color: #fecaca;
+  background: #4b211b;
+  border-color: #8f3b2f;
+  color: #ffd6c9;
 }
 
 .dark .image-preview-bar {
-  background: #1e293b;
-  border-color: #334155;
-  color: #e2e8f0;
+  background: #172b18;
+  border-color: rgba(217, 184, 117, 0.4);
+  color: #f8e7b7;
 }
 
 .dark .input-area input {
-  background: #1e293b;
-  border-color: #475569;
-  color: #f1f5f9;
+  background: #172b18;
+  border-color: rgba(217, 184, 117, 0.5);
+  color: #f8e7b7;
 }
 
 .dark .input-area .icon-btn {
-  color: #94a3b8;
+  background: #172b18;
+  border-color: rgba(217, 184, 117, 0.5);
+  color: #f8e7b7;
 }
 
 .dark .input-area .icon-btn:hover {
