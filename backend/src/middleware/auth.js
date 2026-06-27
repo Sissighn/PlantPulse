@@ -1,3 +1,4 @@
+const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const authConfig = require("../config/auth");
 const db = require("../db/database");
@@ -31,8 +32,31 @@ function authCookieOptions(maxAge = authConfig.tokenTtlSeconds * 1000) {
   };
 }
 
+function csrfCookieOptions(maxAge = authConfig.tokenTtlSeconds * 1000) {
+  return {
+    httpOnly: false,
+    maxAge,
+    path: "/",
+    sameSite: "lax",
+    secure: authConfig.cookieSecure,
+  };
+}
+
+function createCsrfToken() {
+  return crypto.randomBytes(32).toString("base64url");
+}
+
+function setCsrfCookie(res, token = createCsrfToken()) {
+  res.cookie(authConfig.csrfCookieName, token, csrfCookieOptions());
+  return token;
+}
+
 function clearAuthCookie(res) {
   res.clearCookie(authConfig.cookieName, authCookieOptions(0));
+}
+
+function clearCsrfCookie(res) {
+  res.clearCookie(authConfig.csrfCookieName, csrfCookieOptions(0));
 }
 
 async function optionalAuth(req, res, next) {
@@ -73,12 +97,16 @@ function requireAuth(req, res, next) {
   res.status(401).json({ message: "Authentication required." });
 }
 
+function isSafeMethod(method) {
+  return ["GET", "HEAD", "OPTIONS"].includes(method);
+}
+
 function isSameOrigin(origin, req) {
   return origin === `${req.protocol}://${req.get("host")}`;
 }
 
 function requireTrustedOrigin(req, res, next) {
-  if (["GET", "HEAD", "OPTIONS"].includes(req.method)) {
+  if (isSafeMethod(req.method)) {
     next();
     return;
   }
@@ -96,10 +124,42 @@ function requireTrustedOrigin(req, res, next) {
   res.status(403).json({ message: "Origin not allowed." });
 }
 
+function isSessionCreationPath(req) {
+  return (
+    req.path === "/auth/login" ||
+    req.path === "/auth/register" ||
+    req.path === "/auth/guest"
+  );
+}
+
+function requireCsrfToken(req, res, next) {
+  if (isSafeMethod(req.method) || isSessionCreationPath(req) || !req.user) {
+    next();
+    return;
+  }
+
+  const cookies = parseCookies(req.headers.cookie);
+  const csrfCookie = cookies[authConfig.csrfCookieName];
+  const csrfHeader = req.get("x-csrf-token");
+
+  if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {
+    res.status(403).json({ message: "Invalid CSRF token." });
+    return;
+  }
+
+  next();
+}
+
 module.exports = {
   authCookieOptions,
+  clearCsrfCookie,
   clearAuthCookie,
+  createCsrfToken,
+  csrfCookieOptions,
   optionalAuth,
+  parseCookies,
   requireAuth,
+  requireCsrfToken,
   requireTrustedOrigin,
+  setCsrfCookie,
 };
