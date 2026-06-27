@@ -49,6 +49,7 @@
     "assistantUploadPhoto": "Upload photo",
     "assistantRemoveImage": "Remove selected photo",
     "assistantUploadTooLarge": "This photo is too large. Please choose a file up to {{maxSize}}.",
+    "assistantUploadUnsupported": "Please choose a JPEG, PNG, or WebP image.",
     "assistantInputLabel": "Message to the plant assistant",
     "assistantInputPlaceholder": "Ask a question about your plant",
     "assistantSend": "Send",
