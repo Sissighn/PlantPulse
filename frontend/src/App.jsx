@@ -603,7 +603,23 @@ const App = () => {
           </>
         )}
       </main>
-      <div className="pp-footer-decor" aria-hidden="true" />
+      <div className="pp-footer-decor" aria-hidden="true">
+        <img
+          src={`${BASE_URL}/icons/footer_grass.png`}
+          alt=""
+          className="pp-footer-grass"
+        />
+        <img
+          src={`${BASE_URL}/icons/footer_flowers.png`}
+          alt=""
+          className="pp-footer-flowers"
+        />
+        <img
+          src={`${BASE_URL}/icons/footer_grean_creature.png`}
+          alt=""
+          className="pp-footer-creature"
+        />
+      </div>
     </div>
   );
 };
