@@ -28,6 +28,9 @@ const defaultOrigins = [
 module.exports = {
   audience: "plantpulse-web",
   cookieName: isProduction ? "__Host-plantpulse_auth" : "plantpulse_auth",
+  csrfCookieName: isProduction
+    ? "__Host-plantpulse_csrf"
+    : "plantpulse_csrf",
   cookieSecure: isProduction,
   issuer: "plantpulse-api",
   jwtSecret: configuredSecret || generatedDevelopmentSecret,
