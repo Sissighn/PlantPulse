@@ -99,6 +99,8 @@ This project serves as a digital assistant for plant enthusiasts. It allows user
 
 - **Authentication:** Email/password login uses server-side password hashing and an HTTP-only JWT cookie; guest sessions stay isolated from registered accounts.
 
+- **CSRF Defense:** Mutating authenticated requests require a same-site CSRF cookie plus a matching `X-CSRF-Token` header, in addition to origin validation.
+
 - **Accessibility:** Icon buttons use accessible labels, dialogs provide modal semantics, and interactive overlays support Escape-to-close and focus management.
 
 - **Internationalization:** German and English UI strings are managed through i18next, including the assistant, settings, Plant Book, and calendar flows.
@@ -169,6 +171,31 @@ The current setup is closer to a production architecture:
 - **Startup ordering:** The frontend waits until the backend readiness check passes.
 
 Everything still runs locally unless deployed elsewhere. Docker Compose exposes the app at `http://localhost`; no cloud service is used by default.
+
+---
+
+## Authentication & CSRF Strategy
+
+PlantPulse uses cookie-based authentication because it keeps the JWT out of browser storage. The auth cookie is HTTP-only, so application JavaScript cannot read the token.
+
+The production cookie setup is intentionally stricter than development:
+
+- **Development auth cookie:** `plantpulse_auth`
+- **Production auth cookie:** `__Host-plantpulse_auth`
+- **Production cookie security:** `Secure`, `HttpOnly`, `SameSite=Lax`, `Path=/`
+- **JWT secret enforcement:** `JWT_SECRET` must contain at least 32 bytes in production.
+- **Reverse proxy support:** Express trusts the first proxy in production so HTTPS and same-origin checks work correctly behind Nginx.
+
+CSRF protection is layered:
+
+- `SameSite=Lax` limits when browsers attach cookies to cross-site requests.
+- The backend rejects unsafe cross-origin mutations through an allowlist-based origin check.
+- Authenticated unsafe requests (`POST`, `PUT`, `PATCH`, `DELETE`) require a CSRF token.
+- The CSRF token is issued as a non-HTTP-only same-site cookie and must be echoed by the frontend in the `X-CSRF-Token` header.
+- Login, signup, and guest-session creation are exempt from CSRF-token validation because they create the first session, but they still go through origin validation and rate limiting.
+- Logout clears both the auth cookie and the CSRF cookie.
+
+This approach keeps the session token protected while still giving the frontend a separate, non-sensitive token it can use to prove that mutating requests were initiated by the app.
 
 ---
 
