@@ -356,6 +356,7 @@ test("searches Plant Book details and adds a result to the garden", async ({
   await page.getByRole("button", { name: /Aloe barbadensis/ }).click();
   await expect(page.getByRole("heading", { name: "Aloe Vera" })).toBeVisible();
   await expect(page.getByText("Arabian Peninsula")).toBeVisible();
+  await expect(page.getByText(/Source: Open Plantbook care data/i)).toBeVisible();
 
   await page.getByRole("button", { name: "Add to my plants" }).click();
   await expect(page.getByRole("heading", { name: "Aloe Vera" })).toBeVisible();
@@ -380,6 +381,31 @@ test("shows an AI assistant error when chat fails", async ({ page }) => {
 
   await expect(
     page.getByText("The message could not be sent. Please try again."),
+  ).toBeVisible();
+});
+
+test("shows AI rate limit feedback when chat is throttled", async ({ page }) => {
+  const plants: E2EPlant[] = [];
+  await mockAuthenticatedSession(page, { plants });
+
+  await page.route("http://localhost:3000/api/chat", async (route) => {
+    await route.fulfill({
+      contentType: "application/json",
+      json: {
+        code: "AI_RATE_LIMITED",
+        message: "Too many AI requests. Try again later.",
+      },
+      status: 429,
+    });
+  });
+
+  await page.goto("/");
+  await page.getByRole("button", { name: "AI Assistant" }).click();
+  await page.getByLabel("Message to the plant assistant").fill("Help?");
+  await page.getByRole("button", { name: "Send" }).click();
+
+  await expect(
+    page.getByText("Too many AI requests. Please wait a moment and try again."),
   ).toBeVisible();
 });
 
